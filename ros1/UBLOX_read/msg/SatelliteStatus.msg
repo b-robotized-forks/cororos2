@@ -1,0 +1,12 @@
+Satellite[] satellites
+uint8 version
+uint32 gpsTOW
+uint32 gloTOW
+uint32 bdsTOW
+uint32 qzssTOW
+uint16 gpsTOWacc
+uint16 gloTOWacc
+uint16 bdsTOWacc
+uint16 qzssTOWacc
+uint8 numSV
+uint8 flags

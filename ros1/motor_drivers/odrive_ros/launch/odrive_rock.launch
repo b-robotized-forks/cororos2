@@ -1,0 +1,52 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+    <arg name="connect_on_startup"   default="true"/>
+    <arg name="calibrate_on_startup" default="false"/>
+    <arg name="engage_on_startup"    default="true"/>
+    <arg name="use_preroll"          default="false"/>
+    <arg name="serial_number"        default="206336AC424D"/>
+
+    <arg name="publish_diagnostics" default="false"/>
+    <arg name="publish_temperatures" default="true"/>
+    <arg name="publish_current"     default="true"/>
+    <arg name="publish_raw_odom"    default="true"/>
+    <arg name="publish_odom"        default="true"/>
+    <arg name="publish_odom_tf"     default="false"/>
+
+    <arg name="i2t_resume_threshold"     default="2220"/>
+    <arg name="i2t_warning_threshold"     default="3330"/>
+    <arg name="i2t_error_threshold"     default="6660"/>
+
+    <arg name="output"   default="screen"/>
+    <arg name="respawn"   default="false"/>
+
+
+    <group ns="odrive_front">
+    <node pkg="odrive_ros" type="odrive_node" name="odrive" ns="odrive" 
+            output="$(arg output)" respawn="$(arg respawn)">
+        <param name="wheel_track" value="0.3"/>
+        <param name="tyre_circumference" value="0.014"/>
+         
+        <param name="connect_on_startup"   value="$(arg connect_on_startup)"/>
+        <param name="calibrate_on_startup" value="$(arg calibrate_on_startup)"/>
+        <param name="engage_on_startup"    value="$(arg engage_on_startup)"/>
+        <param name="use_preroll"          value="$(arg use_preroll)"/>
+        <param name="serial_number"        value="$(arg serial_number)"/>
+
+        <param name="i2t_resume_threshold" value="$(arg i2t_resume_threshold)"/>
+        <param name="i2t_warning_threshold" value="$(arg i2t_warning_threshold)"/>
+        <param name="i2t_error_threshold"  value="$(arg i2t_error_threshold)"/>
+
+        <param name="publish_diagnostics"  value="$(arg publish_diagnostics)"/>
+        <param name="publish_temperatures" value="$(arg publish_temperatures)"/>
+        <param name="publish_current"      value="$(arg publish_current)"/>
+        <param name="publish_raw_odom"     value="$(arg publish_raw_odom)"/>
+        <param name="publish_odom"         value="$(arg publish_odom)"/>
+        <param name="publish_odom_tf"      value="$(arg publish_odom_tf)"/>
+    </node>
+
+
+    </group>
+
+    
+</launch>

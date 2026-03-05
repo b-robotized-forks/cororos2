@@ -1,0 +1,13 @@
+uint16 navBbrMask
+uint8 resetMode
+----
+bool eph
+bool alm
+bool health
+bool klob
+bool pos
+bool clkd
+bool osc
+bool utc
+bool rtc
+bool aop

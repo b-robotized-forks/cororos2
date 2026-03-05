@@ -1,0 +1,13 @@
+<launch>
+	<arg name="serial_front"   default="ghi"/>
+	<arg name="serial_back"    default="jkl"/>
+
+  	<include file="$(find odrive_ros)/launch/odrive_front.launch" >
+    		 <arg name="serial_number" value="$(arg serial_front)"/>
+	</include>
+	
+  	<include file="$(find odrive_ros)/launch/odrive_back.launch" >
+    		 <arg name="serial_number" value="$(arg serial_back)"/>
+	</include>
+	
+</launch>

@@ -1,0 +1,11 @@
+uint8 gnssID
+uint8 svID
+uint8 carrierNoiseRatio
+uint8 multipathIndex
+uint32 dopplerMeas
+uint32 dopperHz
+uint16 wholeChips
+uint16 fracChips
+uint32 codePhase
+uint8 intCodePhase
+uint8 pseuRangeRMSError
