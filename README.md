@@ -48,4 +48,3 @@ Laptop for control (currently running Ubuntu 20)
 
 Odrive ROS1 Motor driver is in repository - ROS2 probably available - all motors have feedback
 Motors are a bit low on torque, so depending on surface it can be challenging to turn in place
-
