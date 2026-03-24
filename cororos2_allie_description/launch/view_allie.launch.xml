@@ -22,7 +22,7 @@ Source of this file are templates maintained by b-robotized Group.
        default="cororos2_allie_description"
        description="Description package of the Allie mobile robot."/>
 
-  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/allie.urdf.xacro')" />
+  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/allie.urdf.xacro use_mock_hardware:=true mock_sensor_commands:=false')" />
 
   <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui"/>
 
