@@ -50,6 +50,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_realsense"
        default="false"
        description="Start the Intel RealSense D455 driver as part of bringup."/>
+  <arg name="use_gps"
+       default="false"
+       description="Start the u-blox ZED-F9P GPS driver as part of bringup."/>
   <arg name="ouster_namespace"
        default="ouster"
        description="Namespace used by the Ouster ROS 2 driver."/>
@@ -62,6 +65,18 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="realsense_serial_no"
        default="''"
        description="Optional RealSense serial number used to select the D455 device."/>
+  <arg name="gps_node_name"
+       default="ublox_gps_node"
+       description="Node name used by the u-blox GPS driver."/>
+  <arg name="gps_device"
+       default="/dev/ttyACM0"
+       description="Serial device used by the u-blox ZED-F9P receiver."/>
+  <arg name="gps_frame_id"
+       default="gps_link"
+       description="Frame id published by the GPS driver."/>
+  <arg name="gps_config_file"
+       default="allie_ublox.yaml"
+       description="YAML configuration file for the u-blox GPS driver."/>
   <arg name="ouster_sensor_hostname"
        default=""
        description="Sensor hostname or IP for the Ouster OS0-128. Required when use_ouster is true."/>
@@ -127,5 +142,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="enable_sync" value="true"/>
     <arg name="enable_rgbd" value="true"/>
   </include>
+
+  <!--ublox_gps_driver-->
+  <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="$(var gps_node_name)" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var gps_config_file)"/>
+    <param name="device" value="$(var gps_device)"/>
+    <param name="frame_id" value="$(var gps_frame_id)"/>
+  </node>
 
 </launch>

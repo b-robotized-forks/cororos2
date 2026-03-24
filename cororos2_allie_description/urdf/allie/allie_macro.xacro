@@ -239,6 +239,14 @@
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
     </link>
+    <!-- GPS frame -->
+    <link name="${prefix}gps_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
     <!-- front RGB-D camera frame -->
     <link name="${prefix}rgbd_front_link">
       <inertial>
@@ -525,6 +533,12 @@
       <parent link="${prefix}base_link" />
       <child link="${prefix}magnetometer_link" />
       <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <!-- base link to GPS frame -->
+    <joint name="${prefix}base_link_to_gps_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}gps_link" />
+      <origin xyz="0.13 0 1.58" rpy="0 0 0" />
     </joint>
     <!-- base link to front RGB-D camera frame -->
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
