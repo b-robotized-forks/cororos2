@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2024, Stogl Robotics Consulting UG (haftungsbeschränkt)
+Copyright (c) 2024, b-robotized Group
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-Source of this file are templates in
-[RosTeamWorkspace](https://github.com/StoglRobotics/ros_team_workspace) repository.
+Source of this file are templates maintained by b-robotized Group.
 
 Authors: Riyan Jose, Manuel Muth, Dr. Denis
 -->
@@ -55,8 +54,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </node>
 
   <!--control_node-->
-  <node pkg="controller_manager" exec="ros2_control_node" output="both">
-    <param name="robot_description" value="$(var robot_description_content)" />
+  <node pkg="controller_manager" exec="ros2_control_node" name="b_controlled_box_cm" output="both">
+    <remap from="~/robot_description" to="/robot_description" />
     <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var controllers_file).yaml"/>
   </node>
 
@@ -66,9 +65,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </node>
 
   <!--joint_state_braodcaster_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster --controller-manager /b_controlled_box_cm"/>
 
   <!--robot_controller_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller)"/>
+  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller) --controller-manager /b_controlled_box_cm"/>
 
 </launch>

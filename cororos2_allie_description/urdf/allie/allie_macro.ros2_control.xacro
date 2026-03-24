@@ -69,7 +69,7 @@
       <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
           <parameters>${simulation_controllers}</parameters>
-          <controller_manager_node_name>${prefix}controller_manager</controller_manager_node_name>
+          <controller_manager_node_name>b_controlled_box_cm</controller_manager_node_name>
         </plugin>
       </gazebo>
     </xacro:if>

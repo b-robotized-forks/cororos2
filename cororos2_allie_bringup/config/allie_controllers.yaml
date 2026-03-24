@@ -13,13 +13,12 @@
 # limitations under the License.
 
 #
-# Source of this file are templates in
-# [RosTeamWorkspace](https://github.com/StoglRobotics/ros_team_workspace) repository.
+# Source of this file are templates maintained by b-robotized Group.
 #
 # Author: Dr. Denis
 #
 
-controller_manager:
+b_controlled_box_cm:
   ros__parameters:
     update_rate: 100
 
