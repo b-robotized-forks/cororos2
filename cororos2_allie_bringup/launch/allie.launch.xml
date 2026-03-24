@@ -44,6 +44,21 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_ouster"
+       default="false"
+       description="Start the Ouster OS0-128 driver as part of bringup."/>
+  <arg name="ouster_namespace"
+       default="ouster"
+       description="Namespace used by the Ouster ROS 2 driver."/>
+  <arg name="ouster_sensor_hostname"
+       default=""
+       description="Sensor hostname or IP for the Ouster OS0-128. Required when use_ouster is true."/>
+  <arg name="ouster_udp_dest"
+       default=""
+       description="Destination IP for Ouster UDP packets. Leave empty to use the driver's default behavior."/>
+  <arg name="ouster_lidar_mode"
+       default="1024x10"
+       description="Initial lidar mode for the Ouster OS0-128."/>
 
   <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
 
@@ -69,5 +84,21 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <!--robot_controller_spawner-->
   <node pkg="controller_manager" exec="spawner" args="$(var robot_controller) --controller-manager /b_controlled_box_cm"/>
+
+  <!--ouster_lidar_driver-->
+  <include if="$(var use_ouster)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
+    <arg name="ouster_ns" value="$(var ouster_namespace)"/>
+    <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
+    <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
+    <arg name="viz" value="false"/>
+    <arg name="pub_static_tf" value="false"/>
+    <arg name="point_type" value="xyzir"/>
+    <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
+    <arg name="lidar_mode" value="$(var ouster_lidar_mode)"/>
+    <arg name="sensor_frame" value="$(var prefix)ouster_link"/>
+    <arg name="lidar_frame" value="$(var prefix)ouster_link"/>
+    <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
+    <arg name="point_cloud_frame" value="$(var prefix)ouster_link"/>
+  </include>
 
 </launch>

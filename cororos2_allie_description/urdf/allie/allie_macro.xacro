@@ -357,31 +357,39 @@
         </material>
       </visual>
     </link>
-    <!-- front lidar frame -->
-    <link name="${prefix}front_laser_link">
+    <!-- Ouster sensor frame -->
+    <link name="${prefix}ouster_link">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
-      <visual name="vlp16_visual1">
-        <origin xyz="0 0 -0.038" rpy="0 0 0" />
+      <visual name="ouster_body_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_base_1.dae" scale="1 1 1" />
+          <cylinder radius="0.055" length="0.075" />
         </geometry>
+        <material name="ouster_body_visual_mat">
+          <color rgba="0.1 0.1 0.1 1.0" />
+        </material>
       </visual>
-      <visual name="vlp_visual2">
-        <origin xyz="0 0 -0.038" rpy="0 0 0" />
+      <visual name="ouster_window_visual">
+        <origin xyz="0.042 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_base_2.dae" scale="1 1 1" />
+          <box size="0.008 0.09 0.035" />
         </geometry>
+        <material name="ouster_window_visual_mat">
+          <color rgba="0.2 0.25 0.3 1.0" />
+        </material>
       </visual>
-      <visual name="vlp_visual3">
-        <origin xyz="0 0 -0.038" rpy="0 0 0" />
-        <geometry>
-          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_scan.dae" scale="1 1 1" />
-        </geometry>
-      </visual>
+    </link>
+    <!-- Ouster internal IMU frame -->
+    <link name="${prefix}ouster_imu_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
     </link>
     <!-- front light frame -->
     <link name="${prefix}light_front_link">
@@ -548,11 +556,17 @@
       <child link="${prefix}camera_right_link" />
       <origin xyz="0.13 -0.11 0.405" rpy="0 0 -1.5708" />
     </joint>
-    <!-- base link to front lidar frame -->
-    <joint name="${prefix}base_link_to_front_laser_link_joint" type="fixed">
+    <!-- base link to Ouster sensor frame -->
+    <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
-      <child link="${prefix}front_laser_link" />
+      <child link="${prefix}ouster_link" />
       <origin xyz="0.13 0 0.35" rpy="0 -0 0" />
+    </joint>
+    <!-- Ouster sensor frame to Ouster IMU frame -->
+    <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
+      <parent link="${prefix}ouster_link" />
+      <child link="${prefix}ouster_imu_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
     <!-- base link to front light frame -->
     <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
@@ -904,8 +918,8 @@
         </camera>
       </sensor>
     </gazebo>
-    <gazebo reference="${prefix}front_laser_link">
-      <sensor name="front_laser" type="gpu_lidar">
+    <gazebo reference="${prefix}ouster_link">
+      <sensor name="ouster_lidar" type="gpu_lidar">
         <visualize>0</visualize>
         <update_rate>10</update_rate>
         <lidar>
@@ -917,10 +931,10 @@
               <max_angle>3.1459</max_angle>
             </horizontal>
             <vertical>
-              <samples>16</samples>
+              <samples>128</samples>
               <resolution>1</resolution>
-              <min_angle>-0.261799</min_angle>
-              <max_angle>0.261799</max_angle>
+              <min_angle>-0.785398</min_angle>
+              <max_angle>0.785398</max_angle>
             </vertical>
           </scan>
           <range>
