@@ -43,29 +43,26 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def test_urdf_xacro():
-    # General Arguments
     description_package = "cororos2_allie_description"
     description_file = "allie.urdf.xacro"
-
     description_file_path = os.path.join(get_package_share_directory(description_package), "urdf", description_file)
 
     (_, tmp_urdf_output_file) = tempfile.mkstemp(suffix=".urdf")
 
-    # Compose `xacro` and `check_urdf` command
-    xacro_command = f"{shutil.which('xacro')}" f" {description_file_path}" f" > {tmp_urdf_output_file}"
+    xacro_command = f"{shutil.which('xacro')} {description_file_path} > {tmp_urdf_output_file}"
     check_urdf_command = f"{shutil.which('check_urdf')} {tmp_urdf_output_file}"
 
-    # Try to call processes but finally remove the temp file
     try:
-        xacro_process = subprocess.run(xacro_command, capture_output=True, shell=True)
+        xacro_process = subprocess.run(xacro_command, capture_output=True, shell=True, text=True)
 
-        assert xacro_process.returncode == 0, " --- XACRO command failed ---"
+        assert xacro_process.returncode == 0, " --- XACRO command failed ---\n" + xacro_process.stderr
 
-        check_urdf_process = subprocess.run(check_urdf_command, capture_output=True, shell=True)
+        check_urdf_process = subprocess.run(check_urdf_command, capture_output=True, shell=True, text=True)
 
-        assert (
-            check_urdf_process.returncode == 0
-        ), "\n --- URDF check failed! --- \nYour xacro does not unfold into a proper urdf robot description. Please check your xacro file."
+        assert check_urdf_process.returncode == 0, (
+            "\n --- URDF check failed! --- \nYour xacro does not unfold into a proper urdf robot description.\n"
+            + check_urdf_process.stderr
+        )
 
     finally:
         os.remove(tmp_urdf_output_file)

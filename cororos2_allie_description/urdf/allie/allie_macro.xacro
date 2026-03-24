@@ -1,254 +1,1017 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-
-  <xacro:include filename="$(find cororos2_allie_description)/urdf/common/inertials.xacro"/>
-  <xacro:include filename="$(find cororos2_allie_description)/urdf/common/materials.xacro"/>
-
   <xacro:macro name="allie" params="prefix parent *origin">
     <!-- LINKS -->
+    <!-- base footprint -->
+    <link name="${prefix}base_footprint">
+    </link>
     <!-- base link -->
     <link name="${prefix}base_link">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior -->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertial>
+        <origin xyz="0 0 0.09" rpy="0 0 0" />
+        <mass value="26.6" />
+        <inertia ixx="0.387" ixy="0" ixz="0" iyy="0.790" iyz="0" izz="0.962" />
+      </inertial>
+      <collision name="chassis_collision">
+        <origin xyz="0 0 0.05" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.3" radius="0.3"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/base_link.dae" /> -->
-        </geometry>
-        <material name="black"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.3"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/base_link.stl" /> -->
+          <box size="0.555 0.355 0.13" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 1 -->
-    <link name="${prefix}link1">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior -->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <collision name="tower_collision">
+        <origin xyz="0.13 0 0.27" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link1.dae" /> -->
-        </geometry>
-        <material name="blue"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link1.stl" /> -->
-        </geometry>
-        <material name="green"/>
-      </collision>
-    </link>
-    <!-- link 2 -->
-    <link name="${prefix}link2">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link2.dae" /> -->
-        </geometry>
-        <material name="grey"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link2.stl"  /> -->
+          <box size="0.2 0.2 0.34" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 3 -->
-    <link name="${prefix}link3">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="chassis_main_visual">
+        <origin xyz="0 0 0.05" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.2" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link3.dae" /> -->
+          <box size="0.555 0.355 0.13" />
         </geometry>
-        <material name="orange"/>
+        <material name="chassis_main_visual_mat">
+          <color rgba="0.6 0.6 0.6 1.0" />
+        </material>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="emergency_stop_bottom_visual">
+        <origin xyz="0.2 0.15 0.125" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.2" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link3.stl"  /> -->
+          <cylinder radius="0.015" length="0.015" />
+        </geometry>
+        <material name="emergency_stop_bottom_visual_mat">
+          <color rgba="0.7059 0.7059 0.7059 1.0" />
+        </material>
+      </visual>
+      <visual name="emergency_stop_top_visual">
+        <origin xyz="0.2 0.15 0.135" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.02" length="0.005" />
+        </geometry>
+        <material name="emergency_stop_top_visual_mat">
+          <color rgba="1.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="wheel_mount_front_visual">
+        <origin xyz="0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.5 0.05" />
+        </geometry>
+        <material name="wheel_mount_front_visual_mat">
+          <color rgba="0.6 0.6 0.6 1.0" />
+        </material>
+      </visual>
+      <visual name="wheel_mount_rear_visual">
+        <origin xyz="-0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.5 0.05" />
+        </geometry>
+        <material name="wheel_mount_rear_visual_mat">
+          <color rgba="0.6 0.6 0.6 1.0" />
+        </material>
+      </visual>
+      <visual name="plate1_visual">
+        <origin xyz="0.13 0 0.42" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate1_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="plate2_visual">
+        <origin xyz="0.13 0 0.31" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate2_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="plate3_visual">
+        <origin xyz="0.13 0 0.12" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate3_visual_mat">
+          <color rgba="0.9412 0.9412 0.9412 1.0" />
+        </material>
+      </visual>
+      <visual name="beam1_visual">
+        <origin xyz="0.221 0.091 0.27" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam1_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam2_visual">
+        <origin xyz="0.221 -0.091 0.27" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam2_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam3_visual">
+        <origin xyz="0.039 0.091 0.27" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam3_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam4_visual">
+        <origin xyz="0.039 -0.091 0.27" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam4_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- drive wheels -->
+    <!-- front left wheel -->
+    <link name="${prefix}front_left_wheel">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="5.124" />
+        <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
+      </inertial>
+      <collision name="front_left_wheel_collision">
+        <origin xyz="0 0 0" rpy="-1.5708 0 0" />
+        <geometry>
+          <cylinder radius="0.205" length="0.11" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 4 -->
-    <link name="${prefix}link4">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="front_left_wheel_tire_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.1" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link4.dae" /> -->
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
         </geometry>
-        <material name="brown"/>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+    <!-- front right wheel -->
+    <link name="${prefix}front_right_wheel">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="5.124" />
+        <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
+      </inertial>
+      <collision name="front_right_wheel_collision">
+        <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder length="0.1" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link4.stl"  /> -->
+          <cylinder radius="0.205" length="0.11" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 5 -->
-    <link name="${prefix}link5">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="front_right_wheel_tire_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.15" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link5.dae" /> -->
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
         </geometry>
-        <material name="red"/>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+    <!-- rear left wheel -->
+    <link name="${prefix}rear_left_wheel">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="5.124" />
+        <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
+      </inertial>
+      <collision name="rear_left_wheel_collision">
+        <origin xyz="0 0 0" rpy="-1.5708 0 0" />
         <geometry>
-          <cylinder length="0.15" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link5.stl" /> -->
+          <cylinder radius="0.205" length="0.11" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 6 -->
-    <link name="${prefix}link6">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="rear_left_wheel_tire_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.05" radius="0.075"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/visual/link6.dae" /> -->
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
         </geometry>
-        <material name="white"/>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+    <!-- rear right wheel -->
+    <link name="${prefix}rear_right_wheel">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="5.124" />
+        <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
+      </inertial>
+      <collision name="rear_right_wheel_collision">
+        <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder length="0.05" radius="0.075"/>
-          <!--           <mesh filename="package://cororos2_allie_description/meshes/allie/collision/link6.stl" /> -->
+          <cylinder radius="0.205" length="0.11" />
         </geometry>
       </collision>
+      <visual name="rear_right_wheel_tire_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+        </geometry>
+      </visual>
     </link>
-
-    <!-- All-zero tool frame. This frame should correspond to the TOOL frame of the robot's controller.) -->
-    <link name="${prefix}tool0"/>
-    <!-- tool link -->
-
-    <!-- START Delete if not needed -->
-    <!-- Standard frames for industrial robots. Also useful for manipulators.
-         (ROS-I specs - https://wiki.ros.org/Industrial/Tutorials/WorkingWithRosIndustrialRobotSupportPackages#Standardised_links_.2F_frames)-->
-    <!-- This frame should correspond to the BASE coordinate system of robot's controller.) -->
-    <link name="${prefix}base"/>
-    <!-- Frame for mounting EEF models to a manipulator. x+ axis points forward (REP 103). -->
-    <link name="${prefix}flange"/>
-    <!-- END Delete if not needed  -->
-    <!-- END LINKS -->
+    <!-- sensor and light frames -->
+    <!-- IMU frame -->
+    <link name="${prefix}imu_sensor_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- air pressure frame -->
+    <link name="${prefix}air_pressure_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- magnetometer frame -->
+    <link name="${prefix}magnetometer_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- front RGB-D camera frame -->
+    <link name="${prefix}rgbd_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="d435i_realsense_camera_visual">
+        <origin xyz="-0.017356 0 -0.009938" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/realsense_d435.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </visual>
+    </link>
+    <!-- front camera frame -->
+    <link name="${prefix}camera_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_front_visual">
+        <origin xyz="-0.02 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.01 0.03 0.03" />
+        </geometry>
+        <material name="camera_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_front_visual">
+        <origin xyz="-0.01 0 0" rpy="3.141593 1.570793 3.141593" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- rear camera frame -->
+    <link name="${prefix}camera_rear_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_rear_visual">
+        <origin xyz="-0.02 0 0" rpy="0 0 -3.14159" />
+        <geometry>
+          <box size="0.01 0.03 0.03" />
+        </geometry>
+        <material name="camera_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_rear_visual">
+        <origin xyz="-0.01 0 0" rpy="3.141593 1.570793 0.000003" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- left camera frame -->
+    <link name="${prefix}camera_left_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_left_visual">
+        <origin xyz="-0.02 0 0" rpy="0 0 -1.5708" />
+        <geometry>
+          <box size="0.03 0.01 0.03" />
+        </geometry>
+        <material name="camera_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_left_visual">
+        <origin xyz="-0.01 0 0" rpy="1.5708 0 -1.5708" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right camera frame -->
+    <link name="${prefix}camera_right_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_right_visual">
+        <origin xyz="-0.02 0 0" rpy="0 0 1.5708" />
+        <geometry>
+          <box size="0.03 0.01 0.03" />
+        </geometry>
+        <material name="camera_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_right_visual">
+        <origin xyz="-0.01 0 0" rpy="1.5708 0 1.5708" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- front lidar frame -->
+    <link name="${prefix}front_laser_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="vlp16_visual1">
+        <origin xyz="0 0 -0.038" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_base_1.dae" scale="1 1 1" />
+        </geometry>
+      </visual>
+      <visual name="vlp_visual2">
+        <origin xyz="0 0 -0.038" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_base_2.dae" scale="1 1 1" />
+        </geometry>
+      </visual>
+      <visual name="vlp_visual3">
+        <origin xyz="0 0 -0.038" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_allie_description/meshes/allie/visual/VLP16_scan.dae" scale="1 1 1" />
+        </geometry>
+      </visual>
+    </link>
+    <!-- front light frame -->
+    <link name="${prefix}light_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_front_visual">
+        <origin xyz="0.002 0 0.03" rpy="3.141593 1.570793 3.141593" />
+        <geometry>
+          <box size="0.04 0.13 0.04" />
+        </geometry>
+        <material name="light_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- rear light frame -->
+    <link name="${prefix}light_rear_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_rear_visual">
+        <origin xyz="0.002 0 0.03" rpy="3.141593 -1.570793 3.141593" />
+        <geometry>
+          <box size="0.04 0.12 0.04" />
+        </geometry>
+        <material name="light_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- left light frame -->
+    <link name="${prefix}light_left_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_left_visual">
+        <origin xyz="0 0.002 0.03" rpy="-1.5708 0 0" />
+        <geometry>
+          <box size="0.12 0.04 0.04" />
+        </geometry>
+        <material name="light_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right light frame -->
+    <link name="${prefix}light_right_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_right_visual">
+        <origin xyz="0 -0.002 0.03" rpy="1.5708 0 0" />
+        <geometry>
+          <box size="0.12 0.04 0.04" />
+        </geometry>
+        <material name="light_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
 
     <!-- JOINTS -->
-    <!-- base_joint fixes base_link to the environment -->
+    <!-- base joints -->
+    <!-- world to base footprint -->
     <joint name="${prefix}base_joint" type="fixed">
-      <xacro:insert_block name="origin"/>
-      <parent link="${parent}"/>
-      <child link="${prefix}base_link"/>
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="${prefix}base_footprint" />
     </joint>
-    <!-- joint 1 -->
-    <joint name="${prefix}joint1" type="revolute">
-      <origin xyz="0 0 0.3" rpy="${pi} 0 0"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}link1"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-180)}" upper="${radians(180)}" velocity="${radians(180)}"/>
+    <!-- base footprint to base link -->
+    <joint name="${prefix}base_footprint_to_base_link" type="fixed">
+      <parent link="${prefix}base_footprint" />
+      <child link="${prefix}base_link" />
+      <origin xyz="0 0 0.1275" rpy="0 0 0" />
     </joint>
-    <!-- joint 2 -->
-    <joint name="${prefix}joint2" type="revolute">
-      <origin xyz="0 0 -0.3" rpy="${pi/2} 0 0"/>
-      <parent link="${prefix}link1"/>
-      <child link="${prefix}link2"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-180)}" upper="${radians(180)}" velocity="${radians(180)}"/>
+    <!-- wheel joints -->
+    <!-- front left wheel joint -->
+    <joint name="${prefix}front_left_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}front_left_wheel" />
+      <origin xyz="0.25 0.255 0" rpy="0 -0 0" />
+      <axis xyz="0 1 0" />
+      <limit effort="53.5" velocity="13.65" />
     </joint>
-    <!-- joint 3 -->
-    <joint name="${prefix}joint3" type="revolute">
-      <origin xyz="0.8 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}link2"/>
-      <child link="${prefix}link3"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-90)}" upper="${radians(180)}" velocity="${radians(270)}"/>
+    <!-- rear left wheel joint -->
+    <joint name="${prefix}rear_left_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}rear_left_wheel" />
+      <origin xyz="-0.25 0.255 0" rpy="0 -0 0" />
+      <axis xyz="0 1 0" />
+      <limit effort="53.5" velocity="13.65" />
     </joint>
-    <!-- joint 4 -->
-    <joint name="${prefix}joint4" type="revolute">
-      <origin xyz="0.15 0 0" rpy="0 ${-pi/2} 0"/>
-      <parent link="${prefix}link3"/>
-      <child link="${prefix}link4"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-360)}" upper="${radians(360)}" velocity="${radians(360)}"/>
+    <!-- rear right wheel joint -->
+    <joint name="${prefix}rear_right_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}rear_right_wheel" />
+      <origin xyz="-0.25 -0.255 0" rpy="0 -0 0" />
+      <axis xyz="0 1 0" />
+      <limit effort="53.5" velocity="13.65" />
     </joint>
-    <!-- joint 5 -->
-    <joint name="${prefix}joint5" type="revolute">
-      <origin xyz="0 0 -0.15" rpy="0 ${pi/2} 0"/>
-      <parent link="${prefix}link4"/>
-      <child link="${prefix}link5"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-120)}" upper="${radians(120)}" velocity="${radians(540)}"/>
+    <!-- front right wheel joint -->
+    <joint name="${prefix}front_right_wheel_joint" type="continuous">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}front_right_wheel" />
+      <origin xyz="0.25 -0.255 0" rpy="0 -0 0" />
+      <axis xyz="0 1 0" />
+      <limit effort="53.5" velocity="13.65" />
     </joint>
-    <!-- joint 6 -->
-    <joint name="${prefix}joint6" type="revolute">
-      <origin xyz="0.125 0 0" rpy="0 ${-pi/2} 0"/>
-      <parent link="${prefix}link5"/>
-      <child link="${prefix}link6"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-360)}" upper="${radians(360)}" velocity="${radians(720)}"/>
+    <!-- sensor and light frame joints -->
+    <!-- base link to IMU frame -->
+    <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}imu_sensor_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <!-- base link to air pressure frame -->
+    <joint name="${prefix}base_link_to_air_pressure_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}air_pressure_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <!-- base link to magnetometer frame -->
+    <joint name="${prefix}base_link_to_magnetometer_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}magnetometer_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <!-- base link to front RGB-D camera frame -->
+    <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}rgbd_front_link" />
+      <origin xyz="0.21 0 0.393" rpy="0 0.52 0" />
+    </joint>
+    <!-- base link to front camera frame -->
+    <joint name="${prefix}base_link_to_camera_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_front_link" />
+      <origin xyz="0.24 0.06 0.405" rpy="0 0 0" />
+    </joint>
+    <!-- base link to rear camera frame -->
+    <joint name="${prefix}base_link_to_camera_rear_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_rear_link" />
+      <origin xyz="0.02 0 0.405" rpy="0 0 3.14159" />
+    </joint>
+    <!-- base link to left camera frame -->
+    <joint name="${prefix}base_link_to_camera_left_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_left_link" />
+      <origin xyz="0.13 0.11 0.405" rpy="0 0 1.5708" />
+    </joint>
+    <!-- base link to right camera frame -->
+    <joint name="${prefix}base_link_to_camera_right_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_right_link" />
+      <origin xyz="0.13 -0.11 0.405" rpy="0 0 -1.5708" />
+    </joint>
+    <!-- base link to front lidar frame -->
+    <joint name="${prefix}base_link_to_front_laser_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}front_laser_link" />
+      <origin xyz="0.13 0 0.35" rpy="0 -0 0" />
+    </joint>
+    <!-- base link to front light frame -->
+    <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_front_link" />
+      <origin xyz="0.25 0 0.44" rpy="0 -1.5708 0" />
+    </joint>
+    <!-- base link to rear light frame -->
+    <joint name="${prefix}base_link_to_light_rear_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_rear_link" />
+      <origin xyz="0.01 0 0.442" rpy="0 1.5708 0" />
+    </joint>
+    <!-- base link to left light frame -->
+    <joint name="${prefix}base_link_to_light_left_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_left_link" />
+      <origin xyz="0.13 0.12 0.44" rpy="1.5708 0 0" />
+    </joint>
+    <!-- base link to right light frame -->
+    <joint name="${prefix}base_link_to_light_right_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_right_link" />
+      <origin xyz="0.13 -0.12 0.44" rpy="-1.5708 0 0" />
     </joint>
 
-    <!-- tool frame - fixed frame -->
-    <joint name="${prefix}joint6-tool0" type="fixed">
-      <parent link="${prefix}link6"/>
-      <child link="${prefix}tool0"/>
-      <origin xyz="0 0 -0.115" rpy="0 ${-pi} ${-pi/2}"/>
-    </joint>
-    <!-- END JOINTS -->
-
-    <!-- START Delete if not needed -->
-    <!-- Standard frames for industrial robots. Also useful for manipulators.
-         (ROS-I specs - https://wiki.ros.org/Industrial/Tutorials/WorkingWithRosIndustrialRobotSupportPackages#Standardised_links_.2F_frames)-->
-    <joint name="${prefix}base_link-base_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}base"/>
-    </joint>
-
-    <joint name="${prefix}tool0-flange_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}tool0"/>
-      <child link="${prefix}flange"/>
-    </joint>
-    <!-- END Delete if not needed  -->
-
-
+    <!-- GAZEBO EXTENSIONS -->
+    <!-- sensor definitions -->
+    <gazebo reference="${prefix}imu_sensor_link">
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <imu>
+          <enable_orientation>0</enable_orientation>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}air_pressure_link">
+      <sensor name="air_pressure" type="air_pressure">
+        <always_on>1</always_on>
+        <update_rate>20</update_rate>
+        <air_pressure>
+          <reference_altitude>0</reference_altitude>
+          <noise type="gaussian">
+            <mean>0.00000008</mean>
+          </noise>
+        </air_pressure>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}magnetometer_link">
+      <sensor name="magnetometer" type="magnetometer">
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <magnetometer>
+          <x>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </z>
+        </magnetometer>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}rgbd_front_link">
+      <sensor name="rgbd_front" type="rgbd_camera">
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <camera name="rgbd_front">
+          <horizontal_fov>1.50098</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>343.159</fx>
+              <fy>343.159</fy>
+              <cx>319.5</cx>
+              <cy>179.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>640</width>
+            <height>360</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <depth_camera>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+          </depth_camera>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_front_link">
+      <sensor name="camera_front" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_front">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_rear_link">
+      <sensor name="camera_rear" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_front">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_left_link">
+      <sensor name="camera_left" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_front">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_right_link">
+      <sensor name="camera_right" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_front">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}front_laser_link">
+      <sensor name="front_laser" type="gpu_lidar">
+        <visualize>0</visualize>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>1800</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.1459</min_angle>
+              <max_angle>3.1459</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.261799</min_angle>
+              <max_angle>0.261799</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>100</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </lidar>
+      </sensor>
+    </gazebo>
+    <!-- light definitions -->
+    <gazebo reference="${prefix}light_front_link">
+      <light name="light_front" type="spot">
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_rear_link">
+      <light name="light_rear" type="spot">
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_left_link">
+      <light name="light_left" type="spot">
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_right_link">
+      <light name="light_right" type="spot">
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
   </xacro:macro>
 </robot>
