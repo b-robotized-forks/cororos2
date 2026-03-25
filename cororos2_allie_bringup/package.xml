@@ -9,6 +9,10 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>rclcpp</depend>
+
+  <depend>sensor_msgs</depend>
+
   <exec_depend>controller_manager</exec_depend>
 
   <exec_depend>allie_pwm_driver</exec_depend>

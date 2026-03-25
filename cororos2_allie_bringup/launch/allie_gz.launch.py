@@ -110,66 +110,73 @@ def generate_launch_description():
             "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
         ],
         remappings=[
-            ("/imu", "/allie/imu/data"),
-            ("/navsat", "/allie/gps/fix"),
+            ("/imu", "/allie/raw/imu/data"),
+            ("/navsat", "/allie/raw/gps/fix"),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan",
-                "/allie/lidar/scan",
+                "/allie/raw/lidar/scan",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan/points",
-                "/allie/lidar/points",
+                "/allie/raw/lidar/points",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/image",
-                "/allie/rgbd_front/image_raw",
+                "/allie/raw/rgbd_front/image_raw",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/depth_image",
-                "/allie/rgbd_front/depth_image",
+                "/allie/raw/rgbd_front/depth_image",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/points",
-                "/allie/rgbd_front/points",
+                "/allie/raw/rgbd_front/points",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/camera_info",
-                "/allie/rgbd_front/camera_info",
+                "/allie/raw/rgbd_front/camera_info",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_front/image",
-                "/allie/camera_front/image_raw",
+                "/allie/raw/camera_front/image_raw",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_front/camera_info",
-                "/allie/camera_front/camera_info",
+                "/allie/raw/camera_front/camera_info",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/image",
-                "/allie/camera_rear/image_raw",
+                "/allie/raw/camera_rear/image_raw",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/camera_info",
-                "/allie/camera_rear/camera_info",
+                "/allie/raw/camera_rear/camera_info",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_left/image",
-                "/allie/camera_left/image_raw",
+                "/allie/raw/camera_left/image_raw",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_left/camera_info",
-                "/allie/camera_left/camera_info",
+                "/allie/raw/camera_left/camera_info",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_right/image",
-                "/allie/camera_right/image_raw",
+                "/allie/raw/camera_right/image_raw",
             ),
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info",
-                "/allie/camera_right/camera_info",
+                "/allie/raw/camera_right/camera_info",
             ),
         ],
         output="screen",
+    )
+
+    sensor_frame_republisher = Node(
+        package="cororos2_allie_bringup",
+        executable="sim_sensor_frame_republisher",
+        output="screen",
+        parameters=[{"use_sim_time": True}],
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -250,6 +257,7 @@ def generate_launch_description():
             spawn_robot,
             clock_bridge,
             sensor_bridge,
+            sensor_frame_republisher,
             joint_state_broadcaster_spawner,
             diff_drive_controller_spawner,
             rviz,
