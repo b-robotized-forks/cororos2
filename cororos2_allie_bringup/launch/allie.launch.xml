@@ -53,6 +53,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_gps"
        default="false"
        description="Start the u-blox ZED-F9P GPS driver as part of bringup."/>
+  <arg name="use_memsense"
+       default="false"
+       description="Start the Memsense MS-IMU3025 driver as part of bringup."/>
   <arg name="ouster_namespace"
        default="ouster"
        description="Namespace used by the Ouster ROS 2 driver."/>
@@ -68,12 +71,21 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="gps_node_name"
        default="ublox_gps_node"
        description="Node name used by the u-blox GPS driver."/>
+  <arg name="memsense_node_name"
+       default="msimu3025_driver"
+       description="Node name used by the Memsense MS-IMU3025 driver."/>
   <arg name="gps_device"
        default="/dev/ttyACM0"
        description="Serial device used by the u-blox ZED-F9P receiver."/>
+  <arg name="memsense_device"
+       default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
+       description="Serial device used by the Memsense MS-IMU3025 receiver."/>
   <arg name="gps_frame_id"
        default="gps_link"
        description="Frame id published by the GPS driver."/>
+  <arg name="memsense_frame_id"
+       default="imu_sensor_link"
+       description="Frame id published by the Memsense MS-IMU3025 driver."/>
   <arg name="gps_config_file"
        default="allie_ublox.yaml"
        description="YAML configuration file for the u-blox GPS driver."/>
@@ -148,6 +160,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var gps_config_file)"/>
     <param name="device" value="$(var gps_device)"/>
     <param name="frame_id" value="$(var gps_frame_id)"/>
+  </node>
+
+  <!--memsense_imu_driver-->
+  <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="$(var memsense_node_name)" output="both">
+    <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
+    <param name="frame_id" value="$(var memsense_frame_id)"/>
   </node>
 
 </launch>

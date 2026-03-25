@@ -19,6 +19,8 @@
 
   <exec_depend>joint_state_broadcaster</exec_depend>
 
+  <exec_depend>memsense_msimu3025_driver</exec_depend>
+
   <exec_depend>ouster_ros</exec_depend>
 
   <exec_depend>realsense2_camera</exec_depend>
