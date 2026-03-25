@@ -19,6 +19,13 @@ def generate_launch_description():
     pkg_bringup = get_package_share_directory("cororos2_allie_bringup")
     pkg_description = get_package_share_directory("cororos2_allie_description")
     pkg_ros_gz_sim = get_package_share_directory("ros_gz_sim")
+    gz_resource_path = os.pathsep.join(
+        [
+            os.path.dirname(pkg_description),
+            os.path.dirname(pkg_bringup),
+            os.environ.get("GZ_SIM_RESOURCE_PATH", ""),
+        ]
+    )
 
     controllers_file = os.path.join(pkg_bringup, "config", "allie_gz_controllers.yaml")
     xacro_file = os.path.join(pkg_description, "urdf", "allie.urdf.xacro")
@@ -81,6 +88,90 @@ def generate_launch_description():
         output="screen",
     )
 
+    sensor_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
+            "/navsat@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat",
+            "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
+            "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
+            "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
+            "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_front/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_left/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_left/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_right/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+        ],
+        remappings=[
+            ("/imu", "/allie/imu/data"),
+            ("/navsat", "/allie/gps/fix"),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan",
+                "/allie/lidar/scan",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/ouster_lidar/scan/points",
+                "/allie/lidar/points",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/image",
+                "/allie/rgbd_front/image_raw",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/depth_image",
+                "/allie/rgbd_front/depth_image",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/points",
+                "/allie/rgbd_front/points",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/camera_info",
+                "/allie/rgbd_front/camera_info",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_front/image",
+                "/allie/camera_front/image_raw",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_front/camera_info",
+                "/allie/camera_front/camera_info",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/image",
+                "/allie/camera_rear/image_raw",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/camera_info",
+                "/allie/camera_rear/camera_info",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_left/image",
+                "/allie/camera_left/image_raw",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_left/camera_info",
+                "/allie/camera_left/camera_info",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_right/image",
+                "/allie/camera_right/image_raw",
+            ),
+            (
+                "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info",
+                "/allie/camera_right/camera_info",
+            ),
+        ],
+        output="screen",
+    )
+
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -117,6 +208,7 @@ def generate_launch_description():
         [
             SetEnvironmentVariable("XDG_CONFIG_DIRS", xdg_config_dirs),
             SetEnvironmentVariable("XDG_DATA_DIRS", xdg_data_dirs),
+            SetEnvironmentVariable("GZ_SIM_RESOURCE_PATH", gz_resource_path),
             UnsetEnvironmentVariable("GTK_EXE_PREFIX"),
             UnsetEnvironmentVariable("GTK_IM_MODULE_FILE"),
             UnsetEnvironmentVariable("GTK_MODULES"),
@@ -157,6 +249,7 @@ def generate_launch_description():
             robot_state_publisher,
             spawn_robot,
             clock_bridge,
+            sensor_bridge,
             joint_state_broadcaster_spawner,
             diff_drive_controller_spawner,
             rviz,
