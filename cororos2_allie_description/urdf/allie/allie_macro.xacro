@@ -546,7 +546,7 @@
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}rgbd_front_link" />
-      <origin xyz="0.21 0 1.5" rpy="0 -0.5236 0" />
+      <origin xyz="0.21 0 1.5" rpy="0 0.5236 0" />
     </joint>
     <!-- base link to front camera frame -->
     <joint name="${prefix}base_link_to_camera_front_link_joint" type="fixed">
