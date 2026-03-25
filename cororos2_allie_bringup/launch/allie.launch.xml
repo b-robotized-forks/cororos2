@@ -20,6 +20,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 -->
 
 <launch>
+  <!-- core bringup arguments -->
   <arg name="runtime_config_package"
        default="cororos2_allie_bringup"
        description="Package with the controller's configuration in 'config' folder. Usually the argument is not set, it enables use of a custom setup."/>
@@ -44,6 +45,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+
+  <!-- sensors enable -->
   <arg name="use_ouster"
        default="false"
        description="Start the Ouster OS0-128 driver as part of bringup."/>
@@ -56,39 +59,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_memsense"
        default="false"
        description="Start the Memsense MS-IMU3025 driver as part of bringup."/>
+
+  <!-- ouster -->
   <arg name="ouster_namespace"
        default="ouster"
        description="Namespace used by the Ouster ROS 2 driver."/>
-  <arg name="realsense_namespace"
-       default="camera"
-       description="Namespace used by the RealSense ROS 2 driver."/>
-  <arg name="realsense_camera_name"
-       default="d455"
-       description="Node name used by the RealSense ROS 2 driver."/>
-  <arg name="realsense_serial_no"
-       default="''"
-       description="Optional RealSense serial number used to select the D455 device."/>
-  <arg name="gps_node_name"
-       default="ublox_gps_node"
-       description="Node name used by the u-blox GPS driver."/>
-  <arg name="memsense_node_name"
-       default="msimu3025_driver"
-       description="Node name used by the Memsense MS-IMU3025 driver."/>
-  <arg name="gps_device"
-       default="/dev/ttyACM0"
-       description="Serial device used by the u-blox ZED-F9P receiver."/>
-  <arg name="memsense_device"
-       default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
-       description="Serial device used by the Memsense MS-IMU3025 receiver."/>
-  <arg name="gps_frame_id"
-       default="gps_link"
-       description="Frame id published by the GPS driver."/>
-  <arg name="memsense_frame_id"
-       default="imu_sensor_link"
-       description="Frame id published by the Memsense MS-IMU3025 driver."/>
-  <arg name="gps_config_file"
-       default="allie_ublox.yaml"
-       description="YAML configuration file for the u-blox GPS driver."/>
   <arg name="ouster_sensor_hostname"
        default=""
        description="Sensor hostname or IP for the Ouster OS0-128. Required when use_ouster is true."/>
@@ -98,6 +73,42 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="ouster_lidar_mode"
        default="1024x10"
        description="Initial lidar mode for the Ouster OS0-128."/>
+
+  <!-- realsense -->
+  <arg name="realsense_namespace"
+       default="camera"
+       description="Namespace used by the RealSense ROS 2 driver."/>
+  <arg name="realsense_camera_name"
+       default="d455"
+       description="Node name used by the RealSense ROS 2 driver."/>
+  <arg name="realsense_serial_no"
+       default="''"
+       description="Optional RealSense serial number used to select the D455 device."/>
+
+  <!-- gps -->
+  <arg name="gps_node_name"
+       default="ublox_gps_node"
+       description="Node name used by the u-blox GPS driver."/>
+  <arg name="gps_device"
+       default="/dev/ttyACM0"
+       description="Serial device used by the u-blox ZED-F9P receiver."/>
+  <arg name="gps_frame_id"
+       default="gps_link"
+       description="Frame id published by the GPS driver."/>
+  <arg name="gps_config_file"
+       default="allie_ublox.yaml"
+       description="YAML configuration file for the u-blox GPS driver."/>
+
+  <!-- memsense -->
+  <arg name="memsense_node_name"
+       default="msimu3025_driver"
+       description="Node name used by the Memsense MS-IMU3025 driver."/>
+  <arg name="memsense_device"
+       default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
+       description="Serial device used by the Memsense MS-IMU3025 receiver."/>
+  <arg name="memsense_frame_id"
+       default="imu_sensor_link"
+       description="Frame id published by the Memsense MS-IMU3025 driver."/>
 
   <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
 
