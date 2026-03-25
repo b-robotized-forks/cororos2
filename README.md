@@ -157,7 +157,7 @@ ros2 topic echo /allie/imu/data --once
 ros2 topic echo /allie/gps/fix --once
 ```
 
-## Real hardware bringup notes
+## Real hardware sensors bringup
 
 The following hardware drivers are already integrated into `allie.launch.xml`:
 
