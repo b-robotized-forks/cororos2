@@ -1,4 +1,4 @@
-# cororos2
+# Coordinated Robotics
 
 This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. The current ROS 2 integration work is focused on the **Allie / Ames** platform, including robot description, bringup, Gazebo simulation, sensor integration, and a first PWM (pulse-width modulation) conversion driver for the base.
 
