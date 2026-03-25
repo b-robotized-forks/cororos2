@@ -11,6 +11,8 @@
 
   <exec_depend>controller_manager</exec_depend>
 
+  <exec_depend>allie_pwm_driver</exec_depend>
+
   <exec_depend>diff_drive_controller</exec_depend>
 
   <exec_depend>geometry_msgs</exec_depend>
