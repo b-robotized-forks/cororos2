@@ -471,16 +471,18 @@
     <!-- JOINTS -->
     <!-- base joints -->
     <!-- world to base footprint -->
-    <joint name="${prefix}base_joint" type="fixed">
-      <xacro:insert_block name="origin" />
-      <parent link="${parent}" />
-      <child link="${prefix}base_footprint" />
-    </joint>
+    <xacro:if value="${parent != ''}">
+      <joint name="${prefix}base_joint" type="fixed">
+        <xacro:insert_block name="origin" />
+        <parent link="${parent}" />
+        <child link="${prefix}base_footprint" />
+      </joint>
+    </xacro:if>
     <!-- base footprint to base link -->
     <joint name="${prefix}base_footprint_to_base_link" type="fixed">
       <parent link="${prefix}base_footprint" />
       <child link="${prefix}base_link" />
-      <origin xyz="0 0 0.1275" rpy="0 0 0" />
+      <origin xyz="0 0 0.205" rpy="0 0 0" />
     </joint>
     <!-- wheel joints -->
     <!-- front left wheel joint -->
