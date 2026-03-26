@@ -1,6 +1,7 @@
 // Copyright (c) 2026, b-robotized Group
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -40,15 +41,22 @@ public:
     timeout_seconds_(declare_parameter<double>("cmd_timeout_sec", 0.5)),
     invert_left_(declare_parameter<bool>("invert_left", false)),
     invert_right_(declare_parameter<bool>("invert_right", false)),
-    last_left_pwm_(std::numeric_limits<int16_t>::min()),
-    last_right_pwm_(std::numeric_limits<int16_t>::min())
+    last_pwm_(
+      {std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::min(),
+       std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::min()})
   {
     const auto cmd_vel_topic = declare_parameter<std::string>("cmd_vel_topic", "/cmd_vel");
     const auto cmd_vel_stamped_topic =
       declare_parameter<std::string>("cmd_vel_stamped_topic", "/diff_drive_controller/cmd_vel");
     const auto combined_topic = declare_parameter<std::string>("pwm_topic", "/allie/pwm");
-    const auto left_topic = declare_parameter<std::string>("left_pwm_topic", "/allie/pwm/left");
-    const auto right_topic = declare_parameter<std::string>("right_pwm_topic", "/allie/pwm/right");
+    const auto front_left_topic =
+      declare_parameter<std::string>("front_left_pwm_topic", "/allie/pwm/front_left");
+    const auto rear_left_topic =
+      declare_parameter<std::string>("rear_left_pwm_topic", "/allie/pwm/rear_left");
+    const auto front_right_topic =
+      declare_parameter<std::string>("front_right_pwm_topic", "/allie/pwm/front_right");
+    const auto rear_right_topic =
+      declare_parameter<std::string>("rear_right_pwm_topic", "/allie/pwm/rear_right");
 
     if (!(pwm_min_ < pwm_neutral_ && pwm_neutral_ < pwm_max_))
     {
@@ -64,8 +72,10 @@ public:
     }
 
     combined_pub_ = create_publisher<std_msgs::msg::Int16MultiArray>(combined_topic, 10);
-    left_pub_ = create_publisher<std_msgs::msg::Int16>(left_topic, 10);
-    right_pub_ = create_publisher<std_msgs::msg::Int16>(right_topic, 10);
+    front_left_pub_ = create_publisher<std_msgs::msg::Int16>(front_left_topic, 10);
+    rear_left_pub_ = create_publisher<std_msgs::msg::Int16>(rear_left_topic, 10);
+    front_right_pub_ = create_publisher<std_msgs::msg::Int16>(front_right_topic, 10);
+    rear_right_pub_ = create_publisher<std_msgs::msg::Int16>(rear_right_topic, 10);
 
     cmd_vel_sub_ = create_subscription<geometry_msgs::msg::Twist>(
       cmd_vel_topic, 10, std::bind(&AlliePwmDriver::handle_twist, this, std::placeholders::_1));
@@ -76,7 +86,7 @@ public:
     timeout_timer_ = create_wall_timer(
       std::chrono::milliseconds(50), std::bind(&AlliePwmDriver::enforce_timeout, this));
 
-    publish_pwm(pwm_neutral_, pwm_neutral_);
+    publish_pwm(pwm_neutral_, pwm_neutral_, pwm_neutral_, pwm_neutral_);
     last_command_time_ = now();
 
     RCLCPP_INFO(
@@ -101,7 +111,7 @@ private:
     const int16_t left_pwm = speed_to_pwm(linear - wheel_term, invert_left_);
     const int16_t right_pwm = speed_to_pwm(linear + wheel_term, invert_right_);
 
-    publish_pwm(left_pwm, right_pwm);
+    publish_pwm(left_pwm, left_pwm, right_pwm, right_pwm);
     last_command_time_ = now();
   }
 
@@ -124,22 +134,31 @@ private:
     return static_cast<int16_t>(std::lround(pwm_neutral_ + normalized * span));
   }
 
-  void publish_pwm(int16_t left_pwm, int16_t right_pwm)
+  void publish_pwm(
+    int16_t front_left_pwm, int16_t rear_left_pwm, int16_t front_right_pwm, int16_t rear_right_pwm)
   {
-    std_msgs::msg::Int16 left_msg;
-    left_msg.data = left_pwm;
-    left_pub_->publish(left_msg);
+    std_msgs::msg::Int16 front_left_msg;
+    front_left_msg.data = front_left_pwm;
+    front_left_pub_->publish(front_left_msg);
 
-    std_msgs::msg::Int16 right_msg;
-    right_msg.data = right_pwm;
-    right_pub_->publish(right_msg);
+    std_msgs::msg::Int16 rear_left_msg;
+    rear_left_msg.data = rear_left_pwm;
+    rear_left_pub_->publish(rear_left_msg);
+
+    std_msgs::msg::Int16 front_right_msg;
+    front_right_msg.data = front_right_pwm;
+    front_right_pub_->publish(front_right_msg);
+
+    std_msgs::msg::Int16 rear_right_msg;
+    rear_right_msg.data = rear_right_pwm;
+    rear_right_pub_->publish(rear_right_msg);
 
     std_msgs::msg::Int16MultiArray combined_msg;
-    combined_msg.data = std::vector<int16_t>{left_pwm, right_pwm};
+    combined_msg.data =
+      std::vector<int16_t>{front_left_pwm, rear_left_pwm, front_right_pwm, rear_right_pwm};
     combined_pub_->publish(combined_msg);
 
-    last_left_pwm_ = left_pwm;
-    last_right_pwm_ = right_pwm;
+    last_pwm_ = {front_left_pwm, rear_left_pwm, front_right_pwm, rear_right_pwm};
   }
 
   void enforce_timeout()
@@ -147,7 +166,7 @@ private:
     const auto elapsed = (now() - last_command_time_).seconds();
     if (elapsed >= timeout_seconds_)
     {
-      publish_pwm(pwm_neutral_, pwm_neutral_);
+      publish_pwm(pwm_neutral_, pwm_neutral_, pwm_neutral_, pwm_neutral_);
     }
   }
 
@@ -162,13 +181,14 @@ private:
   bool invert_left_;
   bool invert_right_;
 
-  int16_t last_left_pwm_;
-  int16_t last_right_pwm_;
+  std::array<int16_t, 4> last_pwm_;
   rclcpp::Time last_command_time_;
 
   rclcpp::Publisher<std_msgs::msg::Int16MultiArray>::SharedPtr combined_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr left_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr right_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr front_left_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr rear_left_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr front_right_pub_;
+  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr rear_right_pub_;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_stamped_sub_;
   rclcpp::TimerBase::SharedPtr timeout_timer_;

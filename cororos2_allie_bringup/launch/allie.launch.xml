@@ -125,13 +125,19 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Stamped velocity topic converted into PWM."/>
   <arg name="pwm_topic"
        default="/allie/pwm"
-       description="Combined PWM output topic [left, right]."/>
-  <arg name="pwm_left_topic"
-       default="/allie/pwm/left"
-       description="Left wheel PWM output topic."/>
-  <arg name="pwm_right_topic"
-       default="/allie/pwm/right"
-       description="Right wheel PWM output topic."/>
+       description="Combined PWM output topic [front_left, rear_left, front_right, rear_right]."/>
+  <arg name="pwm_front_left_topic"
+       default="/allie/pwm/front_left"
+       description="Front-left motor PWM output topic."/>
+  <arg name="pwm_rear_left_topic"
+       default="/allie/pwm/rear_left"
+       description="Rear-left motor PWM output topic."/>
+  <arg name="pwm_front_right_topic"
+       default="/allie/pwm/front_right"
+       description="Front-right motor PWM output topic."/>
+  <arg name="pwm_rear_right_topic"
+       default="/allie/pwm/rear_right"
+       description="Rear-right motor PWM output topic."/>
   <arg name="pwm_min"
        default="1000"
        description="Minimum RC PWM command in microseconds."/>
@@ -237,8 +243,10 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <param name="cmd_vel_topic" value="$(var pwm_cmd_vel_topic)"/>
     <param name="cmd_vel_stamped_topic" value="$(var pwm_cmd_vel_stamped_topic)"/>
     <param name="pwm_topic" value="$(var pwm_topic)"/>
-    <param name="left_pwm_topic" value="$(var pwm_left_topic)"/>
-    <param name="right_pwm_topic" value="$(var pwm_right_topic)"/>
+    <param name="front_left_pwm_topic" value="$(var pwm_front_left_topic)"/>
+    <param name="rear_left_pwm_topic" value="$(var pwm_rear_left_topic)"/>
+    <param name="front_right_pwm_topic" value="$(var pwm_front_right_topic)"/>
+    <param name="rear_right_pwm_topic" value="$(var pwm_rear_right_topic)"/>
     <param name="pwm_min" value="$(var pwm_min)"/>
     <param name="pwm_neutral" value="$(var pwm_neutral)"/>
     <param name="pwm_max" value="$(var pwm_max)"/>
