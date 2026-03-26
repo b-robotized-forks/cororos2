@@ -15,7 +15,7 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - RViz visualization
   - Gazebo Sim integration
   - `diff_drive_controller` setup
-  - simulated lidar, RGB-D camera, cameras, IMU, and GPS bridged from Gazebo into ROS
+  - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
   - integrated launch support for Ouster, RealSense D455, u-blox GPS, Memsense IMU, and PWM conversion driver
 
 - **Allie hardware context:**

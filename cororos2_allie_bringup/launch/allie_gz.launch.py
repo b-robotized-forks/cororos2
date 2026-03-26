@@ -100,14 +100,6 @@ def generate_launch_description():
             "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
             "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
             "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_front/image@sensor_msgs/msg/Image[gz.msgs.Image",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/image@sensor_msgs/msg/Image[gz.msgs.Image",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_left/image@sensor_msgs/msg/Image[gz.msgs.Image",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_left/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_right/image@sensor_msgs/msg/Image[gz.msgs.Image",
-            "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
         ],
         remappings=[
             ("/imu", "/allie/raw/imu/data"),
@@ -135,38 +127,6 @@ def generate_launch_description():
             (
                 "/world/empty/model/allie/link/base_footprint/sensor/rgbd_front/camera_info",
                 "/allie/raw/rgbd_front/camera_info",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_front/image",
-                "/allie/raw/camera_front/image_raw",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_front/camera_info",
-                "/allie/raw/camera_front/camera_info",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/image",
-                "/allie/raw/camera_rear/image_raw",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_rear/camera_info",
-                "/allie/raw/camera_rear/camera_info",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_left/image",
-                "/allie/raw/camera_left/image_raw",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_left/camera_info",
-                "/allie/raw/camera_left/camera_info",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_right/image",
-                "/allie/raw/camera_right/image_raw",
-            ),
-            (
-                "/world/empty/model/allie/link/base_footprint/sensor/camera_right/camera_info",
-                "/allie/raw/camera_right/camera_info",
             ),
         ],
         output="screen",
