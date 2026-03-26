@@ -249,23 +249,6 @@
       </visual>
     </link>
     <!-- sensor and light frames -->
-    <!-- thermal camera frame -->
-    <link name="${prefix}thermal_camera_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="thermal_camera_visual">
-        <origin xyz="-0.01 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.03 0.03" />
-        </geometry>
-        <material name="thermal_camera_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
     <!-- IMU frame -->
     <link name="${prefix}imu_sensor_link">
       <inertial>
@@ -274,16 +257,8 @@
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
     </link>
-    <!-- air pressure frame -->
-    <link name="${prefix}air_pressure_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-    </link>
-    <!-- magnetometer frame -->
-    <link name="${prefix}magnetometer_link">
+    <!-- GPS frame -->
+    <link name="${prefix}gps_link">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <mass value="1e-6" />
@@ -304,112 +279,8 @@
         </geometry>
       </visual>
     </link>
-    <!-- front camera frame -->
-    <link name="${prefix}camera_front_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="camera_front_visual">
-        <origin xyz="-0.02 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.01 0.03 0.03" />
-        </geometry>
-        <material name="camera_front_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-      <visual name="camera_lens_front_visual">
-        <origin xyz="-0.01 0 0" rpy="3.141593 1.570793 3.141593" />
-        <geometry>
-          <cylinder radius="0.005" length="0.011" />
-        </geometry>
-        <material name="camera_lens_front_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- rear camera frame -->
-    <link name="${prefix}camera_rear_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="camera_rear_visual">
-        <origin xyz="0.02 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.01 0.03 0.03" />
-        </geometry>
-        <material name="camera_rear_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-      <visual name="camera_lens_rear_visual">
-        <origin xyz="0.01 0 0" rpy="0 1.570793 0" />
-        <geometry>
-          <cylinder radius="0.005" length="0.011" />
-        </geometry>
-        <material name="camera_lens_rear_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- left camera frame -->
-    <link name="${prefix}camera_left_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="camera_left_visual">
-        <origin xyz="0 -0.02 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.03 0.01 0.03" />
-        </geometry>
-        <material name="camera_left_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-      <visual name="camera_lens_left_visual">
-        <origin xyz="0 -0.01 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.005" length="0.011" />
-        </geometry>
-        <material name="camera_lens_left_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- right camera frame -->
-    <link name="${prefix}camera_right_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="camera_right_visual">
-        <origin xyz="0 0.02 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.03 0.01 0.03" />
-        </geometry>
-        <material name="camera_right_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-      <visual name="camera_lens_right_visual">
-        <origin xyz="0 0.01 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.005" length="0.011" />
-        </geometry>
-        <material name="camera_lens_right_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- front lidar frame -->
-    <link name="${prefix}front_laser_link">
+    <!-- Ouster lidar frame -->
+    <link name="${prefix}ouster_link">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <mass value="1e-6" />
@@ -442,6 +313,14 @@
           <color rgba="1.0 1.0 1.0 1.0" />
         </material>
       </visual>
+    </link>
+    <!-- Ouster IMU frame -->
+    <link name="${prefix}ouster_imu_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
     </link>
     <!-- front light frame -->
     <link name="${prefix}light_front_link">
@@ -572,55 +451,30 @@
       <mimic joint="${prefix}right_rear_drive_joint" multiplier="1.0" offset="0.0" />
     </joint>
     <!-- sensor and light frame joints -->
-    <joint name="${prefix}base_link_to_thermal_camera_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}thermal_camera_link" />
-      <origin xyz="0.28 -0.06 0.364" rpy="0 0 0" />
-    </joint>
     <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}imu_sensor_link" />
       <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
-    <joint name="${prefix}base_link_to_air_pressure_link_joint" type="fixed">
+    <joint name="${prefix}base_link_to_gps_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
-      <child link="${prefix}air_pressure_link" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
-    </joint>
-    <joint name="${prefix}base_link_to_magnetometer_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}magnetometer_link" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <child link="${prefix}gps_link" />
+      <origin xyz="0.19 0 0.402" rpy="0 0 0" />
     </joint>
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}rgbd_front_link" />
       <origin xyz="0.28 0 0.353" rpy="0 0.46 0" />
     </joint>
-    <joint name="${prefix}base_link_to_camera_front_link_joint" type="fixed">
+    <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
-      <child link="${prefix}camera_front_link" />
-      <origin xyz="0.3 0.06 0.365" rpy="0 0 0" />
-    </joint>
-    <joint name="${prefix}base_link_to_camera_rear_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}camera_rear_link" />
-      <origin xyz="0.08 0 0.365" rpy="0 0 3.141592653589793" />
-    </joint>
-    <joint name="${prefix}base_link_to_camera_left_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}camera_left_link" />
-      <origin xyz="0.19 0.11 0.365" rpy="0 0 1.5707963267948966" />
-    </joint>
-    <joint name="${prefix}base_link_to_camera_right_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}camera_right_link" />
-      <origin xyz="0.19 -0.11 0.365" rpy="0 0 -1.5707963267948966" />
-    </joint>
-    <joint name="${prefix}base_link_to_front_laser_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}front_laser_link" />
+      <child link="${prefix}ouster_link" />
       <origin xyz="0.19 0 0.272" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
+      <parent link="${prefix}ouster_link" />
+      <child link="${prefix}ouster_imu_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
     <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
@@ -645,39 +499,6 @@
 
     <!-- GAZEBO EXTENSIONS -->
     <!-- sensor definitions -->
-    <gazebo reference="${prefix}thermal_camera_link">
-      <sensor name="thermal_camera" type="thermal">
-        <pose>0 0 0 0 0 0</pose>
-        <camera name="thermal_camera">
-          <horizontal_fov>0.628</horizontal_fov>
-          <lens>
-            <intrinsics>
-              <fx>317.173</fx>
-              <fy>317.173</fy>
-              <cx>102.5</cx>
-              <cy>77.5</cy>
-              <s>0</s>
-            </intrinsics>
-          </lens>
-          <image>
-            <width>206</width>
-            <height>156</height>
-            <format>L8</format>
-          </image>
-          <clip>
-            <near>0.1</near>
-            <far>100</far>
-          </clip>
-        </camera>
-        <always_on>1</always_on>
-        <update_rate>9</update_rate>
-        <plugin filename="ignition-gazebo-thermal-sensor-system" name="ignition::gazebo::systems::ThermalSensor">
-          <min_temp>253.15</min_temp>
-          <max_temp>673.15</max_temp>
-          <resolution>1.6</resolution>
-        </plugin>
-      </sensor>
-    </gazebo>
     <gazebo reference="${prefix}imu_sensor_link">
       <sensor name="imu_sensor" type="imu">
         <always_on>1</always_on>
@@ -757,44 +578,6 @@
         </imu>
       </sensor>
     </gazebo>
-    <gazebo reference="${prefix}air_pressure_link">
-      <sensor name="air_pressure" type="air_pressure">
-        <always_on>1</always_on>
-        <update_rate>20</update_rate>
-        <air_pressure>
-          <reference_altitude>0</reference_altitude>
-          <noise type="gaussian">
-            <mean>0.00000008</mean>
-          </noise>
-        </air_pressure>
-      </sensor>
-    </gazebo>
-    <gazebo reference="${prefix}magnetometer_link">
-      <sensor name="magnetometer" type="magnetometer">
-        <always_on>1</always_on>
-        <update_rate>50</update_rate>
-        <magnetometer>
-          <x>
-            <noise type="gaussian">
-              <mean>0.000000080</mean>
-              <bias_mean>0.000000400</bias_mean>
-            </noise>
-          </x>
-          <y>
-            <noise type="gaussian">
-              <mean>0.000000080</mean>
-              <bias_mean>0.000000400</bias_mean>
-            </noise>
-          </y>
-          <z>
-            <noise type="gaussian">
-              <mean>0.000000080</mean>
-              <bias_mean>0.000000400</bias_mean>
-            </noise>
-          </z>
-        </magnetometer>
-      </sensor>
-    </gazebo>
     <gazebo reference="${prefix}rgbd_front_link">
       <sensor name="rgbd_front" type="rgbd_camera">
         <always_on>1</always_on>
@@ -841,168 +624,8 @@
         </camera>
       </sensor>
     </gazebo>
-    <gazebo reference="${prefix}camera_front_link">
-      <sensor name="camera_front" type="camera">
-        <always_on>1</always_on>
-        <update_rate>25</update_rate>
-        <camera name="camera_front">
-          <horizontal_fov>1.658</horizontal_fov>
-          <lens>
-            <intrinsics>
-              <fx>329.9</fx>
-              <fy>329.9</fy>
-              <cx>359.5</cx>
-              <cy>539.5</cy>
-              <s>0</s>
-            </intrinsics>
-          </lens>
-          <distortion>
-            <k1>0.0</k1>
-            <k2>0.0</k2>
-            <k3>0.0</k3>
-            <p1>0.0</p1>
-            <p2>0.0</p2>
-            <center>0.5 0.5</center>
-          </distortion>
-          <image>
-            <width>720</width>
-            <height>1080</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>300</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0</mean>
-            <stddev>0.007</stddev>
-          </noise>
-        </camera>
-      </sensor>
-    </gazebo>
-    <gazebo reference="${prefix}camera_rear_link">
-      <sensor name="camera_rear" type="camera">
-        <always_on>1</always_on>
-        <update_rate>25</update_rate>
-        <camera name="camera_rear">
-          <horizontal_fov>1.658</horizontal_fov>
-          <lens>
-            <intrinsics>
-              <fx>329.9</fx>
-              <fy>329.9</fy>
-              <cx>359.5</cx>
-              <cy>539.5</cy>
-              <s>0</s>
-            </intrinsics>
-          </lens>
-          <distortion>
-            <k1>0.0</k1>
-            <k2>0.0</k2>
-            <k3>0.0</k3>
-            <p1>0.0</p1>
-            <p2>0.0</p2>
-            <center>0.5 0.5</center>
-          </distortion>
-          <image>
-            <width>720</width>
-            <height>1080</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>300</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0</mean>
-            <stddev>0.007</stddev>
-          </noise>
-        </camera>
-      </sensor>
-    </gazebo>
-    <gazebo reference="${prefix}camera_left_link">
-      <sensor name="camera_left" type="camera">
-        <always_on>1</always_on>
-        <update_rate>25</update_rate>
-        <camera name="camera_left">
-          <horizontal_fov>1.658</horizontal_fov>
-          <lens>
-            <intrinsics>
-              <fx>329.9</fx>
-              <fy>329.9</fy>
-              <cx>359.5</cx>
-              <cy>539.5</cy>
-              <s>0</s>
-            </intrinsics>
-          </lens>
-          <distortion>
-            <k1>0.0</k1>
-            <k2>0.0</k2>
-            <k3>0.0</k3>
-            <p1>0.0</p1>
-            <p2>0.0</p2>
-            <center>0.5 0.5</center>
-          </distortion>
-          <image>
-            <width>720</width>
-            <height>1080</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>300</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0</mean>
-            <stddev>0.007</stddev>
-          </noise>
-        </camera>
-      </sensor>
-    </gazebo>
-    <gazebo reference="${prefix}camera_right_link">
-      <sensor name="camera_right" type="camera">
-        <always_on>1</always_on>
-        <update_rate>25</update_rate>
-        <camera name="camera_right">
-          <horizontal_fov>1.658</horizontal_fov>
-          <lens>
-            <intrinsics>
-              <fx>329.9</fx>
-              <fy>329.9</fy>
-              <cx>359.5</cx>
-              <cy>539.5</cy>
-              <s>0</s>
-            </intrinsics>
-          </lens>
-          <distortion>
-            <k1>0.0</k1>
-            <k2>0.0</k2>
-            <k3>0.0</k3>
-            <p1>0.0</p1>
-            <p2>0.0</p2>
-            <center>0.5 0.5</center>
-          </distortion>
-          <image>
-            <width>720</width>
-            <height>1080</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>300</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0</mean>
-            <stddev>0.007</stddev>
-          </noise>
-        </camera>
-      </sensor>
-    </gazebo>
-    <gazebo reference="${prefix}front_laser_link">
-      <sensor name="front_laser" type="gpu_lidar">
+    <gazebo reference="${prefix}ouster_link">
+      <sensor name="ouster_lidar" type="gpu_lidar">
         <pose>0 0 0.038 0 0 0</pose>
         <visualize>0</visualize>
         <update_rate>10</update_rate>
