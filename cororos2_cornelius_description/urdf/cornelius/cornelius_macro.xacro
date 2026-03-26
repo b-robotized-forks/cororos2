@@ -547,6 +547,7 @@
       <origin xyz="-0.36 0.26 0" rpy="0 0 0" />
       <axis xyz="0 1 0" />
       <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
+      <mimic joint="${prefix}left_rear_drive_joint" multiplier="1.0" offset="0.0" />
     </joint>
     <joint name="${prefix}base_link_to_right_track_joint" type="fixed">
       <parent link="${prefix}base_link" />
@@ -568,6 +569,7 @@
       <origin xyz="-0.36 -0.26 0" rpy="0 0 0" />
       <axis xyz="0 1 0" />
       <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
+      <mimic joint="${prefix}right_rear_drive_joint" multiplier="1.0" offset="0.0" />
     </joint>
     <!-- sensor and light frame joints -->
     <joint name="${prefix}base_link_to_thermal_camera_link_joint" type="fixed">
