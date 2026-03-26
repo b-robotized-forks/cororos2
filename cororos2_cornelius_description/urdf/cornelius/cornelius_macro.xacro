@@ -1,254 +1,1118 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-
-  <xacro:include filename="$(find cororos2_cornelius_description)/urdf/common/inertials.xacro"/>
-  <xacro:include filename="$(find cororos2_cornelius_description)/urdf/common/materials.xacro"/>
-
   <xacro:macro name="cornelius" params="prefix parent *origin">
     <!-- LINKS -->
+    <!-- base footprint -->
+    <link name="${prefix}base_footprint">
+    </link>
     <!-- base link -->
     <link name="${prefix}base_link">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior -->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertial>
+        <origin xyz="-0.000649 -0.084945 0.062329" rpy="0 0 0" />
+        <mass value="21.8194" />
+        <inertia ixx="0.615397" ixy="-0.0240585" ixz="-0.120749" iyy="1.75388" iyz="-0.0028322" izz="2.03641" />
+      </inertial>
+      <collision name="base_link_collision_top">
+        <origin xyz="0 0 0.12" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.3" radius="0.3"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/base_link.dae" /> -->
-        </geometry>
-        <material name="black"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.3"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/base_link.stl" /> -->
+          <box size="0.9874 0.5709 0.05" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 1 -->
-    <link name="${prefix}link1">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior -->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <collision name="base_link_collision_bottom">
+        <origin xyz="0 0 0.046" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link1.dae" /> -->
-        </geometry>
-        <material name="blue"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link1.stl" /> -->
-        </geometry>
-        <material name="green"/>
-      </collision>
-    </link>
-    <!-- link 2 -->
-    <link name="${prefix}link2">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link2.dae" /> -->
-        </geometry>
-        <material name="grey"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.3" radius="0.15"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link2.stl"  /> -->
+          <box size="0.80 0.5709 0.2" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 3 -->
-    <link name="${prefix}link3">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <collision name="base_link_collision_mid">
+        <origin xyz="0 0 0.185625" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.2" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link3.dae" /> -->
-        </geometry>
-        <material name="orange"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.2" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link3.stl"  /> -->
+          <box size="0.78992 0.5709 0.12375" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 4 -->
-    <link name="${prefix}link4">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <collision name="tower_collision_1">
+        <origin xyz="0.19 0 0.24" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.1" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link4.dae" /> -->
-        </geometry>
-        <material name="brown"/>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder length="0.1" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link4.stl"  /> -->
+          <box size="0.2 0.2 0.34" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 5 -->
-    <link name="${prefix}link5">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="body_visual">
+        <origin xyz="0 0 -0.135" rpy="0 0 1.57" />
         <geometry>
-          <cylinder length="0.15" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link5.dae" /> -->
+          <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/hd2_marble_base_body_metric.dae" />
         </geometry>
-        <material name="red"/>
+        <material name="body_visual_mat">
+          <color rgba="1.0 1.0 1.0 1.0" />
+        </material>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="plate1_visual">
+        <origin xyz="0.19 0 0.38" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.15" radius="0.1"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link5.stl" /> -->
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate1_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="plate2_visual">
+        <origin xyz="0.19 0 0.27" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate2_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="plate3_visual">
+        <origin xyz="0.19 0 0.08" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.005" />
+        </geometry>
+        <material name="plate3_visual_mat">
+          <color rgba="0.9412 0.9412 0.9412 1.0" />
+        </material>
+      </visual>
+      <visual name="beam1_visual">
+        <origin xyz="0.281 0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam1_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam2_visual">
+        <origin xyz="0.281 -0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam2_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam3_visual">
+        <origin xyz="0.099 0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam3_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="beam4_visual">
+        <origin xyz="0.099 -0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.3" />
+        </geometry>
+        <material name="beam4_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- wheel links -->
+    <!-- left track body -->
+    <link name="${prefix}left_track">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="4.0" />
+        <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.18" iyz="0" izz="0.16" />
+      </inertial>
+      <collision name="left_track_box_collision">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.72 0.1 0.258" />
         </geometry>
       </collision>
-    </link>
-    <!-- link 6 -->
-    <link name="${prefix}link6">
-      <!-- Default inertial for Gazebo - copy and edit block from 'common.xacro'
-           to get more realistic behavior-->
-      <xacro:default_inertial/>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual name="left_track_body_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <cylinder length="0.05" radius="0.075"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/link6.dae" /> -->
+          <box size="0.72 0.1 0.258" />
         </geometry>
-        <material name="white"/>
+        <material name="left_track_body_visual_mat">
+          <color rgba="0.08 0.08 0.08 1.0" />
+        </material>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+    <!-- left rear drive roller -->
+    <link name="${prefix}left_rear_drive_roller">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1.0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
+      </inertial>
+      <collision name="left_rear_drive_roller_collision">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
         <geometry>
-          <cylinder length="0.05" radius="0.075"/>
-          <!--           <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/collision/link6.stl" /> -->
+          <cylinder radius="0.129" length="0.1" />
         </geometry>
       </collision>
+      <visual name="left_rear_drive_roller_visual">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="left_rear_drive_roller_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
     </link>
-
-    <!-- All-zero tool frame. This frame should correspond to the TOOL frame of the robot's controller.) -->
-    <link name="${prefix}tool0"/>
-    <!-- tool link -->
-
-    <!-- START Delete if not needed -->
-    <!-- Standard frames for industrial robots. Also useful for manipulators.
-         (ROS-I specs - https://wiki.ros.org/Industrial/Tutorials/WorkingWithRosIndustrialRobotSupportPackages#Standardised_links_.2F_frames)-->
-    <!-- This frame should correspond to the BASE coordinate system of robot's controller.) -->
-    <link name="${prefix}base"/>
-    <!-- Frame for mounting EEF models to a manipulator. x+ axis points forward (REP 103). -->
-    <link name="${prefix}flange"/>
-    <!-- END Delete if not needed  -->
-    <!-- END LINKS -->
+    <!-- left front idler roller -->
+    <link name="${prefix}left_front_idler">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1.0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
+      </inertial>
+      <collision name="left_front_idler_collision">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+      </collision>
+      <visual name="left_front_idler_visual">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="left_front_idler_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right track body -->
+    <link name="${prefix}right_track">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="4.0" />
+        <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.18" iyz="0" izz="0.16" />
+      </inertial>
+      <collision name="right_track_box_collision">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.72 0.1 0.258" />
+        </geometry>
+      </collision>
+      <visual name="right_track_body_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.72 0.1 0.258" />
+        </geometry>
+        <material name="right_track_body_visual_mat">
+          <color rgba="0.08 0.08 0.08 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right rear drive roller -->
+    <link name="${prefix}right_rear_drive_roller">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1.0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
+      </inertial>
+      <collision name="right_rear_drive_roller_collision">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+      </collision>
+      <visual name="right_rear_drive_roller_visual">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="right_rear_drive_roller_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right front idler roller -->
+    <link name="${prefix}right_front_idler">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1.0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
+      </inertial>
+      <collision name="right_front_idler_collision">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+      </collision>
+      <visual name="right_front_idler_visual">
+        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="right_front_idler_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- sensor and light frames -->
+    <!-- thermal camera frame -->
+    <link name="${prefix}thermal_camera_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="thermal_camera_visual">
+        <origin xyz="-0.01 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.03 0.03" />
+        </geometry>
+        <material name="thermal_camera_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- IMU frame -->
+    <link name="${prefix}imu_sensor_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- air pressure frame -->
+    <link name="${prefix}air_pressure_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- magnetometer frame -->
+    <link name="${prefix}magnetometer_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+    </link>
+    <!-- front RGB-D camera frame -->
+    <link name="${prefix}rgbd_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="rgbd_front_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/realsense_d435.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </visual>
+    </link>
+    <!-- front camera frame -->
+    <link name="${prefix}camera_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_front_visual">
+        <origin xyz="-0.02 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.01 0.03 0.03" />
+        </geometry>
+        <material name="camera_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_front_visual">
+        <origin xyz="-0.01 0 0" rpy="3.141593 1.570793 3.141593" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- rear camera frame -->
+    <link name="${prefix}camera_rear_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_rear_visual">
+        <origin xyz="0.02 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.01 0.03 0.03" />
+        </geometry>
+        <material name="camera_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_rear_visual">
+        <origin xyz="0.01 0 0" rpy="0 1.570793 0" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- left camera frame -->
+    <link name="${prefix}camera_left_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_left_visual">
+        <origin xyz="0 -0.02 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.01 0.03" />
+        </geometry>
+        <material name="camera_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_left_visual">
+        <origin xyz="0 -0.01 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right camera frame -->
+    <link name="${prefix}camera_right_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="camera_right_visual">
+        <origin xyz="0 0.02 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.01 0.03" />
+        </geometry>
+        <material name="camera_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+      <visual name="camera_lens_right_visual">
+        <origin xyz="0 0.01 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.005" length="0.011" />
+        </geometry>
+        <material name="camera_lens_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- front lidar frame -->
+    <link name="${prefix}front_laser_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="vlp16_visual1">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/VLP16_base_1.dae" />
+        </geometry>
+        <material name="vlp16_visual1_mat">
+          <color rgba="1.0 1.0 1.0 1.0" />
+        </material>
+      </visual>
+      <visual name="vlp16_visual2">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/VLP16_base_2.dae" />
+        </geometry>
+        <material name="vlp16_visual2_mat">
+          <color rgba="1.0 1.0 1.0 1.0" />
+        </material>
+      </visual>
+      <visual name="vlp16_visual3">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_cornelius_description/meshes/cornelius/visual/VLP16_scan.dae" />
+        </geometry>
+        <material name="vlp16_visual3_mat">
+          <color rgba="1.0 1.0 1.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- front light frame -->
+    <link name="${prefix}light_front_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_front_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.04 0.13 0.04" />
+        </geometry>
+        <material name="light_front_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- rear light frame -->
+    <link name="${prefix}light_rear_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_rear_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.04 0.12 0.04" />
+        </geometry>
+        <material name="light_rear_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- left light frame -->
+    <link name="${prefix}light_left_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_left_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.12 0.04 0.04" />
+        </geometry>
+        <material name="light_left_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
+    <!-- right light frame -->
+    <link name="${prefix}light_right_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1e-6" />
+        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
+      </inertial>
+      <visual name="light_right_visual">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.12 0.04 0.04" />
+        </geometry>
+        <material name="light_right_visual_mat">
+          <color rgba="0.0 0.0 0.0 1.0" />
+        </material>
+      </visual>
+    </link>
 
     <!-- JOINTS -->
-    <!-- base_joint fixes base_link to the environment -->
-    <joint name="${prefix}base_joint" type="fixed">
-      <xacro:insert_block name="origin"/>
-      <parent link="${parent}"/>
-      <child link="${prefix}base_link"/>
+    <!-- base joints -->
+    <xacro:if value="${parent != ''}">
+      <joint name="${prefix}base_joint" type="fixed">
+        <xacro:insert_block name="origin" />
+        <parent link="${parent}" />
+        <child link="${prefix}base_footprint" />
+      </joint>
+    </xacro:if>
+    <joint name="${prefix}base_footprint_to_base_link" type="fixed">
+      <parent link="${prefix}base_footprint" />
+      <child link="${prefix}base_link" />
+      <origin xyz="0 0 0.129" rpy="0 0 0" />
     </joint>
-    <!-- joint 1 -->
-    <joint name="${prefix}joint1" type="revolute">
-      <origin xyz="0 0 0.3" rpy="${pi} 0 0"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}link1"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-180)}" upper="${radians(180)}" velocity="${radians(180)}"/>
+    <!-- tracked side joints -->
+    <joint name="${prefix}base_link_to_left_track_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}left_track" />
+      <origin xyz="0 0.26 0" rpy="0 0 0" />
     </joint>
-    <!-- joint 2 -->
-    <joint name="${prefix}joint2" type="revolute">
-      <origin xyz="0 0 -0.3" rpy="${pi/2} 0 0"/>
-      <parent link="${prefix}link1"/>
-      <child link="${prefix}link2"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-180)}" upper="${radians(180)}" velocity="${radians(180)}"/>
+    <!-- Drive-relevant rear joint for the left track side. -->
+    <joint name="${prefix}left_rear_drive_joint" type="revolute">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}left_rear_drive_roller" />
+      <origin xyz="0.36 0.26 0" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
+      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
     </joint>
-    <!-- joint 3 -->
-    <joint name="${prefix}joint3" type="revolute">
-      <origin xyz="0.8 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}link2"/>
-      <child link="${prefix}link3"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-90)}" upper="${radians(180)}" velocity="${radians(270)}"/>
+    <!-- Passive front idler for the left track side. -->
+    <joint name="${prefix}left_front_idler_joint" type="revolute">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}left_front_idler" />
+      <origin xyz="-0.36 0.26 0" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
+      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
     </joint>
-    <!-- joint 4 -->
-    <joint name="${prefix}joint4" type="revolute">
-      <origin xyz="0.15 0 0" rpy="0 ${-pi/2} 0"/>
-      <parent link="${prefix}link3"/>
-      <child link="${prefix}link4"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-360)}" upper="${radians(360)}" velocity="${radians(360)}"/>
+    <joint name="${prefix}base_link_to_right_track_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}right_track" />
+      <origin xyz="0 -0.26 0" rpy="0 0 0" />
     </joint>
-    <!-- joint 5 -->
-    <joint name="${prefix}joint5" type="revolute">
-      <origin xyz="0 0 -0.15" rpy="0 ${pi/2} 0"/>
-      <parent link="${prefix}link4"/>
-      <child link="${prefix}link5"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-120)}" upper="${radians(120)}" velocity="${radians(540)}"/>
+    <!-- Drive-relevant rear joint for the right track side. -->
+    <joint name="${prefix}right_rear_drive_joint" type="revolute">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}right_rear_drive_roller" />
+      <origin xyz="0.36 -0.26 0" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
+      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
     </joint>
-    <!-- joint 6 -->
-    <joint name="${prefix}joint6" type="revolute">
-      <origin xyz="0.125 0 0" rpy="0 ${-pi/2} 0"/>
-      <parent link="${prefix}link5"/>
-      <child link="${prefix}link6"/>
-      <axis xyz="0 0 1"/>
-      <limit effort="0" lower="${radians(-360)}" upper="${radians(360)}" velocity="${radians(720)}"/>
+    <!-- Passive front idler for the right track side. -->
+    <joint name="${prefix}right_front_idler_joint" type="revolute">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}right_front_idler" />
+      <origin xyz="-0.36 -0.26 0" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
+      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
+    </joint>
+    <!-- sensor and light frame joints -->
+    <joint name="${prefix}base_link_to_thermal_camera_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}thermal_camera_link" />
+      <origin xyz="0.28 -0.06 0.364" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}imu_sensor_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_air_pressure_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}air_pressure_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_magnetometer_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}magnetometer_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}rgbd_front_link" />
+      <origin xyz="0.28 0 0.353" rpy="0 0.46 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_camera_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_front_link" />
+      <origin xyz="0.3 0.06 0.365" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_camera_rear_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_rear_link" />
+      <origin xyz="0.08 0 0.365" rpy="0 0 3.141592653589793" />
+    </joint>
+    <joint name="${prefix}base_link_to_camera_left_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_left_link" />
+      <origin xyz="0.19 0.11 0.365" rpy="0 0 1.5707963267948966" />
+    </joint>
+    <joint name="${prefix}base_link_to_camera_right_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}camera_right_link" />
+      <origin xyz="0.19 -0.11 0.365" rpy="0 0 -1.5707963267948966" />
+    </joint>
+    <joint name="${prefix}base_link_to_front_laser_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}front_laser_link" />
+      <origin xyz="0.19 0 0.272" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_front_link" />
+      <origin xyz="0.28 0 0.402" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_light_rear_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_rear_link" />
+      <origin xyz="0.10 0 0.402" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_light_left_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_left_link" />
+      <origin xyz="0.19 0.09 0.402" rpy="0 0 0" />
+    </joint>
+    <joint name="${prefix}base_link_to_light_right_link_joint" type="fixed">
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}light_right_link" />
+      <origin xyz="0.19 -0.09 0.402" rpy="0 0 0" />
     </joint>
 
-    <!-- tool frame - fixed frame -->
-    <joint name="${prefix}joint6-tool0" type="fixed">
-      <parent link="${prefix}link6"/>
-      <child link="${prefix}tool0"/>
-      <origin xyz="0 0 -0.115" rpy="0 ${-pi} ${-pi/2}"/>
-    </joint>
-    <!-- END JOINTS -->
-
-    <!-- START Delete if not needed -->
-    <!-- Standard frames for industrial robots. Also useful for manipulators.
-         (ROS-I specs - https://wiki.ros.org/Industrial/Tutorials/WorkingWithRosIndustrialRobotSupportPackages#Standardised_links_.2F_frames)-->
-    <joint name="${prefix}base_link-base_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}base"/>
-    </joint>
-
-    <joint name="${prefix}tool0-flange_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}tool0"/>
-      <child link="${prefix}flange"/>
-    </joint>
-    <!-- END Delete if not needed  -->
-
+    <!-- GAZEBO EXTENSIONS -->
+    <!-- sensor definitions -->
+    <gazebo reference="${prefix}thermal_camera_link">
+      <sensor name="thermal_camera" type="thermal">
+        <pose>0 0 0 0 0 0</pose>
+        <camera name="thermal_camera">
+          <horizontal_fov>0.628</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>317.173</fx>
+              <fy>317.173</fy>
+              <cx>102.5</cx>
+              <cy>77.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <image>
+            <width>206</width>
+            <height>156</height>
+            <format>L8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>9</update_rate>
+        <plugin filename="ignition-gazebo-thermal-sensor-system" name="ignition::gazebo::systems::ThermalSensor">
+          <min_temp>253.15</min_temp>
+          <max_temp>673.15</max_temp>
+          <resolution>1.6</resolution>
+        </plugin>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}imu_sensor_link">
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <imu>
+          <enable_orientation>0</enable_orientation>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.009</stddev>
+                <bias_mean>0.00075</bias_mean>
+                <bias_stddev>0.005</bias_stddev>
+                <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                <precision>0.00025</precision>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.021</stddev>
+                <bias_mean>0.05</bias_mean>
+                <bias_stddev>0.0075</bias_stddev>
+                <dynamic_bias_stddev>0.000375</dynamic_bias_stddev>
+                <dynamic_bias_correlation_time>175.0</dynamic_bias_correlation_time>
+                <precision>0.005</precision>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}air_pressure_link">
+      <sensor name="air_pressure" type="air_pressure">
+        <always_on>1</always_on>
+        <update_rate>20</update_rate>
+        <air_pressure>
+          <reference_altitude>0</reference_altitude>
+          <noise type="gaussian">
+            <mean>0.00000008</mean>
+          </noise>
+        </air_pressure>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}magnetometer_link">
+      <sensor name="magnetometer" type="magnetometer">
+        <always_on>1</always_on>
+        <update_rate>50</update_rate>
+        <magnetometer>
+          <x>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.000000080</mean>
+              <bias_mean>0.000000400</bias_mean>
+            </noise>
+          </z>
+        </magnetometer>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}rgbd_front_link">
+      <sensor name="rgbd_front" type="rgbd_camera">
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <camera name="rgbd_front">
+          <horizontal_fov>1.50098</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>343.159</fx>
+              <fy>343.159</fy>
+              <cx>319.5</cx>
+              <cy>179.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>640</width>
+            <height>360</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <depth_camera>
+            <clip>
+              <near>0.1</near>
+              <far>10</far>
+            </clip>
+          </depth_camera>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_front_link">
+      <sensor name="camera_front" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_front">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_rear_link">
+      <sensor name="camera_rear" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_rear">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_left_link">
+      <sensor name="camera_left" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_left">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}camera_right_link">
+      <sensor name="camera_right" type="camera">
+        <always_on>1</always_on>
+        <update_rate>25</update_rate>
+        <camera name="camera_right">
+          <horizontal_fov>1.658</horizontal_fov>
+          <lens>
+            <intrinsics>
+              <fx>329.9</fx>
+              <fy>329.9</fy>
+              <cx>359.5</cx>
+              <cy>539.5</cy>
+              <s>0</s>
+            </intrinsics>
+          </lens>
+          <distortion>
+            <k1>0.0</k1>
+            <k2>0.0</k2>
+            <k3>0.0</k3>
+            <p1>0.0</p1>
+            <p2>0.0</p2>
+            <center>0.5 0.5</center>
+          </distortion>
+          <image>
+            <width>720</width>
+            <height>1080</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}front_laser_link">
+      <sensor name="front_laser" type="gpu_lidar">
+        <pose>0 0 0.038 0 0 0</pose>
+        <visualize>0</visualize>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>1800</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.1459</min_angle>
+              <max_angle>3.1459</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.261799</min_angle>
+              <max_angle>0.261799</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.05</min>
+            <max>100</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </lidar>
+      </sensor>
+    </gazebo>
+    <!-- light definitions -->
+    <gazebo reference="${prefix}light_front_link">
+      <light name="light_front" type="spot">
+        <pose>0.03 0 0 0 -1.5707963267948966 0</pose>
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_rear_link">
+      <light name="light_rear" type="spot">
+        <pose>-0.03 0 0 0 1.5707963267948966 0</pose>
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_left_link">
+      <light name="light_left" type="spot">
+        <pose>0 0.03 0 1.5707963267948966 0 0</pose>
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
+    <gazebo reference="${prefix}light_right_link">
+      <light name="light_right" type="spot">
+        <pose>0 -0.03 0 -1.5707963267948966 0 0</pose>
+        <attenuation>
+          <range>25</range>
+          <linear>0</linear>
+          <constant>0.1</constant>
+          <quadratic>0.005</quadratic>
+        </attenuation>
+        <diffuse>0.8 0.8 0.5 1.0</diffuse>
+        <specular>0.8 0.8 0.5 1</specular>
+        <spot>
+          <inner_angle>1.571</inner_angle>
+          <outer_angle>2.1</outer_angle>
+          <falloff>1</falloff>
+        </spot>
+        <direction>1 0 0</direction>
+        <cast_shadows>1</cast_shadows>
+      </light>
+    </gazebo>
 
   </xacro:macro>
 </robot>
