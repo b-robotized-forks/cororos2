@@ -44,6 +44,39 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_roboclaw"
+       default="false"
+       description="Use the Roboclaw ROS 2 driver as the real base backend instead of the mock ros2_control path."/>
+  <arg name="roboclaw_use_encoder"
+       default="false"
+       description="Use the encoder-capable Roboclaw node, which publishes odom from controller encoder feedback."/>
+  <arg name="roboclaw_device"
+       default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
+       description="Serial device used by the Roboclaw controller."/>
+  <arg name="roboclaw_baud"
+       default="115200"
+       description="Serial baud rate used by the Roboclaw controller."/>
+  <arg name="roboclaw_address"
+       default="128"
+       description="Packet serial address used by the Roboclaw controller."/>
+  <arg name="roboclaw_max_speed"
+       default="1.2"
+       description="Maximum track speed in m/s used for command saturation."/>
+  <arg name="roboclaw_base_width"
+       default="0.387"
+       description="Distance between left and right track centers in meters."/>
+  <arg name="roboclaw_ticks_per_meter"
+       default="4342.2"
+       description="Encoder ticks per meter for the Roboclaw encoder node."/>
+  <arg name="roboclaw_command_timeout_sec"
+       default="1.0"
+       description="Time without cmd_vel before the Roboclaw node stops the motors."/>
+  <arg name="roboclaw_m1_invert"
+       default="false"
+       description="Invert the M1 motor direction in software."/>
+  <arg name="roboclaw_m2_invert"
+       default="false"
+       description="Invert the M2 motor direction in software."/>
 
   <!-- sensors enable -->
   <arg name="use_ouster"
@@ -128,6 +161,33 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster --controller-manager /b_controlled_box_cm"/>
 
   <node pkg="controller_manager" exec="spawner" args="$(var robot_controller) --controller-manager /b_controlled_box_cm"/>
+
+  <group if="$(var use_roboclaw)">
+    <node unless="$(var roboclaw_use_encoder)"
+          pkg="roboclaw_driver" exec="roboclaw_driver_no_encoder" name="roboclaw_driver" output="both">
+      <param name="device" value="$(var roboclaw_device)"/>
+      <param name="baud" value="$(var roboclaw_baud)"/>
+      <param name="address" value="$(var roboclaw_address)"/>
+      <param name="max_speed" value="$(var roboclaw_max_speed)"/>
+      <param name="base_width" value="$(var roboclaw_base_width)"/>
+      <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
+      <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
+      <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
+    </node>
+
+    <node if="$(var roboclaw_use_encoder)"
+          pkg="roboclaw_driver" exec="roboclaw_driver_encoder" name="roboclaw_driver" output="both">
+      <param name="device" value="$(var roboclaw_device)"/>
+      <param name="baud" value="$(var roboclaw_baud)"/>
+      <param name="address" value="$(var roboclaw_address)"/>
+      <param name="max_speed" value="$(var roboclaw_max_speed)"/>
+      <param name="base_width" value="$(var roboclaw_base_width)"/>
+      <param name="ticks_per_meter" value="$(var roboclaw_ticks_per_meter)"/>
+      <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
+      <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
+      <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
+    </node>
+  </group>
 
   <include if="$(var use_ouster)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
     <arg name="ouster_ns" value="$(var ouster_namespace)"/>
