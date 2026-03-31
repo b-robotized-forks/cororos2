@@ -109,20 +109,14 @@
         </material>
       </visual>
     </link>
-    <!-- wheel links -->
-    <!-- left track body -->
+    <!-- tracked side links -->
+    <!-- left track shell -->
     <link name="${prefix}left_track">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="4.0" />
-        <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.18" iyz="0" izz="0.16" />
+        <mass value="6.0" />
+        <inertia ixx="0.03828" ixy="0" ixz="0" iyy="0.2925" iyz="0" izz="0.2642" />
       </inertial>
-      <collision name="left_track_box_collision">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.72 0.1 0.258" />
-        </geometry>
-      </collision>
       <visual name="left_track_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -132,66 +126,32 @@
           <color rgba="0.08 0.08 0.08 1.0" />
         </material>
       </visual>
-    </link>
-    <!-- left rear drive roller -->
-    <link name="${prefix}left_rear_drive_roller">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1.0" />
-        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
-      </inertial>
-      <collision name="left_rear_drive_roller_collision">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+      <visual name="left_track_front_wheel_visual">
+        <origin xyz="0.36 0 0" rpy="1.5707963267948966 0 0" />
         <geometry>
           <cylinder radius="0.129" length="0.1" />
         </geometry>
-      </collision>
-      <visual name="left_rear_drive_roller_visual">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
+        <material name="left_track_front_wheel_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
+      <visual name="left_track_rear_wheel_visual">
+        <origin xyz="-0.36 0 0" rpy="1.5707963267948966 0 0" />
         <geometry>
           <cylinder radius="0.129" length="0.1" />
         </geometry>
-        <material name="left_rear_drive_roller_visual_mat">
+        <material name="left_track_rear_wheel_visual_mat">
           <color rgba="0.12 0.12 0.12 1.0" />
         </material>
       </visual>
     </link>
-    <!-- left front idler roller -->
-    <link name="${prefix}left_front_idler">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1.0" />
-        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
-      </inertial>
-      <collision name="left_front_idler_collision">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.129" length="0.1" />
-        </geometry>
-      </collision>
-      <visual name="left_front_idler_visual">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.129" length="0.1" />
-        </geometry>
-        <material name="left_front_idler_visual_mat">
-          <color rgba="0.12 0.12 0.12 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- right track body -->
+    <!-- right track shell -->
     <link name="${prefix}right_track">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="4.0" />
-        <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.18" iyz="0" izz="0.16" />
+        <mass value="6.0" />
+        <inertia ixx="0.03828" ixy="0" ixz="0" iyy="0.2925" iyz="0" izz="0.2642" />
       </inertial>
-      <collision name="right_track_box_collision">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.72 0.1 0.258" />
-        </geometry>
-      </collision>
       <visual name="right_track_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -201,52 +161,51 @@
           <color rgba="0.08 0.08 0.08 1.0" />
         </material>
       </visual>
+      <visual name="right_track_front_wheel_visual">
+        <origin xyz="0.36 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="right_track_front_wheel_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
+      <visual name="right_track_rear_wheel_visual">
+        <origin xyz="-0.36 0 0" rpy="1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+        <material name="right_track_rear_wheel_visual_mat">
+          <color rgba="0.12 0.12 0.12 1.0" />
+        </material>
+      </visual>
     </link>
-    <!-- right rear drive roller -->
-    <link name="${prefix}right_rear_drive_roller">
+    <!-- hidden drive wheels used for Gazebo contact and diff-drive actuation -->
+    <link name="${prefix}left_drive_wheel">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1.0" />
-        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
+        <mass value="1.5" />
+        <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.015" iyz="0" izz="0.015" />
       </inertial>
-      <collision name="right_rear_drive_roller_collision">
+      <collision name="left_drive_wheel_collision">
+        <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0" />
+        <geometry>
+          <cylinder radius="0.129" length="0.1" />
+        </geometry>
+      </collision>
+    </link>
+    <link name="${prefix}right_drive_wheel">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <mass value="1.5" />
+        <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.015" iyz="0" izz="0.015" />
+      </inertial>
+      <collision name="right_drive_wheel_collision">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
         <geometry>
           <cylinder radius="0.129" length="0.1" />
         </geometry>
       </collision>
-      <visual name="right_rear_drive_roller_visual">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.129" length="0.1" />
-        </geometry>
-        <material name="right_rear_drive_roller_visual_mat">
-          <color rgba="0.12 0.12 0.12 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- right front idler roller -->
-    <link name="${prefix}right_front_idler">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1.0" />
-        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.006" />
-      </inertial>
-      <collision name="right_front_idler_collision">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.129" length="0.1" />
-        </geometry>
-      </collision>
-      <visual name="right_front_idler_visual">
-        <origin xyz="0 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.129" length="0.1" />
-        </geometry>
-        <material name="right_front_idler_visual_mat">
-          <color rgba="0.12 0.12 0.12 1.0" />
-        </material>
-      </visual>
     </link>
     <!-- sensor and light frames -->
     <!-- IMU frame -->
@@ -406,49 +365,27 @@
       <origin xyz="0 0 0.129" rpy="0 0 0" />
     </joint>
     <!-- tracked side joints -->
-    <joint name="${prefix}base_link_to_left_track_joint" type="fixed">
+    <joint name="${prefix}left_track_mount_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}left_track" />
       <origin xyz="0 0.26 0" rpy="0 0 0" />
     </joint>
-    <!-- Drive-relevant rear joint for the left track side. -->
-    <joint name="${prefix}left_rear_drive_joint" type="revolute">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}left_rear_drive_roller" />
-      <origin xyz="0.36 0.26 0" rpy="0 0 0" />
-      <axis xyz="0 1 0" />
-      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
-    </joint>
-    <!-- Passive front idler for the left track side. -->
-    <joint name="${prefix}left_front_idler_joint" type="revolute">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}left_front_idler" />
-      <origin xyz="-0.36 0.26 0" rpy="0 0 0" />
-      <axis xyz="0 1 0" />
-      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
-      <mimic joint="${prefix}left_rear_drive_joint" multiplier="1.0" offset="0.0" />
-    </joint>
-    <joint name="${prefix}base_link_to_right_track_joint" type="fixed">
+    <joint name="${prefix}right_track_mount_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}right_track" />
       <origin xyz="0 -0.26 0" rpy="0 0 0" />
     </joint>
-    <!-- Drive-relevant rear joint for the right track side. -->
-    <joint name="${prefix}right_rear_drive_joint" type="revolute">
+    <joint name="${prefix}left_track_joint" type="continuous">
       <parent link="${prefix}base_link" />
-      <child link="${prefix}right_rear_drive_roller" />
-      <origin xyz="0.36 -0.26 0" rpy="0 0 0" />
+      <child link="${prefix}left_drive_wheel" />
+      <origin xyz="0 0.26 0" rpy="0 0 0" />
       <axis xyz="0 1 0" />
-      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
     </joint>
-    <!-- Passive front idler for the right track side. -->
-    <joint name="${prefix}right_front_idler_joint" type="revolute">
+    <joint name="${prefix}right_track_joint" type="continuous">
       <parent link="${prefix}base_link" />
-      <child link="${prefix}right_front_idler" />
-      <origin xyz="-0.36 -0.26 0" rpy="0 0 0" />
+      <child link="${prefix}right_drive_wheel" />
+      <origin xyz="0 -0.26 0" rpy="0 0 0" />
       <axis xyz="0 1 0" />
-      <limit lower="-3.14159" upper="3.14159" effort="1.0" velocity="10.0" />
-      <mimic joint="${prefix}right_rear_drive_joint" multiplier="1.0" offset="0.0" />
     </joint>
     <!-- sensor and light frame joints -->
     <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
@@ -664,6 +601,18 @@
           </noise>
         </lidar>
       </sensor>
+    </gazebo>
+    <gazebo reference="${prefix}left_drive_wheel">
+      <mu1>2.5</mu1>
+      <mu2>2.5</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+    </gazebo>
+    <gazebo reference="${prefix}right_drive_wheel">
+      <mu1>2.5</mu1>
+      <mu2>2.5</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
     </gazebo>
     <!-- light definitions -->
     <gazebo reference="${prefix}light_front_link">

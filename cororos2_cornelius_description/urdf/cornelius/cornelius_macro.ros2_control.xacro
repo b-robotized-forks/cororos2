@@ -27,16 +27,15 @@
         </xacro:unless>
       </hardware>
 
-      <!-- Cornelius is modeled as a tracked base with one drive joint per side.
-           The front idlers stay passive and are not exposed as commanded joints. -->
-      <joint name="${prefix}left_rear_drive_joint">
+      <!-- Cornelius uses one hidden drive wheel on each side. -->
+      <joint name="${prefix}left_track_joint">
         <command_interface name="velocity" />
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
         <state_interface name="velocity" />
       </joint>
-      <joint name="${prefix}right_rear_drive_joint">
+      <joint name="${prefix}right_track_joint">
         <command_interface name="velocity" />
         <state_interface name="position">
           <param name="initial_value">0.0</param>
