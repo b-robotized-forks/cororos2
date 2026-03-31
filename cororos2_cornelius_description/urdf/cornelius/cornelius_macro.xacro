@@ -15,7 +15,7 @@
       <collision name="base_link_collision_top">
         <origin xyz="0 0 0.12" rpy="0 0 0" />
         <geometry>
-          <box size="0.9874 0.5709 0.05" />
+          <box size="0.92 0.52 0.04" />
         </geometry>
       </collision>
       <collision name="base_link_collision_bottom">
@@ -24,16 +24,46 @@
           <box size="0.80 0.5709 0.2" />
         </geometry>
       </collision>
-      <collision name="base_link_collision_mid">
-        <origin xyz="0 0 0.185625" rpy="0 0 0" />
+      <collision name="plate1_collision">
+        <origin xyz="0.19 0 0.38" rpy="0 0 0" />
         <geometry>
-          <box size="0.78992 0.5709 0.12375" />
+          <box size="0.2 0.2 0.01" />
         </geometry>
       </collision>
-      <collision name="tower_collision_1">
-        <origin xyz="0.19 0 0.24" rpy="0 0 0" />
+      <collision name="plate2_collision">
+        <origin xyz="0.19 0 0.27" rpy="0 0 0" />
         <geometry>
-          <box size="0.2 0.2 0.34" />
+          <box size="0.2 0.2 0.01" />
+        </geometry>
+      </collision>
+      <collision name="plate3_collision">
+        <origin xyz="0.19 0 0.08" rpy="0 0 0" />
+        <geometry>
+          <box size="0.2 0.2 0.01" />
+        </geometry>
+      </collision>
+      <collision name="beam1_collision">
+        <origin xyz="0.281 0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.03 0.3" />
+        </geometry>
+      </collision>
+      <collision name="beam2_collision">
+        <origin xyz="0.281 -0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.03 0.3" />
+        </geometry>
+      </collision>
+      <collision name="beam3_collision">
+        <origin xyz="0.099 0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.03 0.3" />
+        </geometry>
+      </collision>
+      <collision name="beam4_collision">
+        <origin xyz="0.099 -0.091 0.23" rpy="0 0 0" />
+        <geometry>
+          <box size="0.03 0.03 0.3" />
         </geometry>
       </collision>
       <visual name="body_visual">
