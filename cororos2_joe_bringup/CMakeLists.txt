@@ -7,12 +7,21 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
+add_executable(sim_sensor_frame_republisher
+  src/sim_sensor_frame_republisher.cpp)
+target_compile_features(sim_sensor_frame_republisher PUBLIC cxx_std_17)
+ament_target_dependencies(sim_sensor_frame_republisher rclcpp sensor_msgs)
 
 install(
-  DIRECTORY config launch
+  TARGETS sim_sensor_frame_republisher
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY config launch worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
