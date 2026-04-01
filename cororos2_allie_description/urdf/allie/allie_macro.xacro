@@ -279,75 +279,6 @@
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
     </link>
-    <!-- front light frame -->
-    <link name="${prefix}light_front_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="light_front_visual">
-        <origin xyz="0.002 0 0.03" rpy="3.141593 1.570793 3.141593" />
-        <geometry>
-          <box size="0.04 0.13 0.04" />
-        </geometry>
-        <material name="light_front_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- rear light frame -->
-    <link name="${prefix}light_rear_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="light_rear_visual">
-        <origin xyz="0.002 0 0.03" rpy="3.141593 -1.570793 3.141593" />
-        <geometry>
-          <box size="0.04 0.12 0.04" />
-        </geometry>
-        <material name="light_rear_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- left light frame -->
-    <link name="${prefix}light_left_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="light_left_visual">
-        <origin xyz="0 0.002 0.03" rpy="-1.5708 0 0" />
-        <geometry>
-          <box size="0.12 0.04 0.04" />
-        </geometry>
-        <material name="light_left_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-    <!-- right light frame -->
-    <link name="${prefix}light_right_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <mass value="1e-6" />
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
-      </inertial>
-      <visual name="light_right_visual">
-        <origin xyz="0 -0.002 0.03" rpy="1.5708 0 0" />
-        <geometry>
-          <box size="0.12 0.04 0.04" />
-        </geometry>
-        <material name="light_right_visual_mat">
-          <color rgba="0.0 0.0 0.0 1.0" />
-        </material>
-      </visual>
-    </link>
-
     <!-- JOINTS -->
     <!-- base joints -->
     <!-- world to base footprint -->
@@ -428,31 +359,6 @@
       <child link="${prefix}ouster_imu_link" />
       <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
-    <!-- base link to front light frame -->
-    <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}light_front_link" />
-      <origin xyz="0.25 0 0.44" rpy="0 -1.5708 0" />
-    </joint>
-    <!-- base link to rear light frame -->
-    <joint name="${prefix}base_link_to_light_rear_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}light_rear_link" />
-      <origin xyz="0.01 0 0.442" rpy="0 1.5708 0" />
-    </joint>
-    <!-- base link to left light frame -->
-    <joint name="${prefix}base_link_to_light_left_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}light_left_link" />
-      <origin xyz="0.13 0.12 0.44" rpy="1.5708 0 0" />
-    </joint>
-    <!-- base link to right light frame -->
-    <joint name="${prefix}base_link_to_light_right_link_joint" type="fixed">
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}light_right_link" />
-      <origin xyz="0.13 -0.12 0.44" rpy="-1.5708 0 0" />
-    </joint>
-
     <!-- GAZEBO EXTENSIONS -->
     <!-- sensor definitions -->
     <gazebo reference="${prefix}imu_sensor_link">
@@ -619,83 +525,6 @@
           </noise>
         </lidar>
       </sensor>
-    </gazebo>
-    <!-- light definitions -->
-    <gazebo reference="${prefix}light_front_link">
-      <light name="light_front" type="spot">
-        <attenuation>
-          <range>25</range>
-          <linear>0</linear>
-          <constant>0.1</constant>
-          <quadratic>0.005</quadratic>
-        </attenuation>
-        <diffuse>0.8 0.8 0.5 1.0</diffuse>
-        <specular>0.8 0.8 0.5 1</specular>
-        <spot>
-          <inner_angle>1.571</inner_angle>
-          <outer_angle>2.1</outer_angle>
-          <falloff>1</falloff>
-        </spot>
-        <direction>1 0 0</direction>
-        <cast_shadows>1</cast_shadows>
-      </light>
-    </gazebo>
-    <gazebo reference="${prefix}light_rear_link">
-      <light name="light_rear" type="spot">
-        <attenuation>
-          <range>25</range>
-          <linear>0</linear>
-          <constant>0.1</constant>
-          <quadratic>0.005</quadratic>
-        </attenuation>
-        <diffuse>0.8 0.8 0.5 1.0</diffuse>
-        <specular>0.8 0.8 0.5 1</specular>
-        <spot>
-          <inner_angle>1.571</inner_angle>
-          <outer_angle>2.1</outer_angle>
-          <falloff>1</falloff>
-        </spot>
-        <direction>1 0 0</direction>
-        <cast_shadows>1</cast_shadows>
-      </light>
-    </gazebo>
-    <gazebo reference="${prefix}light_left_link">
-      <light name="light_left" type="spot">
-        <attenuation>
-          <range>25</range>
-          <linear>0</linear>
-          <constant>0.1</constant>
-          <quadratic>0.005</quadratic>
-        </attenuation>
-        <diffuse>0.8 0.8 0.5 1.0</diffuse>
-        <specular>0.8 0.8 0.5 1</specular>
-        <spot>
-          <inner_angle>1.571</inner_angle>
-          <outer_angle>2.1</outer_angle>
-          <falloff>1</falloff>
-        </spot>
-        <direction>1 0 0</direction>
-        <cast_shadows>1</cast_shadows>
-      </light>
-    </gazebo>
-    <gazebo reference="${prefix}light_right_link">
-      <light name="light_right" type="spot">
-        <attenuation>
-          <range>25</range>
-          <linear>0</linear>
-          <constant>0.1</constant>
-          <quadratic>0.005</quadratic>
-        </attenuation>
-        <diffuse>0.8 0.8 0.5 1.0</diffuse>
-        <specular>0.8 0.8 0.5 1</specular>
-        <spot>
-          <inner_angle>1.571</inner_angle>
-          <outer_angle>2.1</outer_angle>
-          <falloff>1</falloff>
-        </spot>
-        <direction>1 0 0</direction>
-        <cast_shadows>1</cast_shadows>
-      </light>
     </gazebo>
   </xacro:macro>
 </robot>
