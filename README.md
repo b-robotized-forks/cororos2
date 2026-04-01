@@ -31,11 +31,28 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - `memsense_msimu3025_driver`
   - `allie_pwm_driver`
 
-## Manual workspace setup
+## Workspace setup
 
-To set up the workspace, follow these steps:
+You can set up the workspace in two ways.
 
-### 1. Clone the repository into your ROS 2 workspace
+### 1. If you are using RTW
+
+If you have installed RTW from the [RTW installation guide](https://rtw.b-robotized.com/master/tutorials/setting_up_rtw.html#installation-of-rtw), you can create and build the workspace like this:
+
+```bash
+rtw workspace create --ws-folder cororos_ws --ros-distro jazzy
+rtw ws cororos_ws
+rosds
+git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git
+rosdepi
+cb
+```
+
+### 2. Manual workspace setup
+
+If you are not using RTW, follow these steps.
+
+#### Clone the repository into your ROS 2 workspace
 
 From the root of your workspace (for example `~/cororos2_ws`):
 
@@ -45,7 +62,7 @@ cd ~/cororos2_ws/src
 git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 ```
 
-### 2. Install ROS 2 dependencies
+#### Install ROS 2 dependencies
 
 ```bash
 sudo apt update
@@ -59,7 +76,7 @@ cd ~/cororos2_ws
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-### 3. Build the workspace
+#### Build the workspace
 
 ```bash
 cd ~/cororos2_ws
