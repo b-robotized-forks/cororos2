@@ -295,7 +295,7 @@
       </visual>
     </link>
 
-    <link name="${prefix}ouster_link">
+    <link name="${prefix}lidar_link">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="1e-6"/>
@@ -319,14 +319,6 @@
           <mesh filename="package://cororos2_joe_description/meshes/joe/visual/VLP16_scan.dae" scale="1 1 1"/>
         </geometry>
       </visual>
-    </link>
-
-    <link name="${prefix}ouster_imu_link">
-      <inertial>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <mass value="1e-6"/>
-        <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
-      </inertial>
     </link>
 
     <link name="${prefix}light_front_link">
@@ -404,15 +396,10 @@
       <child link="${prefix}rgbd_front_link"/>
       <origin xyz="0.11 0 1.5" rpy="0 0.5236 0"/>
     </joint>
-    <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
+    <joint name="${prefix}base_link_to_lidar_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
-      <child link="${prefix}ouster_link"/>
+      <child link="${prefix}lidar_link"/>
       <origin xyz="0 0 0.365" rpy="0 0 0"/>
-    </joint>
-    <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
-      <parent link="${prefix}ouster_link"/>
-      <child link="${prefix}ouster_imu_link"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
     <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
@@ -570,8 +557,8 @@
         </camera>
       </sensor>
     </gazebo>
-    <gazebo reference="${prefix}ouster_link">
-      <sensor name="ouster_lidar" type="gpu_lidar">
+    <gazebo reference="${prefix}lidar_link">
+      <sensor name="lidar" type="gpu_lidar">
         <visualize>0</visualize>
         <update_rate>10</update_rate>
         <lidar>

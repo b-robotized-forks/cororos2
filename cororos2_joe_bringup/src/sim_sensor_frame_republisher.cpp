@@ -19,9 +19,9 @@ public:
   SimSensorFrameRepublisher() : Node("sim_sensor_frame_republisher")
   {
     add_republisher<sensor_msgs::msg::LaserScan>(
-      "/joe/raw/lidar/scan", "/joe/lidar/scan", "ouster_link");
+      "/joe/raw/lidar/scan", "/joe/lidar/scan", "lidar_link");
     add_republisher<sensor_msgs::msg::PointCloud2>(
-      "/joe/raw/lidar/points", "/joe/lidar/points", "ouster_link");
+      "/joe/raw/lidar/points", "/joe/lidar/points", "lidar_link");
     add_republisher<sensor_msgs::msg::Image>(
       "/joe/raw/rgbd_front/image_raw", "/joe/rgbd_front/image_raw", "rgbd_front_link");
     add_republisher<sensor_msgs::msg::Image>(

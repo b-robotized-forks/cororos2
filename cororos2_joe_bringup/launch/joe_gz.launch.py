@@ -94,8 +94,8 @@ def generate_launch_description():
         arguments=[
             "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
             "/navsat@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat",
-            "/world/empty/model/joe/link/base_footprint/sensor/ouster_lidar/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
-            "/world/empty/model/joe/link/base_footprint/sensor/ouster_lidar/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
+            "/world/empty/model/joe/link/base_footprint/sensor/lidar/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
+            "/world/empty/model/joe/link/base_footprint/sensor/lidar/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
             "/world/empty/model/joe/link/base_footprint/sensor/rgbd_front/image@sensor_msgs/msg/Image[gz.msgs.Image",
             "/world/empty/model/joe/link/base_footprint/sensor/rgbd_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
             "/world/empty/model/joe/link/base_footprint/sensor/rgbd_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
@@ -105,11 +105,11 @@ def generate_launch_description():
             ("/imu", "/joe/raw/imu/data"),
             ("/navsat", "/joe/raw/gps/fix"),
             (
-                "/world/empty/model/joe/link/base_footprint/sensor/ouster_lidar/scan",
+                "/world/empty/model/joe/link/base_footprint/sensor/lidar/scan",
                 "/joe/raw/lidar/scan",
             ),
             (
-                "/world/empty/model/joe/link/base_footprint/sensor/ouster_lidar/scan/points",
+                "/world/empty/model/joe/link/base_footprint/sensor/lidar/scan/points",
                 "/joe/raw/lidar/points",
             ),
             (
