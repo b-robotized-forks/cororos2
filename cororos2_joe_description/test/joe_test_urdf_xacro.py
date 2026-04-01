@@ -1,4 +1,4 @@
-# Copyright (c) 2024, B-Robotized Group (template)
+# Copyright (c) 2024, b-robotized Group (template)
 # Copyright (c) 2022 FZI Forschungszentrum Informatik
 #
 # Redistribution and use in source and binary forms, with or without

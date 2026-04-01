@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2024, B-Robotized Group
+Copyright (c) 2024, b-robotized Group
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,56 +23,44 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 <launch>
   <arg name="runtime_config_package"
        default="cororos2_joe_bringup"
-       description="Package with the controller's configuration in 'config' folder. Usually the argument is not set, it enables use of a custom setup."/>
+       description="Package with the controller configuration in the config folder."/>
   <arg name="controllers_file"
        default="joe_controllers"
        description="YAML file (without extension) with the controllers configuration."/>
   <arg name="description_package"
-       default="Joe robot bringup"
-       description="Description package with robot URDF/xacro files. Usually the argument is not set, it enables use of a custom description."/>
+       default="cororos2_joe_description"
+       description="Description package with robot URDF/xacro files."/>
   <arg name="description_file"
        default="joe"
        description="URDF/XACRO description file (without extension) with the robot."/>
   <arg name="prefix"
        default=""
-       description="Prefix of the joint names, useful for multi-robot setup. If changed than also joint names in the controllers' configuration have to be updated."/>
+       description="Prefix of the joint names, useful for multi-robot setup."/>
   <arg name="use_mock_hardware"
        default="true"
        description="Start robot with mock hardware mirroring command to its states."/>
   <arg name="mock_sensor_commands"
        default="false"
-       description="Enable mock command interfaces for sensors used for simple simulations. Used only if 'use_mock_hardware' parameter is true."/>
+       description="Enable mock command interfaces for sensors used for simple simulations."/>
   <arg name="robot_controller"
-       default="joint_trajectory_controller"
-       description="Robot controller to start. Choices are: [forward_position_controller, joint_trajectory_controller]."/>
-  <arg name="inactive_robot_controller"
-       default="forward_position_controller"
-       description="Robot controller to start inactive. Choices are: [forward_position_controller, joint_trajectory_controller]."/>
+       default="diff_drive_controller"
+       description="Robot controller to start. Choices are: [diff_drive_controller]."/>
 
   <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
 
-
-  <!--robot_state_pub_node-->
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>
   </node>
 
-  <!--control_node-->
-  <node pkg="controller_manager" exec="ros2_control_node" output="both">
-    <param name="robot_description" value="$(var robot_description_content)" />
+  <node pkg="controller_manager" exec="ros2_control_node" name="b_controlled_box_cm" output="both">
+    <remap from="~/robot_description" to="/robot_description"/>
     <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var controllers_file).yaml"/>
   </node>
 
-  <!--rviz_node-->
-  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/joe.rviz"/>
+  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/joe.rviz">
+    <env name="LC_ALL" value="en_US.UTF-8"/>
+  </node>
 
-  <!--joint_state_braodcaster_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
-
-  <!--robot_controller_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller)"/>
-
-  <!--robot_controller_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="$(var inactive_robot_controller) --inactive"/>
-
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster --controller-manager /b_controlled_box_cm"/>
+  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller) --controller-manager /b_controlled_box_cm"/>
 </launch>
