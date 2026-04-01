@@ -30,24 +30,6 @@ public:
       "/allie/raw/rgbd_front/points", "/allie/rgbd_front/points", "rgbd_front_link");
     add_republisher<sensor_msgs::msg::CameraInfo>(
       "/allie/raw/rgbd_front/camera_info", "/allie/rgbd_front/camera_info", "rgbd_front_link");
-    add_republisher<sensor_msgs::msg::Image>(
-      "/allie/raw/camera_front/image_raw", "/allie/camera_front/image_raw", "camera_front_link");
-    add_republisher<sensor_msgs::msg::CameraInfo>(
-      "/allie/raw/camera_front/camera_info", "/allie/camera_front/camera_info",
-      "camera_front_link");
-    add_republisher<sensor_msgs::msg::Image>(
-      "/allie/raw/camera_rear/image_raw", "/allie/camera_rear/image_raw", "camera_rear_link");
-    add_republisher<sensor_msgs::msg::CameraInfo>(
-      "/allie/raw/camera_rear/camera_info", "/allie/camera_rear/camera_info", "camera_rear_link");
-    add_republisher<sensor_msgs::msg::Image>(
-      "/allie/raw/camera_left/image_raw", "/allie/camera_left/image_raw", "camera_left_link");
-    add_republisher<sensor_msgs::msg::CameraInfo>(
-      "/allie/raw/camera_left/camera_info", "/allie/camera_left/camera_info", "camera_left_link");
-    add_republisher<sensor_msgs::msg::Image>(
-      "/allie/raw/camera_right/image_raw", "/allie/camera_right/image_raw", "camera_right_link");
-    add_republisher<sensor_msgs::msg::CameraInfo>(
-      "/allie/raw/camera_right/camera_info", "/allie/camera_right/camera_info",
-      "camera_right_link");
     add_republisher<sensor_msgs::msg::Imu>(
       "/allie/raw/imu/data", "/allie/imu/data", "imu_sensor_link");
     add_republisher<sensor_msgs::msg::NavSatFix>(
