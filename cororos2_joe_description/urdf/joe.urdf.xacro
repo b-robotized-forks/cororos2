@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="joe">
-
-  <!-- Use this if parameters are set from the launch file, otherwise delete -->
   <xacro:arg name="prefix" default=""/>
-
   <xacro:arg name="use_mock_hardware" default="false"/>
   <xacro:arg name="mock_sensor_commands" default="false"/>
   <xacro:arg name="sim_gazebo_classic" default="false"/>
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
+  <xacro:arg name="attach_world" default="true"/>
 
   <xacro:include filename="$(find cororos2_joe_description)/urdf/joe/joe_macro.xacro"/>
   <xacro:include filename="$(find cororos2_joe_description)/urdf/joe/joe_macro.ros2_control.xacro"/>
 
-  <!-- create link fixed to the "world" -->
-  <link name="world"/>
+  <xacro:if value="$(arg attach_world)">
+    <link name="world"/>
+    <xacro:joe prefix="$(arg prefix)" parent="world">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:joe>
+  </xacro:if>
 
-  <!-- Load robot's macro with parameters -->
-  <!-- set prefix if multiple robots are used -->
-  <xacro:joe prefix="$(arg prefix)" parent="world">
-    <origin xyz="0 0 0" rpy="0 0 0"/>          <!-- position robot in the world -->
-  </xacro:joe>
+  <xacro:unless value="$(arg attach_world)">
+    <xacro:joe prefix="$(arg prefix)" parent="">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:joe>
+  </xacro:unless>
 
   <xacro:joe_ros2_control
     name="joe"
@@ -30,5 +32,4 @@
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
     simulation_controllers="$(arg simulation_controllers)"/>
-
 </robot>
