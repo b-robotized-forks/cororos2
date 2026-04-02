@@ -8,7 +8,19 @@
                mock_sensor_commands:=false
                sim_gazebo_classic:=false
                sim_gazebo:=false
-               simulation_controllers">
+               simulation_controllers
+               pwm_topic:=/allie/pwm
+               front_left_pwm_topic:=/allie/pwm/front_left
+               rear_left_pwm_topic:=/allie/pwm/rear_left
+               front_right_pwm_topic:=/allie/pwm/front_right
+               rear_right_pwm_topic:=/allie/pwm/rear_right
+               pwm_min:=1000
+               pwm_neutral:=1500
+               pwm_max:=2000
+               wheel_radius:=0.205
+               max_wheel_speed_mps:=2.8
+               invert_left:=false
+               invert_right:=false">
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -23,7 +35,19 @@
           <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </xacro:if>
         <xacro:unless value="${use_mock_hardware or sim_gazebo_classic or sim_gazebo}">
-          <plugin>robot_hardware_interface/RobotHardwareInterface</plugin>
+          <plugin>pwm_hardware_interface/PwmHardwareInterface</plugin>
+          <param name="pwm_topic">${pwm_topic}</param>
+          <param name="front_left_pwm_topic">${front_left_pwm_topic}</param>
+          <param name="rear_left_pwm_topic">${rear_left_pwm_topic}</param>
+          <param name="front_right_pwm_topic">${front_right_pwm_topic}</param>
+          <param name="rear_right_pwm_topic">${rear_right_pwm_topic}</param>
+          <param name="pwm_min">${pwm_min}</param>
+          <param name="pwm_neutral">${pwm_neutral}</param>
+          <param name="pwm_max">${pwm_max}</param>
+          <param name="wheel_radius">${wheel_radius}</param>
+          <param name="max_wheel_speed_mps">${max_wheel_speed_mps}</param>
+          <param name="invert_left">${invert_left}</param>
+          <param name="invert_right">${invert_right}</param>
         </xacro:unless>
       </hardware>
 

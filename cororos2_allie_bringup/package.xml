@@ -15,7 +15,7 @@
 
   <exec_depend>controller_manager</exec_depend>
 
-  <exec_depend>allie_pwm_driver</exec_depend>
+  <exec_depend>pwm_hardware_interface</exec_depend>
 
   <exec_depend>diff_drive_controller</exec_depend>
 

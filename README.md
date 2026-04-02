@@ -16,7 +16,7 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - Gazebo Sim integration
   - `diff_drive_controller` setup
   - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
-  - integrated launch support for Ouster, RealSense D455, u-blox GPS, Memsense IMU, and PWM conversion driver
+  - integrated launch support for Ouster, RealSense D455, u-blox GPS, Memsense IMU, and a PWM hardware interface for the base
 
 - **Allie hardware context:**
   - Ouster OS0-128 lidar
@@ -29,7 +29,7 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - `cororos2_allie_description`
   - `cororos2_allie_bringup`
   - `memsense_msimu3025_driver`
-  - `allie_pwm_driver`
+  - `pwm_hardware_interface`
 
 ## Workspace setup
 
@@ -119,8 +119,7 @@ ros2 launch cororos2_allie_bringup allie.launch.xml \
   use_ouster:=true \
   use_realsense:=true \
   use_gps:=true \
-  use_memsense:=true \
-  use_pwm_driver:=true
+  use_memsense:=true
 ```
 
 ### 3. Start Allie Gazebo simulation
@@ -182,7 +181,7 @@ The following hardware drivers are already integrated into `allie.launch.xml`:
 - **Intel RealSense D455** via `realsense2_camera`
 - **u-blox GPS** via `ublox_gps`
 - **Memsense IMU** via `memsense_msimu3025_driver`
-- **Allie PWM conversion driver** via `allie_pwm_driver`
+- **Allie PWM base backend** via `pwm_hardware_interface`
 
 > [!WARNING]
 > The drivers need yet to be tested with real hardware.
@@ -235,22 +234,25 @@ ros2 launch cororos2_allie_bringup allie.launch.xml \
   memsense_device:=/dev/serial/by-id/<your-device>
 ```
 
-### PWM conversion driver
+### PWM base backend
 
-The current PWM driver converts ROS velocity commands into left/right PWM values, but it does **not yet** drive a physical hardware output interface.
+The Allie base can run through the PWM `ros2_control` hardware interface instead of mock hardware.
 
 Example:
 
 ```bash
 ros2 launch cororos2_allie_bringup allie.launch.xml \
-  use_pwm_driver:=true
+  use_mock_hardware:=false
 ```
 
-Then test the conversion with:
+The backend publishes the converted PWM outputs on:
 
 ```bash
-ros2 topic echo /allie/pwm
-ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}"
+/allie/pwm
+/allie/pwm/front_left
+/allie/pwm/rear_left
+/allie/pwm/front_right
+/allie/pwm/rear_right
 ```
 
 ## Troubleshooting
