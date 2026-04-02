@@ -29,7 +29,7 @@ pluginlib_export_plugin_description_file(hardware_interface pwm_hardware_interfa
 
 install(TARGETS
   pwm_hardware_interface
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib)
 
 install(DIRECTORY include/
   DESTINATION include)
