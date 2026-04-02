@@ -46,6 +46,24 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="python_executable"
+       default="python3"
+       description="Python executable used by the ODrive backend helper process."/>
+  <arg name="odrive_front_serial_number"
+       default=""
+       description="USB serial number of the front ODrive v3.6 board."/>
+  <arg name="odrive_rear_serial_number"
+       default=""
+       description="USB serial number of the rear ODrive v3.6 board."/>
+  <arg name="odrive_front_right_axis"
+       default="0"
+       description="Axis index on the front ODrive that corresponds to the right wheel motor."/>
+  <arg name="odrive_rear_right_axis"
+       default="1"
+       description="Axis index on the rear ODrive that corresponds to the right wheel motor."/>
+  <arg name="odrive_connect_timeout"
+       default="30.0"
+       description="Timeout in seconds used when connecting to the front and rear ODrive boards."/>
 
   <!-- sensors enable -->
   <arg name="use_lidar"
@@ -111,7 +129,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="imu_sensor_link"
        description="Frame id published by the Memsense MS-IMU3025 driver."/>
 
-  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
+  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) python_executable:=$(var python_executable) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
 
 
   <!--robot_state_pub_node-->
