@@ -1,13 +1,13 @@
 # Coordinated Robotics
 
-This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. The current ROS 2 integration work is focused on the **Allie / Ames** platform, including robot description, bringup, Gazebo simulation, sensor integration, and a first PWM (pulse-width modulation) conversion driver for the base.
+This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. The current ROS 2 integration work is focused on the **Allie / Ames** and **Joe / Jeanine** platforms, including robot description, bringup, Gazebo simulation, sensor integration, and initial real-hardware base support.
 
 > [!WARNING]
 > This repository is under active development. Some robots still contain only partial ROS 2 support, and some hardware integrations are present in launch files but are not yet validated on the real robot.
 
 ## Overview
 
-The repository is the ROS 2 port of several robots. At the moment, the most complete ROS 2 path is for **Allie / Ames**.
+The repository is the ROS 2 port of several robots. At the moment, the most complete ROS 2 paths are for **Allie / Ames** and **Joe / Jeanine**.
 
 - **Implemented for Allie:**
   - robot description package
@@ -18,6 +18,15 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
   - integrated launch support for Ouster, RealSense D455, u-blox GPS, Memsense IMU, and PWM conversion driver
 
+- **Implemented for Joe:**
+  - robot description package
+  - bringup package
+  - RViz visualization
+  - Gazebo Sim integration
+  - `diff_drive_controller` setup
+  - simulated Velodyne-style lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
+  - integrated launch support for Velodyne VLP-16, RealSense D455, u-blox GPS, Memsense IMU, and an ODrive `ros2_control` hardware interface
+
 - **Allie hardware context:**
   - Ouster OS0-128 lidar
   - Intel RealSense D455 camera
@@ -25,11 +34,21 @@ The repository is the ROS 2 port of several robots. At the moment, the most comp
   - Memsense MS-IMU3025 IMU
   - REV SPARK MAX motor controller using RC PWM input
 
+- **Joe hardware context:**
+  - Velodyne VLP-16 lidar
+  - Intel RealSense D455 camera
+  - u-blox ZED-F9P GPS
+  - Memsense MS-IMU3025 IMU
+  - custom hoverboard-motor platform driven by ODrive v3.6 motor controllers
+
 - **Current package focus:**
   - `cororos2_allie_description`
   - `cororos2_allie_bringup`
+  - `cororos2_joe_description`
+  - `cororos2_joe_bringup`
   - `memsense_msimu3025_driver`
   - `allie_pwm_driver`
+  - `odrive_hardware_interface`
 
 ## Workspace setup
 
@@ -89,7 +108,9 @@ Now the workspace is ready for use.
 
 ## Starting the robot and the simulation
 
-The main active ROS 2 robot in this repository is **Allie**.
+The main active ROS 2 robots in this repository are **Allie** and **Joe**.
+
+## Allie bringup and simulation
 
 ### 1. View the robot description in RViz
 
@@ -174,6 +195,91 @@ ros2 topic echo /allie/imu/data --once
 ros2 topic echo /allie/gps/fix --once
 ```
 
+## Joe / Jeanine bringup and simulation
+
+### 1. View the robot description in RViz
+
+This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and RViz.
+
+```bash
+ros2 launch cororos2_joe_description view_joe.launch.xml
+```
+
+### 2. Start Joe bringup with mock hardware
+
+This starts:
+- `robot_state_publisher`
+- `ros2_control_node` as `b_controlled_box_cm`
+- `joint_state_broadcaster`
+- `diff_drive_controller`
+- RViz
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml
+```
+
+You can optionally enable the integrated Joe hardware sensor drivers in the same launch:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_lidar:=true \
+  use_realsense:=true \
+  use_gps:=true \
+  use_memsense:=true
+```
+
+### 3. Start Joe Gazebo simulation
+
+This starts:
+- Gazebo Sim
+- the same Joe URDF used by RViz
+- `robot_state_publisher`
+- `gz_ros2_control`
+- `joint_state_broadcaster`
+- `diff_drive_controller`
+- `ros_gz_bridge` for `/clock` and simulated sensors
+- sensor frame republisher for `/joe/...` topics
+- optional RViz
+
+```bash
+ros2 launch cororos2_joe_bringup joe_gz.launch.py
+```
+
+To run Gazebo without RViz:
+
+```bash
+ros2 launch cororos2_joe_bringup joe_gz.launch.py rviz:=false
+```
+
+### 4. Drive the simulated robot
+
+In another terminal, publish a velocity command to the Gazebo controller:
+
+```bash
+ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
+```
+
+You should see the robot move in Gazebo and the odometry change.
+
+### 5. Check the simulated ROS sensor topics
+
+The Gazebo launch bridges simulated sensor data into ROS under `/joe/...` topics.
+
+You can inspect them with:
+
+```bash
+ros2 topic list | grep '^/joe/'
+```
+
+Examples:
+
+```bash
+ros2 topic echo /joe/lidar/scan --once
+ros2 topic echo /joe/rgbd_front/camera_info --once
+ros2 topic echo /joe/imu/data --once
+ros2 topic echo /joe/gps/fix --once
+```
+
 ## Real hardware sensors bringup
 
 The following hardware drivers are already integrated into `allie.launch.xml`:
@@ -252,6 +358,95 @@ Then test the conversion with:
 ros2 topic echo /allie/pwm
 ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}"
 ```
+
+## Joe real hardware bringup
+
+The following hardware drivers are already integrated into `joe.launch.xml`:
+
+- **Velodyne VLP-16** via `velodyne_driver`, `velodyne_pointcloud`, and `velodyne_laserscan`
+- **Intel RealSense D455** via `realsense2_camera`
+- **u-blox GPS** via `ublox_gps`
+- **Memsense IMU** via `memsense_msimu3025_driver`
+- **ODrive base backend** via `odrive_hardware_interface`
+
+> [!WARNING]
+> The sensor launch wiring is in place, but the real hardware paths still need full robot-side validation.
+
+### Velodyne VLP-16
+
+Example launch arguments:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_lidar:=true \
+  velodyne_device_ip:=<sensor-ip>
+```
+
+### RealSense D455
+
+Example:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_realsense:=true
+```
+
+Optionally specify the camera serial number:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_realsense:=true \
+  realsense_serial_no:="'<serial>'"
+```
+
+### GPS
+
+Example:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_gps:=true \
+  gps_device:=/dev/ttyACM0
+```
+
+### Memsense IMU
+
+Example:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_memsense:=true \
+  memsense_device:=/dev/serial/by-id/<your-device>
+```
+
+### ODrive base backend
+
+Joe can also run the real base through the ODrive `ros2_control` hardware interface instead of mock hardware.
+
+Example:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_mock_hardware:=false \
+  odrive_front_serial_number:=<front-serial> \
+  odrive_rear_serial_number:=<rear-serial>
+```
+
+You can combine the ODrive base backend with the integrated sensor drivers in the same launch:
+
+```bash
+ros2 launch cororos2_joe_bringup joe.launch.xml \
+  use_mock_hardware:=false \
+  odrive_front_serial_number:=<front-serial> \
+  odrive_rear_serial_number:=<rear-serial> \
+  use_lidar:=true \
+  use_realsense:=true \
+  use_gps:=true \
+  use_memsense:=true
+```
+
+> [!NOTE]
+> The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
 
 ## Troubleshooting
 
