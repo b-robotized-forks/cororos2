@@ -1,0 +1,14 @@
+<library path="odrive_hardware_interface">
+  <class
+    name="odrive_hardware_interface/ODriveHardwareInterface"
+    type="odrive_hardware_interface::ODriveHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>ROS 2 control hardware interface that bridges cororos2 wheel commands to ODrive backends.</description>
+  </class>
+  <class
+    name="robot_hardware_interface/RobotHardwareInterface"
+    type="odrive_hardware_interface::ODriveHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>Compatibility alias for the previous generic plugin name.</description>
+  </class>
+</library>
