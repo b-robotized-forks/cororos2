@@ -117,21 +117,25 @@ source install/setup.bash
 
 Now the workspace is ready for use.
 
-## Starting the robot and the simulation
+## Starting the robots and the simulation
 
-This repository currently includes launch paths for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine** in RViz, mock bringup, and Gazebo simulation.
+The consolidated launch files use a shared `robot_model` argument:
 
-## Allie bringup and simulation
+- `allie`
+- `cornelius`
+- `joe`
+
+Replace `<robot_model>` in the examples below with the robot you want to use.
 
 ### 1. View the robot description in RViz
 
-This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and RViz.
+This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the shared RViz config.
 
 ```bash
-ros2 launch cororos2_description view_robot.launch.py robot_model:=allie
+ros2 launch cororos2_description view_robot.launch.py robot_model:=<robot_model>
 ```
 
-### 2. Start Allie bringup with mock hardware
+### 2. Start mock bringup
 
 This starts:
 - `robot_state_publisher`
@@ -141,22 +145,32 @@ This starts:
 - RViz
 
 ```bash
-ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=allie
+ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=<robot_model>
 ```
 
-For the real hardware stack, use the hardware wrapper instead:
+### 3. Start hardware bringup
+
+This uses the same shared bringup core, but enables the hardware-specific robot description and integrated drivers.
 
 ```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
-  ouster_sensor_hostname:=<sensor-ip> \
-  ouster_udp_dest:=<host-ip>
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
 ```
 
-### 3. Start Allie Gazebo simulation
+Common optional hardware toggles:
+
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
+  use_lidar:=true \
+  use_realsense:=true \
+  use_gps:=true \
+  use_memsense:=true
+```
+
+### 4. Start Gazebo simulation
 
 This starts:
 - Gazebo Sim
-- the same Allie URDF used by RViz
+- the selected robot URDF
 - `robot_state_publisher`
 - `gz_ros2_control`
 - `joint_state_broadcaster`
@@ -165,16 +179,16 @@ This starts:
 - optional RViz
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=allie
+ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model>
 ```
 
 To run Gazebo without RViz:
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=allie rviz:=false
+ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:=false
 ```
 
-### 4. Drive the simulated robot
+### 5. Drive the simulated robot
 
 In another terminal, publish a velocity command to the Gazebo controller:
 
@@ -184,194 +198,26 @@ ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{h
 
 You should see the robot move in Gazebo and the odometry change.
 
-### 5. Check the simulated ROS sensor topics
+### 6. Check the simulated ROS sensor topics
 
-The Gazebo launch bridges simulated sensor data into ROS under `/allie/...` topics.
+The Gazebo launch bridges simulated sensor data into ROS under `/<robot_model>/...` topics.
 
 You can inspect them with:
 
 ```bash
-ros2 topic list | grep '^/allie/'
+ros2 topic list | grep '^/<robot_model>/'
 ```
 
 Examples:
 
 ```bash
-ros2 topic echo /allie/lidar/scan --once
-ros2 topic echo /allie/rgbd_front/camera_info --once
-ros2 topic echo /allie/imu/data --once
-ros2 topic echo /allie/gps/fix --once
+ros2 topic echo /<robot_model>/lidar/scan --once
+ros2 topic echo /<robot_model>/rgbd_front/camera_info --once
+ros2 topic echo /<robot_model>/imu/data --once
+ros2 topic echo /<robot_model>/gps/fix --once
 ```
 
-## Cornelius bringup and simulation
-
-Cornelius currently supports:
-
-- RViz description launch
-- mock bringup with `diff_drive_controller`
-- Gazebo simulation with bridged simulated sensors
-- optional Roboclaw ROS 2 driver launch path for the real base backend
-
-### 1. View the Cornelius description in RViz
-
-```bash
-ros2 launch cororos2_description view_robot.launch.py robot_model:=cornelius
-```
-
-### 2. Start Cornelius bringup with mock hardware
-
-This starts:
-- `robot_state_publisher`
-- `ros2_control_node`
-- `joint_state_broadcaster`
-- `diff_drive_controller`
-- RViz
-
-```bash
-ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=cornelius
-```
-
-For the real hardware stack, use the hardware wrapper instead:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
-  ouster_sensor_hostname:=<sensor-ip> \
-  ouster_udp_dest:=<host-ip>
-```
-
-### 3. Start Cornelius Gazebo simulation
-
-This starts:
-- Gazebo Sim
-- the Cornelius URDF
-- `robot_state_publisher`
-- `gz_ros2_control`
-- `joint_state_broadcaster`
-- `diff_drive_controller`
-- `ros_gz_bridge` for `/clock` and simulated sensors
-- optional RViz
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=cornelius
-```
-
-To run Gazebo without RViz:
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=cornelius rviz:=false
-```
-
-### 4. Drive the simulated Cornelius robot
-
-```bash
-ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
-```
-
-You should see the robot move in Gazebo and the odometry change.
-
-### 5. Check the simulated Cornelius ROS sensor topics
-
-The Gazebo launch bridges simulated sensor data into ROS under `/cornelius/...` topics.
-
-You can inspect them with:
-
-```bash
-ros2 topic list | grep '^/cornelius/'
-```
-
-Examples:
-
-```bash
-ros2 topic echo /cornelius/lidar/scan --once
-ros2 topic echo /cornelius/rgbd_front/camera_info --once
-ros2 topic echo /cornelius/imu/data --once
-ros2 topic echo /cornelius/gps/fix --once
-```
-
-## Joe / Jeanine bringup and simulation
-
-### 1. View the robot description in RViz
-
-This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and RViz.
-
-```bash
-ros2 launch cororos2_description view_robot.launch.py robot_model:=joe
-```
-
-### 2. Start Joe bringup with mock hardware
-
-This starts:
-- `robot_state_publisher`
-- `ros2_control_node` as `b_controlled_box_cm`
-- `joint_state_broadcaster`
-- `diff_drive_controller`
-- RViz
-
-```bash
-ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=joe
-```
-
-For the real hardware stack, use the hardware wrapper instead:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe \
-  odrive_front_serial_number:=<front-serial> \
-  odrive_rear_serial_number:=<rear-serial>
-```
-
-### 3. Start Joe Gazebo simulation
-
-This starts:
-- Gazebo Sim
-- the same Joe URDF used by RViz
-- `robot_state_publisher`
-- `gz_ros2_control`
-- `joint_state_broadcaster`
-- `diff_drive_controller`
-- `ros_gz_bridge` for `/clock` and simulated sensors
-- sensor frame republisher for `/joe/...` topics
-- optional RViz
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=joe
-```
-
-To run Gazebo without RViz:
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=joe rviz:=false
-```
-
-### 4. Drive the simulated robot
-
-In another terminal, publish a velocity command to the Gazebo controller:
-
-```bash
-ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
-```
-
-You should see the robot move in Gazebo and the odometry change.
-
-### 5. Check the simulated ROS sensor topics
-
-The Gazebo launch bridges simulated sensor data into ROS under `/joe/...` topics.
-
-You can inspect them with:
-
-```bash
-ros2 topic list | grep '^/joe/'
-```
-
-Examples:
-
-```bash
-ros2 topic echo /joe/lidar/scan --once
-ros2 topic echo /joe/rgbd_front/camera_info --once
-ros2 topic echo /joe/imu/data --once
-ros2 topic echo /joe/gps/fix --once
-```
-
-## Real hardware sensors bringup
+## Hardware bringup notes
 
 The following hardware drivers are already integrated into `cororos2_hw.launch.xml`:
 
@@ -385,11 +231,37 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 - **Joe ODrive base backend** via `odrive_hardware_interface`
 
 > [!WARNING]
-> The drivers need yet to be tested with real hardware.
+> The drivers still need hardware validation.
 
-### Ouster
+### Robot-specific hardware choices
 
-Example launch arguments:
+- `robot_model:=allie`
+  - base backend: PWM hardware interface
+  - lidar stack: Ouster
+  - useful extra args:
+    - `ouster_sensor_hostname:=<sensor-ip>`
+    - `ouster_udp_dest:=<host-ip>`
+
+- `robot_model:=cornelius`
+  - base backend: Roboclaw
+  - lidar stack: Ouster
+  - useful extra args:
+    - `roboclaw_device:=/dev/serial/by-id/<your-device>`
+    - `roboclaw_use_encoder:=true`
+    - `ouster_sensor_hostname:=<sensor-ip>`
+    - `ouster_udp_dest:=<host-ip>`
+
+- `robot_model:=joe`
+  - base backend: ODrive
+  - lidar stack: Velodyne VLP-16
+  - useful extra args:
+    - `odrive_front_serial_number:=<front-serial>`
+    - `odrive_rear_serial_number:=<rear-serial>`
+    - `velodyne_device_ip:=<sensor-ip>`
+
+### Hardware examples
+
+Allie with PWM base and Ouster:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
@@ -397,59 +269,55 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
   ouster_udp_dest:=<host-ip>
 ```
 
-### Velodyne VLP-16
+Cornelius with Roboclaw without encoder odometry:
 
-Example launch arguments:
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
+  roboclaw_device:=/dev/serial/by-id/<your-device>
+```
+
+Cornelius with encoder-based Roboclaw odometry:
+
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
+  roboclaw_use_encoder:=true \
+  roboclaw_device:=/dev/serial/by-id/<your-device>
+```
+
+Joe with ODrive base and Velodyne:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe \
+  odrive_front_serial_number:=<front-serial> \
+  odrive_rear_serial_number:=<rear-serial> \
   velodyne_device_ip:=<sensor-ip>
 ```
 
-### RealSense D455
-
-Example:
+RealSense on any robot:
 
 ```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie
-```
-
-Optionally specify the camera serial number:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
+  use_realsense:=true \
   realsense_serial_no:="'<serial>'"
 ```
 
-### GPS
-
-Example:
+GPS on any robot:
 
 ```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
+  use_gps:=true \
   gps_device:=/dev/ttyACM0
 ```
 
-### Memsense IMU
-
-Example:
+Memsense IMU on any robot:
 
 ```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
+  use_memsense:=true \
   memsense_device:=/dev/serial/by-id/<your-device>
 ```
 
-### PWM base backend
-
-The Allie base can run through the PWM `ros2_control` hardware interface instead of mock hardware.
-
-Example:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie
-```
-
-The backend publishes the converted PWM outputs on:
+PWM output topics for Allie:
 
 ```bash
 /allie/pwm
@@ -459,51 +327,8 @@ The backend publishes the converted PWM outputs on:
 /allie/pwm/rear_right
 ```
 
-### Roboclaw motor driver
-
-The current Roboclaw ROS 2 driver is integrated into `cororos2_hw.launch.xml robot_model:=cornelius`. The hardware wrapper enables it by default for Cornelius and lets you switch between no-encoder and encoder-feedback modes.
-
-Example without encoder odometry:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
-  roboclaw_device:=/dev/serial/by-id/<your-device>
-```
-
-Example with encoder-based odometry:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
-  roboclaw_use_encoder:=true \
-  roboclaw_device:=/dev/serial/by-id/<your-device>
-```
-
 > [!WARNING]
 > The Roboclaw path is still under active integration. The ROS 2 package, launch wiring, and encoder / no-encoder variants are present, but hardware validation and tuning are still needed.
-
-### ODrive base backend
-
-Joe can also run the real base through the ODrive `ros2_control` hardware interface instead of mock hardware.
-
-Example:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe \
-  odrive_front_serial_number:=<front-serial> \
-  odrive_rear_serial_number:=<rear-serial>
-```
-
-You can combine the ODrive base backend with the integrated sensor drivers in the same launch:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe \
-  odrive_front_serial_number:=<front-serial> \
-  odrive_rear_serial_number:=<rear-serial> \
-  use_lidar:=true \
-  use_realsense:=true \
-  use_gps:=true \
-  use_memsense:=true
-```
 
 > [!NOTE]
 > The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
