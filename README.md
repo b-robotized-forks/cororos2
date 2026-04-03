@@ -123,6 +123,12 @@ This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and 
 ros2 launch cororos2_description view_robot.launch.py robot_model:=<robot_model>
 ```
 
+Example RViz views:
+
+| Allie | Cornelius | Joe |
+| --- | --- | --- |
+| ![Allie RViz view](docs/images/allie_rviz.png) | ![Cornelius RViz view](docs/images/cornelius_rviz.png) | ![Joe RViz view](docs/images/joe_rviz.png) |
+
 ### 2. Start mock bringup
 
 This starts:
