@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2024, B-Robotized Group
+Copyright (c) 2024, b-robotized Group
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,18 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-Source of this file are templates in https://github.com/StoglRobotics/ros_team_workspace repository.
+Source of this file are templates maintained by b-robotized Group.
 -->
 
 <launch>
   <arg name="description_package"
        default="cororos2_cornelius_description"
-       description="Description package of the dte_ea_1000. Usually the argument is not set, it enables use of a custom description."/>
-  <arg name="prefix"
-       default=""
-       description="Prefix of the joint names, useful for multi-robot setup. If changed than also joint names in the controllers' configuration have to be updated."/>
+       description="Description package of the Cornelius tracked robot."/>
 
-  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/cornelius.urdf.xacro prefix:=$(var prefix)')" />
+  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/cornelius.urdf.xacro use_mock_hardware:=true mock_sensor_commands:=false')" />
 
   <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui"/>
 
@@ -33,5 +30,7 @@ Source of this file are templates in https://github.com/StoglRobotics/ros_team_w
     <param name="robot_description" value="$(var robot_description_content)" />
   </node>
 
-  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/cornelius.rviz"/>
+  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/cornelius.rviz">
+    <env name="LC_ALL" value="en_US.UTF-8"/>
+  </node>
 </launch>
