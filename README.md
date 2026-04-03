@@ -9,24 +9,6 @@ This repository contains the ROS 2 workspace packages and setup for the Coordina
 
 The repository is the ROS 2 port of several robots and currently contains the most complete ROS 2 paths for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
 
-- **Implemented for Allie and Cornelius:**
-  - robot description package
-  - bringup package
-  - RViz visualization
-  - Gazebo Sim integration
-  - `diff_drive_controller` setup for ROS 2 simulation
-  - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
-  - integrated launch support for Ouster, RealSense D455, u-blox GPS, and Memsense IMU
-
-- **Implemented for Joe:**
-  - robot description package
-  - bringup package
-  - RViz visualization
-  - Gazebo Sim integration
-  - `diff_drive_controller` setup
-  - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
-  - integrated launch support for Velodyne VLP-16, RealSense D455, u-blox GPS, Memsense IMU, and an ODrive `ros2_control` hardware interface
-
 - **Robot-specific base backends:**
   - Allie: PWM hardware interface
   - Cornelius: Roboclaw motor driver
