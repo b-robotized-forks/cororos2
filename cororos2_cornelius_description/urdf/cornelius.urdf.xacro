@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="cornelius">
 
-  <!-- Use this if parameters are set from the launch file, otherwise delete -->
   <xacro:arg name="prefix" default=""/>
 
   <xacro:arg name="use_mock_hardware" default="false"/>
@@ -9,18 +8,24 @@
   <xacro:arg name="sim_gazebo_classic" default="false"/>
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
+  <xacro:arg name="attach_world" default="true"/>
 
   <xacro:include filename="$(find cororos2_cornelius_description)/urdf/cornelius/cornelius_macro.xacro"/>
   <xacro:include filename="$(find cororos2_cornelius_description)/urdf/cornelius/cornelius_macro.ros2_control.xacro"/>
 
-  <!-- create link fixed to the "world" -->
-  <link name="world"/>
+  <xacro:if value="$(arg attach_world)">
+    <link name="world"/>
 
-  <!-- Load robot's macro with parameters -->
-  <!-- set prefix if multiple robots are used -->
-  <xacro:cornelius prefix="$(arg prefix)" parent="world">
-    <origin xyz="0 0 0" rpy="0 0 0"/>          <!-- position robot in the world -->
-  </xacro:cornelius>
+    <xacro:cornelius prefix="$(arg prefix)" parent="world">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:cornelius>
+  </xacro:if>
+
+  <xacro:unless value="$(arg attach_world)">
+    <xacro:cornelius prefix="$(arg prefix)" parent="">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:cornelius>
+  </xacro:unless>
 
   <xacro:cornelius_ros2_control
     name="cornelius"

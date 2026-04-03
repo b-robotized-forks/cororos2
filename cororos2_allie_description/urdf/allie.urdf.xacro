@@ -10,6 +10,18 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
+  <xacro:arg name="pwm_topic" default="/allie/pwm"/>
+  <xacro:arg name="front_left_pwm_topic" default="/allie/pwm/front_left"/>
+  <xacro:arg name="rear_left_pwm_topic" default="/allie/pwm/rear_left"/>
+  <xacro:arg name="front_right_pwm_topic" default="/allie/pwm/front_right"/>
+  <xacro:arg name="rear_right_pwm_topic" default="/allie/pwm/rear_right"/>
+  <xacro:arg name="pwm_min" default="1000"/>
+  <xacro:arg name="pwm_neutral" default="1500"/>
+  <xacro:arg name="pwm_max" default="2000"/>
+  <xacro:arg name="wheel_radius" default="0.205"/>
+  <xacro:arg name="max_wheel_speed_mps" default="2.8"/>
+  <xacro:arg name="invert_left" default="false"/>
+  <xacro:arg name="invert_right" default="false"/>
 
   <xacro:include filename="$(find cororos2_allie_description)/urdf/allie/allie_macro.xacro"/>
   <xacro:include filename="$(find cororos2_allie_description)/urdf/allie/allie_macro.ros2_control.xacro"/>
@@ -38,6 +50,18 @@
     mock_sensor_commands="$(arg mock_sensor_commands)"
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
-    simulation_controllers="$(arg simulation_controllers)"/>
+    simulation_controllers="$(arg simulation_controllers)"
+    pwm_topic="$(arg pwm_topic)"
+    front_left_pwm_topic="$(arg front_left_pwm_topic)"
+    rear_left_pwm_topic="$(arg rear_left_pwm_topic)"
+    front_right_pwm_topic="$(arg front_right_pwm_topic)"
+    rear_right_pwm_topic="$(arg rear_right_pwm_topic)"
+    pwm_min="$(arg pwm_min)"
+    pwm_neutral="$(arg pwm_neutral)"
+    pwm_max="$(arg pwm_max)"
+    wheel_radius="$(arg wheel_radius)"
+    max_wheel_speed_mps="$(arg max_wheel_speed_mps)"
+    invert_left="$(arg invert_left)"
+    invert_right="$(arg invert_right)"/>
 
 </robot>

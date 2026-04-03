@@ -59,9 +59,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_memsense"
        default="false"
        description="Start the Memsense MS-IMU3025 driver as part of bringup."/>
-  <arg name="use_pwm_driver"
-       default="false"
-       description="Start the Allie PWM conversion driver for the real base."/>
 
   <!-- ouster -->
   <arg name="ouster_namespace"
@@ -114,30 +111,21 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Frame id published by the Memsense MS-IMU3025 driver."/>
 
   <!-- pwm -->
-  <arg name="pwm_node_name"
-       default="allie_pwm_driver"
-       description="Node name used by the Allie PWM conversion driver."/>
-  <arg name="pwm_cmd_vel_topic"
-       default="/cmd_vel"
-       description="Unstamped velocity topic converted into PWM."/>
-  <arg name="pwm_cmd_vel_stamped_topic"
-       default="/diff_drive_controller/cmd_vel"
-       description="Stamped velocity topic converted into PWM."/>
   <arg name="pwm_topic"
        default="/allie/pwm"
-       description="Combined PWM output topic [front_left, rear_left, front_right, rear_right]."/>
+       description="Combined PWM output topic [front_left, rear_left, front_right, rear_right] from the hardware interface."/>
   <arg name="pwm_front_left_topic"
        default="/allie/pwm/front_left"
-       description="Front-left motor PWM output topic."/>
+       description="Front-left motor PWM output topic from the hardware interface."/>
   <arg name="pwm_rear_left_topic"
        default="/allie/pwm/rear_left"
-       description="Rear-left motor PWM output topic."/>
+       description="Rear-left motor PWM output topic from the hardware interface."/>
   <arg name="pwm_front_right_topic"
        default="/allie/pwm/front_right"
-       description="Front-right motor PWM output topic."/>
+       description="Front-right motor PWM output topic from the hardware interface."/>
   <arg name="pwm_rear_right_topic"
        default="/allie/pwm/rear_right"
-       description="Rear-right motor PWM output topic."/>
+       description="Rear-right motor PWM output topic from the hardware interface."/>
   <arg name="pwm_min"
        default="1000"
        description="Minimum RC PWM command in microseconds."/>
@@ -147,21 +135,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="pwm_max"
        default="2000"
        description="Maximum RC PWM command in microseconds."/>
-  <arg name="pwm_wheel_separation"
-       default="0.51"
-       description="Wheel separation used to mix speed and turn into left/right outputs."/>
-  <arg name="pwm_max_linear_speed"
-       default="2.8"
-       description="Linear speed clamp in m/s before PWM conversion."/>
-  <arg name="pwm_max_angular_speed"
-       default="4.0"
-       description="Angular speed clamp in rad/s before PWM conversion."/>
+  <arg name="pwm_wheel_radius"
+       default="0.205"
+       description="Wheel radius used to convert joint velocity commands into wheel surface speed."/>
   <arg name="pwm_max_wheel_speed"
        default="2.8"
        description="Wheel speed that maps to full-scale PWM."/>
-  <arg name="pwm_timeout"
-       default="0.5"
-       description="Timeout after which PWM returns to neutral if commands stop."/>
   <arg name="pwm_invert_left"
        default="false"
        description="Invert the left PWM output sign."/>
@@ -169,7 +148,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="false"
        description="Invert the right PWM output sign."/>
 
-  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
+  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) pwm_topic:=$(var pwm_topic) front_left_pwm_topic:=$(var pwm_front_left_topic) rear_left_pwm_topic:=$(var pwm_rear_left_topic) front_right_pwm_topic:=$(var pwm_front_right_topic) rear_right_pwm_topic:=$(var pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right)')"/>
 
 
   <!--robot_state_pub_node-->
@@ -236,27 +215,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="$(var memsense_node_name)" output="both">
     <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
     <param name="frame_id" value="$(var memsense_frame_id)"/>
-  </node>
-
-  <!--allie_pwm_driver-->
-  <node if="$(var use_pwm_driver)" pkg="allie_pwm_driver" exec="allie_pwm_driver" name="$(var pwm_node_name)" output="both">
-    <param name="cmd_vel_topic" value="$(var pwm_cmd_vel_topic)"/>
-    <param name="cmd_vel_stamped_topic" value="$(var pwm_cmd_vel_stamped_topic)"/>
-    <param name="pwm_topic" value="$(var pwm_topic)"/>
-    <param name="front_left_pwm_topic" value="$(var pwm_front_left_topic)"/>
-    <param name="rear_left_pwm_topic" value="$(var pwm_rear_left_topic)"/>
-    <param name="front_right_pwm_topic" value="$(var pwm_front_right_topic)"/>
-    <param name="rear_right_pwm_topic" value="$(var pwm_rear_right_topic)"/>
-    <param name="pwm_min" value="$(var pwm_min)"/>
-    <param name="pwm_neutral" value="$(var pwm_neutral)"/>
-    <param name="pwm_max" value="$(var pwm_max)"/>
-    <param name="wheel_separation" value="$(var pwm_wheel_separation)"/>
-    <param name="max_linear_speed_mps" value="$(var pwm_max_linear_speed)"/>
-    <param name="max_angular_speed_rad_s" value="$(var pwm_max_angular_speed)"/>
-    <param name="max_wheel_speed_mps" value="$(var pwm_max_wheel_speed)"/>
-    <param name="cmd_timeout_sec" value="$(var pwm_timeout)"/>
-    <param name="invert_left" value="$(var pwm_invert_left)"/>
-    <param name="invert_right" value="$(var pwm_invert_right)"/>
   </node>
 
 </launch>
