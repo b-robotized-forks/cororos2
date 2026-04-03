@@ -18,8 +18,8 @@ The repository is the ROS 2 port of several robots and currently contains simula
   - simulated lidar, RGB-D camera, IMU, and GPS bridged from Gazebo into ROS
   - integrated launch support for Ouster, RealSense D455, u-blox GPS, and Memsense IMU
 
-- **Robot-specific base drivers:**
-  - Allie: PWM conversion driver
+- **Robot-specific base backends:**
+  - Allie: PWM hardware interface
   - Cornelius: Roboclaw motor driver
 
 - **Allie hardware context:**
@@ -42,7 +42,7 @@ The repository is the ROS 2 port of several robots and currently contains simula
   - `cororos2_cornelius_description`
   - `cororos2_cornelius_bringup`
   - `memsense_msimu3025_driver`
-  - `allie_pwm_driver`
+  - `pwm_hardware_interface`
   - `roboclaw_driver`
 
 ## Workspace setup
@@ -73,7 +73,7 @@ From the root of your workspace (for example `~/cororos2_ws`):
 ```bash
 mkdir -p ~/cororos2_ws/src
 cd ~/cororos2_ws/src
-git clone -b cornelius-integration git@github.com:b-robotized-forks/cororos2.git cororos2
+git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 ```
 
 #### Install ROS 2 dependencies
@@ -135,8 +135,7 @@ ros2 launch cororos2_allie_bringup allie.launch.xml \
   use_ouster:=true \
   use_realsense:=true \
   use_gps:=true \
-  use_memsense:=true \
-  use_pwm_driver:=true
+  use_memsense:=true
 ```
 
 ### 3. Start Allie Gazebo simulation
@@ -285,10 +284,7 @@ The following hardware drivers are already integrated into `allie.launch.xml` an
 - **Intel RealSense D455** via `realsense2_camera`
 - **u-blox GPS** via `ublox_gps`
 - **Memsense IMU** via `memsense_msimu3025_driver`
-
-The base-driver integration differs by robot:
-
-- **Allie PWM conversion driver** via `allie_pwm_driver`
+- **Allie PWM base backend** via `pwm_hardware_interface`
 - **Cornelius Roboclaw motor driver** via `roboclaw_driver`
 
 > [!WARNING]
@@ -342,22 +338,25 @@ ros2 launch cororos2_allie_bringup allie.launch.xml \
   memsense_device:=/dev/serial/by-id/<your-device>
 ```
 
-### PWM conversion driver
+### PWM base backend
 
-The current PWM driver converts ROS velocity commands into left/right PWM values, but it does **not yet** drive a physical hardware output interface.
+The Allie base can run through the PWM `ros2_control` hardware interface instead of mock hardware.
 
 Example:
 
 ```bash
 ros2 launch cororos2_allie_bringup allie.launch.xml \
-  use_pwm_driver:=true
+  use_mock_hardware:=false
 ```
 
-Then test the conversion with:
+The backend publishes the converted PWM outputs on:
 
 ```bash
-ros2 topic echo /allie/pwm
-ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}"
+/allie/pwm
+/allie/pwm/front_left
+/allie/pwm/rear_left
+/allie/pwm/front_right
+/allie/pwm/rear_right
 ```
 
 ### Roboclaw motor driver

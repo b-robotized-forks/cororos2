@@ -1,0 +1,8 @@
+<library path="pwm_hardware_interface">
+  <class
+    name="pwm_hardware_interface/PwmHardwareInterface"
+    type="pwm_hardware_interface::PwmHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>ROS 2 control hardware interface that converts wheel velocity commands into Allie PWM outputs.</description>
+  </class>
+</library>
