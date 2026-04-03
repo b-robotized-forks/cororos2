@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2024, B-Robotized Group
+Copyright (c) 2026, b-robotized Group
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-Source of this file are templates in
-[RosTeamWorkspace](https://github.com/StoglRobotics/ros_team_workspace) repository.
+Source of this file are templates maintained by b-robotized Group.
 
 Authors: Riyan Jose, Manuel Muth, Dr. Denis
 -->
@@ -28,51 +27,205 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="cornelius_controllers"
        description="YAML file (without extension) with the controllers configuration."/>
   <arg name="description_package"
-       default="Cornelius robot bringup"
+       default="cororos2_cornelius_description"
        description="Description package with robot URDF/xacro files. Usually the argument is not set, it enables use of a custom description."/>
   <arg name="description_file"
        default="cornelius"
        description="URDF/XACRO description file (without extension) with the robot."/>
   <arg name="prefix"
        default=""
-       description="Prefix of the joint names, useful for multi-robot setup. If changed than also joint names in the controllers' configuration have to be updated."/>
+       description="Prefix of the joint names, useful for multi-robot setup. If changed then joint names in the controllers configuration have to be updated."/>
   <arg name="use_mock_hardware"
        default="true"
        description="Start robot with mock hardware mirroring command to its states."/>
   <arg name="mock_sensor_commands"
        default="false"
-       description="Enable mock command interfaces for sensors used for simple simulations. Used only if 'use_mock_hardware' parameter is true."/>
+       description="Enable mock command interfaces for sensors used for simple simulations. Used only if use_mock_hardware is true."/>
   <arg name="robot_controller"
-       default="joint_trajectory_controller"
-       description="Robot controller to start. Choices are: [forward_position_controller, joint_trajectory_controller]."/>
-  <arg name="inactive_robot_controller"
-       default="forward_position_controller"
-       description="Robot controller to start inactive. Choices are: [forward_position_controller, joint_trajectory_controller]."/>
+       default="diff_drive_controller"
+       description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_roboclaw"
+       default="false"
+       description="Use the Roboclaw ROS 2 driver as the real base backend instead of the mock ros2_control path."/>
+  <arg name="roboclaw_use_encoder"
+       default="false"
+       description="Use the encoder-capable Roboclaw node, which publishes odom from controller encoder feedback."/>
+  <arg name="roboclaw_device"
+       default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
+       description="Serial device used by the Roboclaw controller."/>
+  <arg name="roboclaw_baud"
+       default="115200"
+       description="Serial baud rate used by the Roboclaw controller."/>
+  <arg name="roboclaw_address"
+       default="128"
+       description="Packet serial address used by the Roboclaw controller."/>
+  <arg name="roboclaw_max_speed"
+       default="1.2"
+       description="Maximum track speed in m/s used for command saturation."/>
+  <arg name="roboclaw_base_width"
+       default="0.387"
+       description="Distance between left and right track centers in meters."/>
+  <arg name="roboclaw_ticks_per_meter"
+       default="4342.2"
+       description="Encoder ticks per meter for the Roboclaw encoder node."/>
+  <arg name="roboclaw_command_timeout_sec"
+       default="1.0"
+       description="Time without cmd_vel before the Roboclaw node stops the motors."/>
+  <arg name="roboclaw_m1_invert"
+       default="false"
+       description="Invert the M1 motor direction in software."/>
+  <arg name="roboclaw_m2_invert"
+       default="false"
+       description="Invert the M2 motor direction in software."/>
 
-  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands)')"/>
+  <!-- sensors enable -->
+  <arg name="use_ouster"
+       default="false"
+       description="Start the Ouster OS0-128 driver as part of bringup."/>
+  <arg name="use_realsense"
+       default="false"
+       description="Start the Intel RealSense D455 driver as part of bringup."/>
+  <arg name="use_gps"
+       default="false"
+       description="Start the u-blox ZED-F9P GPS driver as part of bringup."/>
+  <arg name="use_memsense"
+       default="false"
+       description="Start the Memsense MS-IMU3025 driver as part of bringup."/>
 
+  <!-- ouster -->
+  <arg name="ouster_namespace"
+       default="ouster"
+       description="Namespace used by the Ouster ROS 2 driver."/>
+  <arg name="ouster_sensor_hostname"
+       default=""
+       description="Sensor hostname or IP for the Ouster OS0-128. Required when use_ouster is true."/>
+  <arg name="ouster_udp_dest"
+       default=""
+       description="Destination IP for Ouster UDP packets. Leave empty to use the driver's default behavior."/>
+  <arg name="ouster_lidar_mode"
+       default="1024x10"
+       description="Initial lidar mode for the Ouster OS0-128."/>
 
-  <!--robot_state_pub_node-->
+  <!-- realsense -->
+  <arg name="realsense_namespace"
+       default="camera"
+       description="Namespace used by the RealSense ROS 2 driver."/>
+  <arg name="realsense_camera_name"
+       default="d455"
+       description="Node name used by the RealSense ROS 2 driver."/>
+  <arg name="realsense_serial_no"
+       default="''"
+       description="Optional RealSense serial number used to select the D455 device."/>
+
+  <!-- gps -->
+  <arg name="gps_node_name"
+       default="ublox_gps_node"
+       description="Node name used by the u-blox GPS driver."/>
+  <arg name="gps_device"
+       default="/dev/ttyACM0"
+       description="Serial device used by the u-blox ZED-F9P receiver."/>
+  <arg name="gps_frame_id"
+       default="gps_link"
+       description="Frame id published by the GPS driver."/>
+  <arg name="gps_config_file"
+       default="cornelius_ublox.yaml"
+       description="YAML configuration file for the u-blox GPS driver."/>
+
+  <!-- memsense -->
+  <arg name="memsense_node_name"
+       default="msimu3025_driver"
+       description="Node name used by the Memsense MS-IMU3025 driver."/>
+  <arg name="memsense_device"
+       default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"
+       description="Serial device used by the Memsense MS-IMU3025 receiver."/>
+  <arg name="memsense_frame_id"
+       default="imu_sensor_link"
+       description="Frame id published by the Memsense MS-IMU3025 driver."/>
+
+  <let name="robot_description_content"
+       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var description_file).urdf.xacro prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false')" />
+
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>
   </node>
 
-  <!--control_node-->
-  <node pkg="controller_manager" exec="ros2_control_node" output="both">
-    <param name="robot_description" value="$(var robot_description_content)" />
+  <node pkg="controller_manager" exec="ros2_control_node" name="b_controlled_box_cm" output="both">
+    <remap from="~/robot_description" to="/robot_description" />
     <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var controllers_file).yaml"/>
   </node>
 
-  <!--rviz_node-->
-  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/cornelius.rviz"/>
+  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share $(var description_package))/rviz/cornelius.rviz">
+    <env name="LC_ALL" value="en_US.UTF-8"/>
+  </node>
 
-  <!--joint_state_braodcaster_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster --controller-manager /b_controlled_box_cm"/>
 
-  <!--robot_controller_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller)"/>
+  <node pkg="controller_manager" exec="spawner" args="$(var robot_controller) --controller-manager /b_controlled_box_cm"/>
 
-  <!--robot_controller_spawner-->
-  <node pkg="controller_manager" exec="spawner" args="$(var inactive_robot_controller) --inactive"/>
+  <group if="$(var use_roboclaw)">
+    <node unless="$(var roboclaw_use_encoder)"
+          pkg="roboclaw_driver" exec="roboclaw_driver_no_encoder" name="roboclaw_driver" output="both">
+      <param name="device" value="$(var roboclaw_device)"/>
+      <param name="baud" value="$(var roboclaw_baud)"/>
+      <param name="address" value="$(var roboclaw_address)"/>
+      <param name="max_speed" value="$(var roboclaw_max_speed)"/>
+      <param name="base_width" value="$(var roboclaw_base_width)"/>
+      <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
+      <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
+      <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
+    </node>
 
+    <node if="$(var roboclaw_use_encoder)"
+          pkg="roboclaw_driver" exec="roboclaw_driver_encoder" name="roboclaw_driver" output="both">
+      <param name="device" value="$(var roboclaw_device)"/>
+      <param name="baud" value="$(var roboclaw_baud)"/>
+      <param name="address" value="$(var roboclaw_address)"/>
+      <param name="max_speed" value="$(var roboclaw_max_speed)"/>
+      <param name="base_width" value="$(var roboclaw_base_width)"/>
+      <param name="ticks_per_meter" value="$(var roboclaw_ticks_per_meter)"/>
+      <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
+      <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
+      <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
+    </node>
+  </group>
+
+  <include if="$(var use_ouster)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
+    <arg name="ouster_ns" value="$(var ouster_namespace)"/>
+    <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
+    <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
+    <arg name="viz" value="false"/>
+    <arg name="pub_static_tf" value="false"/>
+    <arg name="point_type" value="xyzir"/>
+    <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
+    <arg name="lidar_mode" value="$(var ouster_lidar_mode)"/>
+    <arg name="sensor_frame" value="$(var prefix)ouster_link"/>
+    <arg name="lidar_frame" value="$(var prefix)ouster_link"/>
+    <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
+    <arg name="point_cloud_frame" value="$(var prefix)ouster_link"/>
+  </include>
+
+  <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+    <arg name="camera_namespace" value="$(var realsense_namespace)"/>
+    <arg name="camera_name" value="$(var realsense_camera_name)"/>
+    <arg name="serial_no" value="$(var realsense_serial_no)"/>
+    <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
+    <arg name="publish_tf" value="true"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="enable_depth" value="true"/>
+    <arg name="align_depth.enable" value="true"/>
+    <arg name="pointcloud.enable" value="true"/>
+    <arg name="enable_sync" value="true"/>
+    <arg name="enable_rgbd" value="true"/>
+  </include>
+
+  <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="$(var gps_node_name)" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var gps_config_file)"/>
+    <param name="device" value="$(var gps_device)"/>
+    <param name="frame_id" value="$(var gps_frame_id)"/>
+  </node>
+
+  <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="$(var memsense_node_name)" output="both">
+    <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
+    <param name="frame_id" value="$(var memsense_frame_id)"/>
+  </node>
 </launch>
