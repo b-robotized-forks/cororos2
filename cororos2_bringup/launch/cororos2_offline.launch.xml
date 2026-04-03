@@ -1,0 +1,79 @@
+<!--
+Copyright (c) 2026, b-robotized Group
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+Source of this file are templates maintained by b-robotized Group.
+
+Authors: Riyan Jose, Manuel Muth, Dr. Denis
+-->
+
+<launch>
+  <!-- offline / mock bringup -->
+  <arg name="robot_model"
+       default="allie"
+       description="Robot model to bring up in offline mode. Choices are: [allie, cornelius, joe]."/>
+  <arg name="runtime_config_package"
+       default="cororos2_bringup"
+       description="Package with the controller configuration in the config folder."/>
+  <arg name="description_package"
+       default="cororos2_description"
+       description="Description package with shared robot URDF/xacro files."/>
+  <arg name="controllers_file"
+       default=""
+       description="Optional YAML file (without extension) with the controller configuration override."/>
+  <arg name="prefix"
+       default=""
+       description="Prefix of the joint names, useful for multi-robot setups."/>
+  <arg name="mock_sensor_commands"
+       default="false"
+       description="Enable mock command interfaces for sensors used for simple simulations."/>
+  <arg name="robot_controller"
+       default="diff_drive_controller"
+       description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="rviz"
+       default="true"
+       description="Launch RViz alongside the selected robot bringup."/>
+
+  <let name="is_allie" value="$(eval '\'$(var robot_model)\' == \'allie\'')"/>
+  <let name="is_cornelius" value="$(eval '\'$(var robot_model)\' == \'cornelius\'')"/>
+  <let name="is_joe" value="$(eval '\'$(var robot_model)\' == \'joe\'')"/>
+
+  <group if="$(var is_allie)">
+    <let name="selected_controllers_file"
+         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\'')"/>
+    <let name="robot_description_content"
+         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/allie.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands)')"/>
+
+    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
+  </group>
+
+  <group if="$(var is_cornelius)">
+    <let name="selected_controllers_file"
+         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'cornelius_controllers\'')"/>
+    <let name="robot_description_content"
+         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/cornelius.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false')"/>
+
+    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
+  </group>
+
+  <group if="$(var is_joe)">
+    <let name="selected_controllers_file"
+         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'joe_controllers\'')"/>
+    <let name="robot_description_content"
+         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/joe.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands)')"/>
+
+    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
+  </group>
+</launch>
