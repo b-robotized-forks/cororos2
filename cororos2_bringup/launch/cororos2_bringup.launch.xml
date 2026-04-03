@@ -20,7 +20,104 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 -->
 
 <launch>
-  <!-- shared bringup implementation used by the public offline and hardware wrappers -->
+  <!-- generic bringup arguments -->
+  <arg name="robot_model"
+       default="allie"
+       description="Robot model to bring up. Choices are: [allie, cornelius, joe].">
+    <choice value="allie"/>
+    <choice value="cornelius"/>
+    <choice value="joe"/>
+  </arg>
+  <arg name="runtime_config_package"
+       default="cororos2_bringup"
+       description="Package with the controller configuration in the config folder."/>
+  <arg name="description_package"
+       default="cororos2_description"
+       description="Description package with shared robot URDF/xacro files."/>
+  <arg name="controllers_file"
+       default=""
+       description="Optional YAML file (without extension) with the controller configuration override."/>
+  <arg name="prefix"
+       default=""
+       description="Prefix of the joint names, useful for multi-robot setups."/>
+  <arg name="use_mock_hardware"
+       default="true"
+       description="Start the selected robot with mock hardware mirroring commands into states."/>
+  <arg name="mock_sensor_commands"
+       default="false"
+       description="Enable mock command interfaces for sensors used for simple simulations."/>
+  <arg name="robot_controller"
+       default="diff_drive_controller"
+       description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="rviz"
+       default="true"
+       description="Launch RViz alongside the selected robot bringup."/>
+
+  <!-- base backend description parameters -->
+  <!-- pwm (allie) -->
+  <arg name="pwm_topic"
+       default="/allie/pwm"
+       description="Combined PWM output topic from the hardware interface."/>
+  <arg name="pwm_front_left_topic"
+       default="/allie/pwm/front_left"
+       description="Front-left motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_rear_left_topic"
+       default="/allie/pwm/rear_left"
+       description="Rear-left motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_front_right_topic"
+       default="/allie/pwm/front_right"
+       description="Front-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_rear_right_topic"
+       default="/allie/pwm/rear_right"
+       description="Rear-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_min"
+       default="1000"
+       description="Minimum RC PWM command in microseconds."/>
+  <arg name="pwm_neutral"
+       default="1500"
+       description="Neutral RC PWM command in microseconds."/>
+  <arg name="pwm_max"
+       default="2000"
+       description="Maximum RC PWM command in microseconds."/>
+  <arg name="pwm_wheel_radius"
+       default="0.205"
+       description="Wheel radius used to convert joint velocity commands into wheel surface speed."/>
+  <arg name="pwm_max_wheel_speed"
+       default="2.8"
+       description="Wheel speed that maps to full-scale PWM."/>
+  <arg name="pwm_invert_left"
+       default="false"
+       description="Invert the left PWM output sign."/>
+  <arg name="pwm_invert_right"
+       default="false"
+       description="Invert the right PWM output sign."/>
+  <arg name="python_executable"
+       default="python3"
+       description="Python executable used by the ODrive backend helper process."/>
+  <!-- odrive (joe) -->
+  <arg name="odrive_front_serial_number"
+       default=""
+       description="USB serial number of the front ODrive v3.6 board."/>
+  <arg name="odrive_rear_serial_number"
+       default=""
+       description="USB serial number of the rear ODrive v3.6 board."/>
+  <arg name="odrive_front_right_axis"
+       default="0"
+       description="Axis index on the front ODrive that corresponds to the right wheel motor."/>
+  <arg name="odrive_rear_right_axis"
+       default="1"
+       description="Axis index on the rear ODrive that corresponds to the right wheel motor."/>
+  <arg name="odrive_connect_timeout"
+       default="30.0"
+       description="Timeout in seconds used when connecting to the front and rear ODrive boards."/>
+
+  <let name="selected_urdf_file"
+       value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
+  <let name="selected_controllers_file"
+       value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
+  <let name="robot_description_content"
+       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false pwm_topic:=$(var pwm_topic) front_left_pwm_topic:=$(var pwm_front_left_topic) rear_left_pwm_topic:=$(var pwm_rear_left_topic) front_right_pwm_topic:=$(var pwm_front_right_topic) rear_right_pwm_topic:=$(var pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right) python_executable:=$(var python_executable) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
+
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>
   </node>

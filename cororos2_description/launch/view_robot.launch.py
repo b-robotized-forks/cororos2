@@ -73,7 +73,8 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "robot_model",
                 default_value="allie",
-                description="Robot model to view. Choices: allie, cornelius, joe.",
+                description="Robot model to view. Choices are: [allie, cornelius, joe].",
+                choices=["allie", "cornelius", "joe"],
             ),
             DeclareLaunchArgument(
                 "prefix",

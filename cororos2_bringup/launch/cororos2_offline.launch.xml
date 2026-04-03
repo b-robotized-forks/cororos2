@@ -23,7 +23,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <!-- offline / mock bringup -->
   <arg name="robot_model"
        default="allie"
-       description="Robot model to bring up in offline mode. Choices are: [allie, cornelius, joe]."/>
+       description="Robot model to bring up in offline mode. Choices are: [allie, cornelius, joe].">
+    <choice value="allie"/>
+    <choice value="cornelius"/>
+    <choice value="joe"/>
+  </arg>
   <arg name="runtime_config_package"
        default="cororos2_bringup"
        description="Package with the controller configuration in the config folder."/>
@@ -46,34 +50,15 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
 
-  <let name="is_allie" value="$(eval '\'$(var robot_model)\' == \'allie\'')"/>
-  <let name="is_cornelius" value="$(eval '\'$(var robot_model)\' == \'cornelius\'')"/>
-  <let name="is_joe" value="$(eval '\'$(var robot_model)\' == \'joe\'')"/>
-
-  <group if="$(var is_allie)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/allie.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands)')"/>
-
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-  </group>
-
-  <group if="$(var is_cornelius)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'cornelius_controllers\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/cornelius.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false')"/>
-
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-  </group>
-
-  <group if="$(var is_joe)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'joe_controllers\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/joe.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=true mock_sensor_commands:=$(var mock_sensor_commands)')"/>
-
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-  </group>
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml">
+    <arg name="robot_model" value="$(var robot_model)"/>
+    <arg name="runtime_config_package" value="$(var runtime_config_package)"/>
+    <arg name="description_package" value="$(var description_package)"/>
+    <arg name="controllers_file" value="$(var controllers_file)"/>
+    <arg name="prefix" value="$(var prefix)"/>
+    <arg name="use_mock_hardware" value="true"/>
+    <arg name="mock_sensor_commands" value="$(var mock_sensor_commands)"/>
+    <arg name="robot_controller" value="$(var robot_controller)"/>
+    <arg name="rviz" value="$(var rviz)"/>
+  </include>
 </launch>

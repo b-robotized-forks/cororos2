@@ -235,7 +235,8 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "robot_model",
                 default_value="allie",
-                description="Robot model to spawn in Gazebo. Choices: allie, cornelius, joe.",
+                description="Robot model to spawn in Gazebo. Choices are: [allie, cornelius, joe].",
+                choices=["allie", "cornelius", "joe"],
             ),
             DeclareLaunchArgument(
                 "gz_args",

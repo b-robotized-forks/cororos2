@@ -109,6 +109,12 @@ The consolidated launch files use a shared `robot_model` argument:
 
 Replace `<robot_model>` in the examples below with the robot you want to use.
 
+The shared bringup entry point can also be launched directly. By default it starts the selected robot in mock mode:
+
+```bash
+ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
+```
+
 ### 1. View the robot description in RViz
 
 This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the shared RViz config.

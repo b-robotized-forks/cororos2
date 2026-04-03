@@ -23,7 +23,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <!-- real-hardware bringup -->
   <arg name="robot_model"
        default="allie"
-       description="Robot model to bring up on hardware. Choices are: [allie, cornelius, joe]."/>
+       description="Robot model to bring up on hardware. Choices are: [allie, cornelius, joe].">
+    <choice value="allie"/>
+    <choice value="cornelius"/>
+    <choice value="joe"/>
+  </arg>
   <arg name="runtime_config_package"
        default="cororos2_bringup"
        description="Package with the controller configuration in the config folder."/>
@@ -86,11 +90,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="memsense_frame_id" default="imu_sensor_link" description="Frame id published by the Memsense MS-IMU3025 driver."/>
 
   <!-- pwm -->
-  <arg name="pwm_topic" default="" description="Combined PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_left_topic" default="" description="Front-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_left_topic" default="" description="Rear-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_right_topic" default="" description="Front-right motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_right_topic" default="" description="Rear-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_topic" default="/allie/pwm" description="Combined PWM output topic from the hardware interface."/>
+  <arg name="pwm_front_left_topic" default="/allie/pwm/front_left" description="Front-left motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_rear_left_topic" default="/allie/pwm/rear_left" description="Rear-left motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_front_right_topic" default="/allie/pwm/front_right" description="Front-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_rear_right_topic" default="/allie/pwm/rear_right" description="Rear-right motor PWM output topic from the hardware interface."/>
   <arg name="pwm_min" default="1000" description="Minimum RC PWM command in microseconds."/>
   <arg name="pwm_neutral" default="1500" description="Neutral RC PWM command in microseconds."/>
   <arg name="pwm_max" default="2000" description="Maximum RC PWM command in microseconds."/>
@@ -122,30 +126,40 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="odrive_rear_right_axis" default="1" description="Axis index on the rear ODrive that corresponds to the right wheel motor."/>
   <arg name="odrive_connect_timeout" default="30.0" description="Timeout in seconds used when connecting to the front and rear ODrive boards."/>
 
-  <let name="is_allie" value="$(eval '\'$(var robot_model)\' == \'allie\'')"/>
-  <let name="is_cornelius" value="$(eval '\'$(var robot_model)\' == \'cornelius\'')"/>
-  <let name="is_joe" value="$(eval '\'$(var robot_model)\' == \'joe\'')"/>
+  <let name="selected_gps_config_file"
+       value="$(eval '\'$(var gps_config_file)\' if \'$(var gps_config_file)\' != \'\' else \'allie_ublox\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_ublox\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_ublox\'')"/>
 
-  <group if="$(var is_allie)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\'')"/>
-    <let name="selected_gps_config_file"
-         value="$(eval '\'$(var gps_config_file)\' if \'$(var gps_config_file)\' != \'\' else \'allie_ublox\'')"/>
-    <let name="selected_pwm_topic"
-         value="$(eval '\'$(var pwm_topic)\' if \'$(var pwm_topic)\' != \'\' else \'/allie/pwm\'')"/>
-    <let name="selected_pwm_front_left_topic"
-         value="$(eval '\'$(var pwm_front_left_topic)\' if \'$(var pwm_front_left_topic)\' != \'\' else \'/allie/pwm/front_left\'')"/>
-    <let name="selected_pwm_rear_left_topic"
-         value="$(eval '\'$(var pwm_rear_left_topic)\' if \'$(var pwm_rear_left_topic)\' != \'\' else \'/allie/pwm/rear_left\'')"/>
-    <let name="selected_pwm_front_right_topic"
-         value="$(eval '\'$(var pwm_front_right_topic)\' if \'$(var pwm_front_right_topic)\' != \'\' else \'/allie/pwm/front_right\'')"/>
-    <let name="selected_pwm_rear_right_topic"
-         value="$(eval '\'$(var pwm_rear_right_topic)\' if \'$(var pwm_rear_right_topic)\' != \'\' else \'/allie/pwm/rear_right\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/allie.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=false mock_sensor_commands:=false pwm_topic:=$(var selected_pwm_topic) front_left_pwm_topic:=$(var selected_pwm_front_left_topic) rear_left_pwm_topic:=$(var selected_pwm_rear_left_topic) front_right_pwm_topic:=$(var selected_pwm_front_right_topic) rear_right_pwm_topic:=$(var selected_pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right)')"/>
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml">
+    <arg name="robot_model" value="$(var robot_model)"/>
+    <arg name="runtime_config_package" value="$(var runtime_config_package)"/>
+    <arg name="description_package" value="$(var description_package)"/>
+    <arg name="controllers_file" value="$(var controllers_file)"/>
+    <arg name="prefix" value="$(var prefix)"/>
+    <arg name="use_mock_hardware" value="false"/>
+    <arg name="mock_sensor_commands" value="false"/>
+    <arg name="robot_controller" value="$(var robot_controller)"/>
+    <arg name="rviz" value="$(var rviz)"/>
+    <arg name="pwm_topic" value="$(var pwm_topic)"/>
+    <arg name="pwm_front_left_topic" value="$(var pwm_front_left_topic)"/>
+    <arg name="pwm_rear_left_topic" value="$(var pwm_rear_left_topic)"/>
+    <arg name="pwm_front_right_topic" value="$(var pwm_front_right_topic)"/>
+    <arg name="pwm_rear_right_topic" value="$(var pwm_rear_right_topic)"/>
+    <arg name="pwm_min" value="$(var pwm_min)"/>
+    <arg name="pwm_neutral" value="$(var pwm_neutral)"/>
+    <arg name="pwm_max" value="$(var pwm_max)"/>
+    <arg name="pwm_wheel_radius" value="$(var pwm_wheel_radius)"/>
+    <arg name="pwm_max_wheel_speed" value="$(var pwm_max_wheel_speed)"/>
+    <arg name="pwm_invert_left" value="$(var pwm_invert_left)"/>
+    <arg name="pwm_invert_right" value="$(var pwm_invert_right)"/>
+    <arg name="python_executable" value="$(var python_executable)"/>
+    <arg name="odrive_front_serial_number" value="$(var odrive_front_serial_number)"/>
+    <arg name="odrive_rear_serial_number" value="$(var odrive_rear_serial_number)"/>
+    <arg name="odrive_front_right_axis" value="$(var odrive_front_right_axis)"/>
+    <arg name="odrive_rear_right_axis" value="$(var odrive_rear_right_axis)"/>
+    <arg name="odrive_connect_timeout" value="$(var odrive_connect_timeout)"/>
+  </include>
 
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-
+  <group if="$(eval '\'$(var robot_model)\' == \'allie\'')">
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
       <arg name="ouster_ns" value="$(var ouster_namespace)"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
@@ -187,16 +201,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </node>
   </group>
 
-  <group if="$(var is_cornelius)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'cornelius_controllers\'')"/>
-    <let name="selected_gps_config_file"
-         value="$(eval '\'$(var gps_config_file)\' if \'$(var gps_config_file)\' != \'\' else \'cornelius_ublox\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/cornelius.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=false mock_sensor_commands:=false attach_world:=false')"/>
-
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-
+  <group if="$(eval '\'$(var robot_model)\' == \'cornelius\'')">
     <group if="$(var use_roboclaw)">
       <node unless="$(var roboclaw_use_encoder)"
             pkg="roboclaw_driver" exec="roboclaw_driver_no_encoder" name="roboclaw_driver" output="both">
@@ -265,16 +270,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </node>
   </group>
 
-  <group if="$(var is_joe)">
-    <let name="selected_controllers_file"
-         value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'joe_controllers\'')"/>
-    <let name="selected_gps_config_file"
-         value="$(eval '\'$(var gps_config_file)\' if \'$(var gps_config_file)\' != \'\' else \'joe_ublox\'')"/>
-    <let name="robot_description_content"
-         value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/joe.urdf.xacro prefix:=$(var prefix) use_mock_hardware:=false mock_sensor_commands:=false python_executable:=$(var python_executable) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
-
-    <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_bringup.launch.xml"/>
-
+  <group if="$(eval '\'$(var robot_model)\' == \'joe\'')">
     <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="$(var velodyne_namespace)" name="velodyne_driver_node" output="both">
       <param from="$(find-pkg-share velodyne_driver)/config/VLP16-velodyne_driver_node-params.yaml"/>
       <param name="device_ip" value="$(var velodyne_device_ip)"/>
