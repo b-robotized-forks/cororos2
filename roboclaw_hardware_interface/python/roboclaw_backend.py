@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import math
 import sys
 import time
 
@@ -113,6 +114,23 @@ class RoboclawBackend:
         self.last_read_time = now
         return left_position_m, left_velocity_mps, right_position_m, right_velocity_mps
 
+    def read_status(self) -> tuple[float, float, float, float, float, float, int]:
+        main_battery_v = self._read_scaled_value(roboclaw.ReadMainBatteryVoltage, scale=10.0)
+        logic_battery_v = self._read_scaled_value(roboclaw.ReadLogicBatteryVoltage, scale=10.0)
+        m1_current_a, m2_current_a = self._read_scaled_pair(roboclaw.ReadCurrents, scale=100.0)
+        temp1_c = self._read_scaled_value(roboclaw.ReadTemp, scale=10.0)
+        temp2_c = self._read_scaled_value(roboclaw.ReadTemp2, scale=10.0)
+        error_word = self._read_integer_value(roboclaw.ReadError, default=-1)
+        return (
+            main_battery_v,
+            logic_battery_v,
+            m1_current_a,
+            m2_current_a,
+            temp1_c,
+            temp2_c,
+            error_word,
+        )
+
     def stop_motors(self) -> None:
         if self.use_encoder:
             roboclaw.ForwardM1(self.address, 0)
@@ -120,6 +138,33 @@ class RoboclawBackend:
         else:
             roboclaw.DutyAccelM1(self.address, 0, 0)
             roboclaw.DutyAccelM2(self.address, 0, 0)
+
+    def _read_scaled_value(self, reader, scale: float) -> float:
+        try:
+            result = reader(self.address)
+        except Exception:
+            return math.nan
+        if not result[0]:
+            return math.nan
+        return float(result[1]) / scale
+
+    def _read_scaled_pair(self, reader, scale: float) -> tuple[float, float]:
+        try:
+            result = reader(self.address)
+        except Exception:
+            return math.nan, math.nan
+        if not result[0]:
+            return math.nan, math.nan
+        return float(result[1]) / scale, float(result[2]) / scale
+
+    def _read_integer_value(self, reader, default: int) -> int:
+        try:
+            result = reader(self.address)
+        except Exception:
+            return default
+        if not result[0]:
+            return default
+        return int(result[1])
 
 
 def parse_bool(value: str) -> bool:
@@ -196,6 +241,12 @@ def main() -> int:
                     continue
                 values = backend.read_state()
                 print("STATE " + " ".join(f"{value:.10f}" for value in values), flush=True)
+            elif command == "STATUS":
+                values = backend.read_status()
+                print(
+                    "STATUS " + " ".join(f"{value:.10f}" for value in values[:-1]) + f" {values[-1]}",
+                    flush=True,
+                )
             elif command == "EXIT":
                 backend.deactivate()
                 print("OK", flush=True)

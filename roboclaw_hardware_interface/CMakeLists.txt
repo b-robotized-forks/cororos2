@@ -8,10 +8,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(controller_manager REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/roboclaw_hardware_interface.cpp
@@ -25,10 +28,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
   controller_manager
+  diagnostic_msgs
   hardware_interface
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  sensor_msgs
+  std_msgs
 )
 
 pluginlib_export_plugin_description_file(hardware_interface roboclaw_hardware_interface.xml)
