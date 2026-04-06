@@ -543,8 +543,9 @@ bool RoboclawHardwareInterface::parse_status_response(
 bool RoboclawHardwareInterface::ensure_publishers()
 {
   if (
-    battery_pub_ != nullptr && m1_current_pub_ != nullptr && m2_current_pub_ != nullptr &&
-    diagnostics_pub_ != nullptr)
+    battery_pub_ != nullptr && logic_battery_voltage_pub_ != nullptr &&
+    m1_current_pub_ != nullptr && m2_current_pub_ != nullptr && temp1_pub_ != nullptr &&
+    temp2_pub_ != nullptr && diagnostics_pub_ != nullptr)
   {
     return true;
   }
@@ -558,8 +559,12 @@ bool RoboclawHardwareInterface::ensure_publishers()
 
   battery_pub_ =
     node->create_publisher<sensor_msgs::msg::BatteryState>("roboclaw/battery_state", 10);
+  logic_battery_voltage_pub_ =
+    node->create_publisher<std_msgs::msg::Float32>("roboclaw/logic_battery_voltage", 10);
   m1_current_pub_ = node->create_publisher<std_msgs::msg::Float32>("roboclaw/m1_current", 10);
   m2_current_pub_ = node->create_publisher<std_msgs::msg::Float32>("roboclaw/m2_current", 10);
+  temp1_pub_ = node->create_publisher<std_msgs::msg::Float32>("roboclaw/temp1", 10);
+  temp2_pub_ = node->create_publisher<std_msgs::msg::Float32>("roboclaw/temp2", 10);
   diagnostics_pub_ =
     node->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("diagnostics", 10);
   return true;
@@ -620,6 +625,18 @@ void RoboclawHardwareInterface::publish_status(const RoboclawTelemetry & telemet
   std_msgs::msg::Float32 m2_current_msg;
   m2_current_msg.data = static_cast<float>(telemetry.m2_current);
   m2_current_pub_->publish(m2_current_msg);
+
+  std_msgs::msg::Float32 logic_battery_voltage_msg;
+  logic_battery_voltage_msg.data = static_cast<float>(telemetry.logic_battery_voltage);
+  logic_battery_voltage_pub_->publish(logic_battery_voltage_msg);
+
+  std_msgs::msg::Float32 temp1_msg;
+  temp1_msg.data = static_cast<float>(telemetry.temp1_c);
+  temp1_pub_->publish(temp1_msg);
+
+  std_msgs::msg::Float32 temp2_msg;
+  temp2_msg.data = static_cast<float>(telemetry.temp2_c);
+  temp2_pub_->publish(temp2_msg);
 
   diagnostic_msgs::msg::DiagnosticStatus status;
   status.name = "Roboclaw";

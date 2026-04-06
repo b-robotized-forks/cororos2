@@ -93,8 +93,11 @@ private:
   bool backend_running_{false};
 
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr logic_battery_voltage_pub_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr m1_current_pub_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr m2_current_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr temp1_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr temp2_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
   std::chrono::steady_clock::time_point last_status_publish_{};
   bool has_published_status_{false};
