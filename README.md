@@ -127,7 +127,7 @@ Example RViz views:
 
 | Allie | Cornelius | Joe |
 | --- | --- | --- |
-| ![Allie RViz view](resources/allie_rviz.png) | ![Cornelius RViz view](resources/cornelius_rviz.png) | ![Joe RViz view](resources/joe_rviz.png) |
+| <img src="resources/allie_rviz.png" alt="Allie RViz view" height="220"> | <img src="resources/cornelius_rviz.png" alt="Cornelius RViz view" height="220"> | <img src="resources/joe_rviz.png" alt="Joe RViz view" height="220"> |
 
 ### 2. Start mock bringup
 
