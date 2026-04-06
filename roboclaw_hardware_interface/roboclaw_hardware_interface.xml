@@ -1,0 +1,14 @@
+<library path="roboclaw_hardware_interface">
+  <class
+    name="roboclaw_hardware_interface/RoboclawHardwareInterface"
+    type="roboclaw_hardware_interface::RoboclawHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>ROS 2 control hardware interface that bridges Cornelius track commands to a Roboclaw backend.</description>
+  </class>
+  <class
+    name="robot_hardware_interface/RobotHardwareInterface"
+    type="roboclaw_hardware_interface::RoboclawHardwareInterface"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>Compatibility alias for the previous Cornelius hardware plugin name.</description>
+  </class>
+</library>

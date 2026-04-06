@@ -93,7 +93,47 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Invert the right PWM output sign."/>
   <arg name="python_executable"
        default="python3"
-       description="Python executable used by the ODrive backend helper process."/>
+       description="Python executable used by the robot backend helper processes."/>
+  <!-- roboclaw (cornelius) -->
+  <arg name="roboclaw_use_encoder"
+       default="false"
+       description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
+  <arg name="roboclaw_device"
+       default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
+       description="Serial device used by the Roboclaw controller."/>
+  <arg name="roboclaw_baud"
+       default="115200"
+       description="Serial baud rate used by the Roboclaw controller."/>
+  <arg name="roboclaw_address"
+       default="128"
+       description="Packet serial address used by the Roboclaw controller."/>
+  <arg name="roboclaw_max_speed"
+       default="1.2"
+       description="Maximum track speed in m/s used for command saturation."/>
+  <arg name="roboclaw_ticks_at_max_speed"
+       default="32760.0"
+       description="Full-scale duty command used by the Roboclaw no-encoder mode."/>
+  <arg name="roboclaw_acceleration"
+       default="32000"
+       description="Acceleration value used for Roboclaw duty commands."/>
+  <arg name="roboclaw_ticks_per_meter"
+       default="4342.2"
+       description="Encoder ticks per meter for the Roboclaw encoder mode."/>
+  <arg name="roboclaw_m1_invert"
+       default="false"
+       description="Invert the Roboclaw M1 motor direction in software."/>
+  <arg name="roboclaw_m2_invert"
+       default="false"
+       description="Invert the Roboclaw M2 motor direction in software."/>
+  <arg name="roboclaw_m1_encoder_sign"
+       default="1"
+       description="Sign correction applied to the Roboclaw M1 encoder ticks."/>
+  <arg name="roboclaw_m2_encoder_sign"
+       default="1"
+       description="Sign correction applied to the Roboclaw M2 encoder ticks."/>
+  <arg name="roboclaw_wheel_radius"
+       default="0.129"
+       description="Track drive wheel radius used to convert Cornelius joint velocity commands."/>
   <!-- odrive (joe) -->
   <arg name="odrive_front_serial_number"
        default=""
@@ -114,9 +154,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <let name="selected_urdf_file"
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
   <let name="selected_controllers_file"
-       value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
+       value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
   <let name="robot_description_content"
-       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false pwm_topic:=$(var pwm_topic) front_left_pwm_topic:=$(var pwm_front_left_topic) rear_left_pwm_topic:=$(var pwm_rear_left_topic) front_right_pwm_topic:=$(var pwm_front_right_topic) rear_right_pwm_topic:=$(var pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right) python_executable:=$(var python_executable) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
+       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false pwm_topic:=$(var pwm_topic) front_left_pwm_topic:=$(var pwm_front_left_topic) rear_left_pwm_topic:=$(var pwm_rear_left_topic) front_right_pwm_topic:=$(var pwm_front_right_topic) rear_right_pwm_topic:=$(var pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right) python_executable:=$(var python_executable) roboclaw_device:=$(var roboclaw_device) roboclaw_baud:=$(var roboclaw_baud) roboclaw_address:=$(var roboclaw_address) roboclaw_use_encoder:=$(var roboclaw_use_encoder) roboclaw_max_speed:=$(var roboclaw_max_speed) roboclaw_ticks_at_max_speed:=$(var roboclaw_ticks_at_max_speed) roboclaw_acceleration:=$(var roboclaw_acceleration) roboclaw_ticks_per_meter:=$(var roboclaw_ticks_per_meter) roboclaw_m1_invert:=$(var roboclaw_m1_invert) roboclaw_m2_invert:=$(var roboclaw_m2_invert) roboclaw_m1_encoder_sign:=$(var roboclaw_m1_encoder_sign) roboclaw_m2_encoder_sign:=$(var roboclaw_m2_encoder_sign) roboclaw_wheel_radius:=$(var roboclaw_wheel_radius) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>

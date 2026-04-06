@@ -11,7 +11,7 @@ The repository is the ROS 2 port of several robots and currently contains the mo
 
 - **Robot-specific base backends:**
   - Allie: PWM hardware interface
-  - Cornelius: Roboclaw motor driver
+  - Cornelius: Roboclaw hardware interface
   - Joe: ODrive hardware interface
 
 - **Allie hardware context:**
@@ -40,7 +40,7 @@ The repository is the ROS 2 port of several robots and currently contains the mo
   - `cororos2_bringup`
   - `memsense_msimu3025_driver`
   - `pwm_hardware_interface`
-  - `roboclaw_driver`
+  - `roboclaw_hardware_interface`
   - `odrive_hardware_interface`
 
 ## Workspace setup
@@ -221,7 +221,7 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 - **u-blox GPS** via `ublox_gps`
 - **Memsense IMU** via `memsense_msimu3025_driver`
 - **Allie PWM base backend** via `pwm_hardware_interface`
-- **Cornelius Roboclaw motor driver** via `roboclaw_driver`
+- **Cornelius Roboclaw base backend** via `roboclaw_hardware_interface`
 - **Joe ODrive base backend** via `odrive_hardware_interface`
 
 > [!WARNING]
@@ -237,7 +237,7 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
     - `ouster_udp_dest:=<host-ip>`
 
 - `robot_model:=cornelius`
-  - base backend: Roboclaw
+  - base backend: Roboclaw hardware interface
   - lidar stack: Ouster
   - useful extra args:
     - `roboclaw_device:=/dev/serial/by-id/<your-device>`
@@ -246,7 +246,7 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
     - `ouster_udp_dest:=<host-ip>`
 
 - `robot_model:=joe`
-  - base backend: ODrive
+  - base backend: ODrive hardware interface
   - lidar stack: Velodyne VLP-16
   - useful extra args:
     - `odrive_front_serial_number:=<front-serial>`
@@ -263,7 +263,7 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
   ouster_udp_dest:=<host-ip>
 ```
 
-Cornelius with Roboclaw without encoder odometry:
+Cornelius with Roboclaw base hardware interface:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \

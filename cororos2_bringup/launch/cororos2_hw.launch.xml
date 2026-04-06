@@ -104,22 +104,22 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="pwm_invert_right" default="false" description="Invert the right PWM output sign."/>
 
   <!-- roboclaw -->
-  <arg name="use_roboclaw"
-       default="true"
-       description="Start the Roboclaw node for Cornelius hardware bringup. This setting has no effect for Allie or Joe."/>
-  <arg name="roboclaw_use_encoder" default="false" description="Use the encoder-capable Roboclaw node."/>
+  <arg name="roboclaw_use_encoder" default="false" description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="roboclaw_device" default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00" description="Serial device used by the Roboclaw controller."/>
   <arg name="roboclaw_baud" default="115200" description="Serial baud rate used by the Roboclaw controller."/>
   <arg name="roboclaw_address" default="128" description="Packet serial address used by the Roboclaw controller."/>
   <arg name="roboclaw_max_speed" default="1.2" description="Maximum track speed in m/s used for command saturation."/>
-  <arg name="roboclaw_base_width" default="0.387" description="Distance between left and right track centers in meters."/>
-  <arg name="roboclaw_ticks_per_meter" default="4342.2" description="Encoder ticks per meter for the Roboclaw encoder node."/>
-  <arg name="roboclaw_command_timeout_sec" default="1.0" description="Time without cmd_vel before the Roboclaw node stops the motors."/>
+  <arg name="roboclaw_ticks_at_max_speed" default="32760.0" description="Full-scale duty command used by the Roboclaw no-encoder mode."/>
+  <arg name="roboclaw_acceleration" default="32000" description="Acceleration value used for Roboclaw duty commands."/>
+  <arg name="roboclaw_ticks_per_meter" default="4342.2" description="Encoder ticks per meter for the Roboclaw encoder mode."/>
   <arg name="roboclaw_m1_invert" default="false" description="Invert the M1 motor direction in software."/>
   <arg name="roboclaw_m2_invert" default="false" description="Invert the M2 motor direction in software."/>
+  <arg name="roboclaw_m1_encoder_sign" default="1" description="Sign correction applied to the Roboclaw M1 encoder ticks."/>
+  <arg name="roboclaw_m2_encoder_sign" default="1" description="Sign correction applied to the Roboclaw M2 encoder ticks."/>
+  <arg name="roboclaw_wheel_radius" default="0.129" description="Track drive wheel radius used to convert Cornelius joint velocity commands."/>
 
   <!-- odrive -->
-  <arg name="python_executable" default="python3" description="Python executable used by the ODrive backend helper process."/>
+  <arg name="python_executable" default="python3" description="Python executable used by the robot backend helper processes."/>
   <arg name="odrive_front_serial_number" default="" description="USB serial number of the front ODrive v3.6 board."/>
   <arg name="odrive_rear_serial_number" default="" description="USB serial number of the rear ODrive v3.6 board."/>
   <arg name="odrive_front_right_axis" default="0" description="Axis index on the front ODrive that corresponds to the right wheel motor."/>
@@ -152,6 +152,19 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="pwm_invert_left" value="$(var pwm_invert_left)"/>
     <arg name="pwm_invert_right" value="$(var pwm_invert_right)"/>
     <arg name="python_executable" value="$(var python_executable)"/>
+    <arg name="roboclaw_use_encoder" value="$(var roboclaw_use_encoder)"/>
+    <arg name="roboclaw_device" value="$(var roboclaw_device)"/>
+    <arg name="roboclaw_baud" value="$(var roboclaw_baud)"/>
+    <arg name="roboclaw_address" value="$(var roboclaw_address)"/>
+    <arg name="roboclaw_max_speed" value="$(var roboclaw_max_speed)"/>
+    <arg name="roboclaw_ticks_at_max_speed" value="$(var roboclaw_ticks_at_max_speed)"/>
+    <arg name="roboclaw_acceleration" value="$(var roboclaw_acceleration)"/>
+    <arg name="roboclaw_ticks_per_meter" value="$(var roboclaw_ticks_per_meter)"/>
+    <arg name="roboclaw_m1_invert" value="$(var roboclaw_m1_invert)"/>
+    <arg name="roboclaw_m2_invert" value="$(var roboclaw_m2_invert)"/>
+    <arg name="roboclaw_m1_encoder_sign" value="$(var roboclaw_m1_encoder_sign)"/>
+    <arg name="roboclaw_m2_encoder_sign" value="$(var roboclaw_m2_encoder_sign)"/>
+    <arg name="roboclaw_wheel_radius" value="$(var roboclaw_wheel_radius)"/>
     <arg name="odrive_front_serial_number" value="$(var odrive_front_serial_number)"/>
     <arg name="odrive_rear_serial_number" value="$(var odrive_rear_serial_number)"/>
     <arg name="odrive_front_right_axis" value="$(var odrive_front_right_axis)"/>
@@ -202,33 +215,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </group>
 
   <group if="$(eval '\'$(var robot_model)\' == \'cornelius\'')">
-    <group if="$(var use_roboclaw)">
-      <node unless="$(var roboclaw_use_encoder)"
-            pkg="roboclaw_driver" exec="roboclaw_driver_no_encoder" name="roboclaw_driver" output="both">
-        <param name="device" value="$(var roboclaw_device)"/>
-        <param name="baud" value="$(var roboclaw_baud)"/>
-        <param name="address" value="$(var roboclaw_address)"/>
-        <param name="max_speed" value="$(var roboclaw_max_speed)"/>
-        <param name="base_width" value="$(var roboclaw_base_width)"/>
-        <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
-        <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
-        <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
-      </node>
-
-      <node if="$(var roboclaw_use_encoder)"
-            pkg="roboclaw_driver" exec="roboclaw_driver_encoder" name="roboclaw_driver" output="both">
-        <param name="device" value="$(var roboclaw_device)"/>
-        <param name="baud" value="$(var roboclaw_baud)"/>
-        <param name="address" value="$(var roboclaw_address)"/>
-        <param name="max_speed" value="$(var roboclaw_max_speed)"/>
-        <param name="base_width" value="$(var roboclaw_base_width)"/>
-        <param name="ticks_per_meter" value="$(var roboclaw_ticks_per_meter)"/>
-        <param name="command_timeout_sec" value="$(var roboclaw_command_timeout_sec)"/>
-        <param name="m1_invert" value="$(var roboclaw_m1_invert)"/>
-        <param name="m2_invert" value="$(var roboclaw_m2_invert)"/>
-      </node>
-    </group>
-
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
       <arg name="ouster_ns" value="$(var ouster_namespace)"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
