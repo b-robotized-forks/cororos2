@@ -4,7 +4,7 @@ import math
 import sys
 import time
 
-from roboclaw_driver import roboclaw_protocol as roboclaw
+import roboclaw_protocol as roboclaw
 
 
 class RoboclawBackend:

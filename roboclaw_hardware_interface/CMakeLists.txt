@@ -61,4 +61,9 @@ install(
   DESTINATION share/${PROJECT_NAME}/python
 )
 
+install(
+  FILES python/roboclaw_protocol.py
+  DESTINATION share/${PROJECT_NAME}/python
+)
+
 ament_package()
