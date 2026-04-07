@@ -56,8 +56,16 @@ rtw workspace create --ws-folder cororos_ws --ros-distro jazzy
 rtw ws cororos_ws
 rosds
 git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git
+rosdep_prep
+export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdepi
 cb
+```
+
+If GitHub SSH is not configured on your machine yet, you can clone the public repository over HTTPS instead:
+
+```bash
+git clone -b ros2 https://github.com/b-robotized-forks/cororos2.git
 ```
 
 ### 2. Manual workspace setup
@@ -79,6 +87,7 @@ git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 ```bash
 sudo apt update
 rosdep update
+export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
 
 Install package dependencies from the workspace root:
