@@ -352,3 +352,54 @@ PWM output topics for Allie:
    ```bash
    ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.5}}"
    ```
+
+## ODrive Diagnostics And Telemetry
+
+Joe's `odrive_hardware_interface` now publishes `/diagnostics` with one overall ODrive diagnostic entry and one diagnostic entry per wheel axis.
+
+Board-level topics:
+
+- `odrive/status`
+- `odrive/front/vbus_voltage`
+- `odrive/rear/vbus_voltage`
+- `odrive/front/estop_voltage`
+- `odrive/rear/estop_voltage`
+
+Per-wheel topics:
+
+- `odrive/front_left_wheel_joint/current`
+- `odrive/front_left_wheel_joint/temperature`
+- `odrive/front_left_wheel_joint/i2t`
+- `odrive/front_right_wheel_joint/current`
+- `odrive/front_right_wheel_joint/temperature`
+- `odrive/front_right_wheel_joint/i2t`
+- `odrive/rear_left_wheel_joint/current`
+- `odrive/rear_left_wheel_joint/temperature`
+- `odrive/rear_left_wheel_joint/i2t`
+- `odrive/rear_right_wheel_joint/current`
+- `odrive/rear_right_wheel_joint/temperature`
+- `odrive/rear_right_wheel_joint/i2t`
+
+The overall ODrive diagnostic contains:
+
+- `front_serial_number`
+- `rear_serial_number`
+- `active`
+- `i2t_latched`
+- `front_vbus_voltage_v`
+- `rear_vbus_voltage_v`
+- `front_estop_voltage_v`
+- `rear_estop_voltage_v`
+- `backend_error` when present
+
+Each per-wheel diagnostic contains:
+
+- `joint`
+- `state`
+- `current_a`
+- `fet_temperature_c`
+- `i2t`
+- `axis_error`
+- `motor_error`
+- `encoder_error`
+- `controller_error`

@@ -13,7 +13,15 @@
                rear_serial_number:=''
                front_right_axis:=0
                rear_right_axis:=1
-               connect_timeout:=30.0">
+               connect_timeout:=30.0
+               clear_errors_on_startup:=true
+               status_interval_sec:=0.5
+               estop_adc_channel:=5
+               i2t_current_nominal:=2.0
+               i2t_update_rate:=0.01
+               i2t_resume_threshold:=2220.0
+               i2t_warning_threshold:=3330.0
+               i2t_error_threshold:=6660.0">
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -35,6 +43,14 @@
           <param name="front_right_axis">${front_right_axis}</param>
           <param name="rear_right_axis">${rear_right_axis}</param>
           <param name="connect_timeout">${connect_timeout}</param>
+          <param name="clear_errors_on_startup">${clear_errors_on_startup}</param>
+          <param name="status_interval_sec">${status_interval_sec}</param>
+          <param name="estop_adc_channel">${estop_adc_channel}</param>
+          <param name="i2t_current_nominal">${i2t_current_nominal}</param>
+          <param name="i2t_update_rate">${i2t_update_rate}</param>
+          <param name="i2t_resume_threshold">${i2t_resume_threshold}</param>
+          <param name="i2t_warning_threshold">${i2t_warning_threshold}</param>
+          <param name="i2t_error_threshold">${i2t_error_threshold}</param>
         </xacro:unless>
       </hardware>
 
