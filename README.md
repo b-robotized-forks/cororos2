@@ -1,13 +1,13 @@
 # Coordinated Robotics
 
-This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. It currently includes ROS 2 description, bringup, simulation, and sensor integration work for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
+This repository contains the ROS 2 packages and setup for the Coordinated Robotics `cororos2` robots. It includes description, bringup, simulation, and sensor integration work for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
 
 > [!WARNING]
-> This repository is under active development. Some robots still contain only partial ROS 2 support, and some hardware integrations are present in launch files but are not yet validated on the real robot.
+> This repository is still under active development. Some robots still have only partial ROS 2 support, and some hardware integrations are in the launch files but are not yet validated on the real robot.
 
 ## Overview
 
-The repository is the ROS 2 port of several robots and currently contains the most complete ROS 2 paths for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
+This repository is the ROS 2 port for several robots. The most complete ROS 2 paths right now are for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
 
 - **Robot-specific base backends:**
   - Allie: PWM hardware interface
@@ -49,7 +49,7 @@ You can set up the workspace in two ways.
 
 ### 1. If you are using RTW
 
-If you have installed RTW from the [RTW installation guide](https://rtw.b-robotized.com/master/tutorials/setting_up_rtw.html#installation-of-rtw), you can create and build the workspace like this:
+If you already use RTW from the [RTW installation guide](https://rtw.b-robotized.com/master/tutorials/setting_up_rtw.html#installation-of-rtw), you can create and build the workspace like this:
 
 ```bash
 rtw workspace create --ws-folder cororos_ws --ros-distro jazzy
@@ -62,7 +62,7 @@ rosdepi
 cb
 ```
 
-If GitHub SSH is not configured on your machine yet, you can clone the public repository over HTTPS instead:
+If GitHub SSH is not set up on your machine yet, you can clone the public repository over HTTPS instead:
 
 ```bash
 git clone -b ros2 https://github.com/b-robotized-forks/cororos2.git
@@ -70,11 +70,11 @@ git clone -b ros2 https://github.com/b-robotized-forks/cororos2.git
 
 ### 2. Manual workspace setup
 
-If you are not using RTW, follow these steps.
+If you are not using RTW, use these steps.
 
 #### Clone the repository into your ROS 2 workspace
 
-From the root of your workspace (for example `~/cororos2_ws`):
+From the root of your workspace, for example `~/cororos2_ws`:
 
 ```bash
 mkdir -p ~/cororos2_ws/src
@@ -90,7 +90,7 @@ rosdep update
 export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
 
-Install package dependencies from the workspace root:
+Then install the package dependencies from the workspace root:
 
 ```bash
 cd ~/cororos2_ws
@@ -106,19 +106,19 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-Now the workspace is ready for use.
+The workspace is now ready to use.
 
 ## Starting the robots and the simulation
 
-The consolidated launch files use a shared `robot_model` argument:
+The launch files use a shared `robot_model` argument:
 
 - `allie`
 - `cornelius`
 - `joe`
 
-Replace `<robot_model>` in the examples below with the robot you want to use.
+In the examples below, replace `<robot_model>` with the robot you want to use.
 
-The shared bringup entry point can also be launched directly. By default it starts the selected robot in mock mode:
+You can also launch the shared bringup entry point directly. By default it starts the selected robot in mock mode:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
@@ -153,13 +153,13 @@ ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=<robot_mod
 
 ### 3. Start hardware bringup
 
-This uses the same shared bringup core, but enables the hardware-specific robot description and integrated drivers.
+This uses the same bringup core, but turns on the hardware-specific robot description and drivers.
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
 ```
 
-Common optional hardware toggles:
+Common optional hardware flags:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
@@ -199,13 +199,13 @@ In another terminal, publish a velocity command to the Gazebo controller:
 ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
 ```
 
-You should see the robot move in Gazebo and the odometry change.
+The robot should move in Gazebo and the odometry should change.
 
 ### 6. Check the simulated ROS sensor topics
 
-The Gazebo launch bridges simulated sensor data into ROS under `/<robot_model>/...` topics.
+The Gazebo launch bridges the simulated sensor data into ROS under `/<robot_model>/...` topics.
 
-You can inspect them with:
+You can check them with:
 
 ```bash
 ros2 topic list | grep '^/<robot_model>/'
@@ -222,7 +222,7 @@ ros2 topic echo /<robot_model>/gps/fix --once
 
 ## Hardware bringup notes
 
-The following hardware drivers are already integrated into `cororos2_hw.launch.xml`:
+These hardware drivers are already integrated into `cororos2_hw.launch.xml`:
 
 - **Ouster lidar** via `ouster_ros`
 - **Velodyne VLP-16** via `velodyne_driver`, `velodyne_pointcloud`, and `velodyne_laserscan`
@@ -234,7 +234,7 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 - **Joe ODrive base backend** via `odrive_hardware_interface`
 
 > [!WARNING]
-> The drivers still need hardware validation.
+> These drivers still need hardware validation.
 
 ### Robot-specific hardware choices
 
@@ -331,21 +331,21 @@ PWM output topics for Allie:
 ```
 
 > [!WARNING]
-> The Roboclaw path is still under active integration. The ROS 2 package, launch wiring, and encoder / no-encoder variants are present, but hardware validation and tuning are still needed.
+> The Roboclaw path is still being integrated. The ROS 2 package, launch wiring, and encoder / no-encoder variants are there, but hardware validation and tuning are still needed.
 
 > [!NOTE]
-> The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
+> The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it comes in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
 
 ## Troubleshooting
 
 1. *Controllers are already loaded or active.*
-   This usually means stale nodes from a previous launch are still running.
+   This usually means nodes from a previous launch are still running.
    ```bash
    pkill -f ros2_control_node
    pkill -f controller_manager/spawner
    pkill -f robot_state_publisher
    ```
-   Then relaunch once from a clean terminal.
+   Then launch again from a clean terminal.
 
 2. *PWM output keeps returning to neutral while testing.*
    The PWM driver uses a timeout of `0.5 s`. Publish `cmd_vel` faster than that, for example:
@@ -355,7 +355,7 @@ PWM output topics for Allie:
 
 ## ODrive Diagnostics And Telemetry
 
-Joe's `odrive_hardware_interface` now publishes `/diagnostics` with one overall ODrive diagnostic entry and one diagnostic entry per wheel axis.
+Joe's `odrive_hardware_interface` publishes `/diagnostics` with one overall ODrive diagnostic entry and one entry for each wheel axis.
 
 Board-level topics:
 
@@ -380,7 +380,7 @@ Per-wheel topics:
 - `odrive/rear_right_wheel_joint/temperature`
 - `odrive/rear_right_wheel_joint/i2t`
 
-The overall ODrive diagnostic contains:
+The overall ODrive diagnostic includes:
 
 - `front_serial_number`
 - `rear_serial_number`
@@ -392,7 +392,7 @@ The overall ODrive diagnostic contains:
 - `rear_estop_voltage_v`
 - `backend_error` when present
 
-Each per-wheel diagnostic contains:
+Each per-wheel diagnostic includes:
 
 - `joint`
 - `state`
@@ -403,3 +403,21 @@ Each per-wheel diagnostic contains:
 - `motor_error`
 - `encoder_error`
 - `controller_error`
+
+The ODrive reports errors through diagnostics, and i2t protection forces commands to zero until the drive cools below the resume threshold.
+
+## ODrive Services
+
+Joe's `odrive_hardware_interface` also provides these services:
+
+- `/odrive/connect_driver`
+- `/odrive/disconnect_driver`
+- `/odrive/calibrate_motors`
+- `/odrive/preroll_motors`
+- `/odrive/engage_motors`
+- `/odrive/release_motors`
+
+These are all `std_srvs/srv/Trigger` services. `preroll_motors` prepares the wheel encoders before driving. `engage_motors` and `release_motors` switch the ODrive axes between closed-loop and idle.
+
+> [!NOTE]
+> ROS 1 `reset_odometry` and `enable_odometry_updates` were not ported because `diff_drive_controller` now handles odometry.

@@ -9,30 +9,24 @@ IMPORT_ERROR = None
 
 try:
     import odrive
-    from odrive.enums import AXIS_STATE_CLOSED_LOOP_CONTROL, AXIS_STATE_IDLE, CONTROL_MODE_VELOCITY_CONTROL
+    from odrive.enums import (
+        AXIS_STATE_CLOSED_LOOP_CONTROL,
+        AXIS_STATE_ENCODER_INDEX_SEARCH,
+        AXIS_STATE_FULL_CALIBRATION_SEQUENCE,
+        AXIS_STATE_IDLE,
+        CONTROL_MODE_VELOCITY_CONTROL,
+    )
 except ModuleNotFoundError as exc:  # pragma: no cover - hardware env dependent
     odrive = None
     AXIS_STATE_CLOSED_LOOP_CONTROL = None
+    AXIS_STATE_ENCODER_INDEX_SEARCH = None
+    AXIS_STATE_FULL_CALIBRATION_SEQUENCE = None
     AXIS_STATE_IDLE = None
     CONTROL_MODE_VELOCITY_CONTROL = None
     IMPORT_ERROR = exc
 
 
 class ODriveBoard:
-    MOTOR_STATES = [
-        "UNDEFINED",
-        "IDLE",
-        "STARTUP_SEQUENCE",
-        "FULL_CALIBRATION_SEQUENCE",
-        "MOTOR_CALIBRATION",
-        "SENSORLESS_CONTROL",
-        "ENCODER_INDEX_SEARCH",
-        "ENCODER_OFFSET_CALIBRATION",
-        "CLOSED_LOOP_CONTROL",
-        "LOCKIN_SPIN",
-        "ENCODER_DIR_FIND",
-    ]
-
     def __init__(
         self,
         serial_number: str,
@@ -66,6 +60,7 @@ class ODriveBoard:
         self.right_i2t = 0.0
         self.last_vbus_voltage = float("nan")
         self.last_estop_voltage = float("nan")
+        self.last_read_values = [0.0, 0.0, 0.0, 0.0]
 
     @staticmethod
     def _safe_float(value, default: float = float("nan")) -> float:
@@ -121,10 +116,33 @@ class ODriveBoard:
         except Exception:
             return float("nan")
 
+    def _reset_runtime_state(self) -> None:
+        self.active = False
+        self.i2t_latched = False
+        self.last_i2t_update = None
+        self.left_i2t = 0.0
+        self.right_i2t = 0.0
+
+    def _require_connected(self) -> None:
+        if not self.driver or self.left_axis is None or self.right_axis is None:
+            raise RuntimeError(f"{self.serial_number} is not connected")
+
+    def _wait_for_idle(self, axis, action: str, timeout_s: float = 45.0) -> None:
+        deadline = time.monotonic() + timeout_s
+        while getattr(axis, "current_state", AXIS_STATE_IDLE) != AXIS_STATE_IDLE:
+            if time.monotonic() >= deadline:
+                raise RuntimeError(
+                    f"{action} timed out on {self.serial_number} with state {getattr(axis, 'current_state', 0)}"
+                )
+            time.sleep(0.1)
+
     def connect(self) -> None:
+        if self.driver is not None:
+            self.disconnect()
         self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
         self.right_axis = self.driver.axis0 if self.right_axis_index == 0 else self.driver.axis1
         self.left_axis = self.driver.axis1 if self.right_axis_index == 0 else self.driver.axis0
+        self._reset_runtime_state()
         if self._has_any_errors():
             startup_errors = self._format_all_errors()
             if self.clear_errors_on_startup:
@@ -149,6 +167,28 @@ class ODriveBoard:
             axis.watchdog_feed()
         self.active = True
 
+    def calibrate(self) -> None:
+        self._require_connected()
+        self.deactivate()
+        for axis in (self.left_axis, self.right_axis):
+            axis.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+        for axis in (self.left_axis, self.right_axis):
+            self._wait_for_idle(axis, "calibration")
+        if self._has_any_errors():
+            raise RuntimeError(f"calibration failed on {self.serial_number}: {self._format_all_errors()}")
+        self.refresh_status()
+
+    def preroll(self) -> None:
+        self._require_connected()
+        self.deactivate()
+        for axis in (self.left_axis, self.right_axis):
+            axis.requested_state = AXIS_STATE_ENCODER_INDEX_SEARCH
+        for axis in (self.left_axis, self.right_axis):
+            self._wait_for_idle(axis, "index search")
+        if self._has_any_errors():
+            raise RuntimeError(f"index search failed on {self.serial_number}: {self._format_all_errors()}")
+        self.refresh_status()
+
     def deactivate(self) -> None:
         if not self.driver:
             return
@@ -158,6 +198,8 @@ class ODriveBoard:
         self.active = False
 
     def drive(self, left_turns_per_second: float, right_turns_per_second: float) -> None:
+        if not self.driver:
+            return
         self.refresh_status()
         self.left_axis.watchdog_feed()
         self.right_axis.watchdog_feed()
@@ -169,13 +211,21 @@ class ODriveBoard:
         self.right_axis.controller.input_vel = -right_turns_per_second
 
     def read(self) -> list[float]:
+        if not self.driver:
+            return [
+                self.last_read_values[0],
+                0.0,
+                self.last_read_values[2],
+                0.0,
+            ]
         self.refresh_status()
-        return [
+        self.last_read_values = [
             float(self.left_axis.encoder.pos_estimate),
             float(self.left_axis.encoder.vel_estimate),
             float(-self.right_axis.encoder.pos_estimate),
             float(-self.right_axis.encoder.vel_estimate),
         ]
+        return list(self.last_read_values)
 
     def _read_axis_status(self, axis, i2t_value: float) -> list[float]:
         axis_error, motor_error, encoder_error, controller_error = self._axis_error_snapshot(axis)
@@ -245,7 +295,9 @@ class ODriveBoard:
             self.deactivate()
         except Exception:
             pass
-        self.active = False
+        self._reset_runtime_state()
+        self.last_vbus_voltage = float("nan")
+        self.last_estop_voltage = float("nan")
         self.driver = None
         self.left_axis = None
         self.right_axis = None
@@ -327,7 +379,23 @@ def main() -> int:
 
             if command == "PING":
                 print("PONG", flush=True)
-            elif command == "ACTIVATE":
+            elif command == "CONNECT":
+                try:
+                    front.connect()
+                    rear.connect()
+                    active = False
+                    print("OK", flush=True)
+                except Exception as exc:
+                    front.disconnect()
+                    rear.disconnect()
+                    active = False
+                    print(f"ERROR connect failed: {exc}", flush=True)
+            elif command == "DISCONNECT":
+                front.disconnect()
+                rear.disconnect()
+                active = False
+                print("OK", flush=True)
+            elif command in {"ACTIVATE", "ENGAGE"}:
                 try:
                     front.activate()
                     rear.activate()
@@ -338,11 +406,33 @@ def main() -> int:
                     rear.deactivate()
                     active = False
                     print(f"ERROR activate failed: {exc}", flush=True)
-            elif command == "DEACTIVATE":
+            elif command in {"DEACTIVATE", "RELEASE"}:
                 front.deactivate()
                 rear.deactivate()
                 active = False
                 print("OK", flush=True)
+            elif command == "CALIBRATE":
+                try:
+                    front.calibrate()
+                    rear.calibrate()
+                    active = False
+                    print("OK", flush=True)
+                except Exception as exc:
+                    front.deactivate()
+                    rear.deactivate()
+                    active = False
+                    print(f"ERROR calibrate failed: {exc}", flush=True)
+            elif command == "PREROLL":
+                try:
+                    front.preroll()
+                    rear.preroll()
+                    active = False
+                    print("OK", flush=True)
+                except Exception as exc:
+                    front.deactivate()
+                    rear.deactivate()
+                    active = False
+                    print(f"ERROR preroll failed: {exc}", flush=True)
             elif command == "WRITE":
                 if len(parts) != 5:
                     print("ERROR bad write command", flush=True)

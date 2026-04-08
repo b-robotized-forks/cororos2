@@ -202,6 +202,7 @@ ODriveHardwareInterface::export_command_interfaces()
 hardware_interface::CallbackReturn ODriveHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (!start_backend())
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -238,6 +239,7 @@ hardware_interface::CallbackReturn ODriveHardwareInterface::on_activate(
 hardware_interface::CallbackReturn ODriveHardwareInterface::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (backend_running_)
   {
     expect_ok("DEACTIVATE");
@@ -250,6 +252,7 @@ hardware_interface::CallbackReturn ODriveHardwareInterface::on_deactivate(
 hardware_interface::return_type ODriveHardwareInterface::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   std::string response;
   if (!send_command("READ", response))
   {
@@ -268,6 +271,7 @@ hardware_interface::return_type ODriveHardwareInterface::read(
 hardware_interface::return_type ODriveHardwareInterface::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   std::ostringstream command;
   command << "WRITE";
   for (double cmd_rad_s : hw_commands_)
@@ -281,6 +285,7 @@ hardware_interface::return_type ODriveHardwareInterface::write(
 
 bool ODriveHardwareInterface::start_backend()
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (backend_running_)
   {
     return true;
@@ -355,6 +360,7 @@ bool ODriveHardwareInterface::start_backend()
 
 void ODriveHardwareInterface::stop_backend()
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (backend_running_)
   {
     int status = 0;
@@ -387,6 +393,7 @@ void ODriveHardwareInterface::stop_backend()
 
 bool ODriveHardwareInterface::send_command(const std::string & command, std::string & response)
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (!backend_running_ || backend_in_ == nullptr || backend_out_ == nullptr)
   {
     return false;
@@ -432,6 +439,63 @@ bool ODriveHardwareInterface::expect_ok(const std::string & command)
     return false;
   }
   clear_backend_error();
+  return true;
+}
+
+bool ODriveHardwareInterface::run_service_command(
+  const std::string & command, const std::string & success_message, bool zero_commands,
+  bool allow_backend_start, std::string & message)
+{
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
+
+  if (zero_commands)
+  {
+    std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+  }
+
+  if (command == "CONNECT")
+  {
+    if (!backend_running_)
+    {
+      if (!allow_backend_start || !start_backend())
+      {
+        message =
+          last_backend_error_.empty() ? "Failed to start the ODrive backend." : last_backend_error_;
+        return false;
+      }
+    }
+    else if (!expect_ok(command))
+    {
+      message = last_backend_error_.empty() ? "Failed to reconnect the ODrive driver."
+                                            : last_backend_error_;
+      return false;
+    }
+  }
+  else
+  {
+    if (!backend_running_)
+    {
+      if (command == "DISCONNECT")
+      {
+        clear_backend_error();
+        message = "ODrive driver is already disconnected.";
+        return true;
+      }
+      set_backend_error("ODrive backend is not running.");
+      message = last_backend_error_;
+      return false;
+    }
+
+    if (!expect_ok(command))
+    {
+      message = last_backend_error_.empty() ? command + " failed." : last_backend_error_;
+      return false;
+    }
+  }
+
+  poll_and_publish_status();
+  clear_backend_error();
+  message = success_message;
   return true;
 }
 
@@ -564,11 +628,14 @@ bool ODriveHardwareInterface::parse_status_response(
 
 bool ODriveHardwareInterface::ensure_publishers()
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (
     status_pub_ != nullptr && front_vbus_pub_ != nullptr && rear_vbus_pub_ != nullptr &&
     front_estop_pub_ != nullptr && rear_estop_pub_ != nullptr && diagnostics_pub_ != nullptr &&
     current_pubs_.size() == info_.joints.size() && temp_pubs_.size() == info_.joints.size() &&
-    i2t_pubs_.size() == info_.joints.size())
+    i2t_pubs_.size() == info_.joints.size() && connect_service_ != nullptr &&
+    disconnect_service_ != nullptr && calibrate_service_ != nullptr &&
+    preroll_service_ != nullptr && engage_service_ != nullptr && release_service_ != nullptr)
   {
     return true;
   }
@@ -604,11 +671,69 @@ bool ODriveHardwareInterface::ensure_publishers()
       node->create_publisher<std_msgs::msg::Float32>(topic_base + "/temperature", 10));
     i2t_pubs_.push_back(node->create_publisher<std_msgs::msg::Float32>(topic_base + "/i2t", 10));
   }
+
+  const auto make_service_callback = [this](
+                                       const std::string & command,
+                                       const std::string & success_message, bool zero_commands,
+                                       bool allow_backend_start)
+  {
+    return [this, command, success_message, zero_commands, allow_backend_start](
+             const std::shared_ptr<std_srvs::srv::Trigger::Request> /*request*/,
+             std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+    {
+      response->success = run_service_command(
+        command, success_message, zero_commands, allow_backend_start, response->message);
+    };
+  };
+
+  if (connect_service_ == nullptr)
+  {
+    connect_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/connect_driver",
+      make_service_callback(
+        "CONNECT", "ODrive driver connected. Motors remain released until engage_motors is called.",
+        true, true));
+  }
+  if (disconnect_service_ == nullptr)
+  {
+    disconnect_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/disconnect_driver",
+      make_service_callback(
+        "DISCONNECT", "ODrive driver disconnected. Commands are ignored until reconnect.", true,
+        false));
+  }
+  if (calibrate_service_ == nullptr)
+  {
+    calibrate_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/calibrate_motors",
+      make_service_callback(
+        "CALIBRATE", "ODrive calibration complete. Motors remain released.", true, false));
+  }
+  if (preroll_service_ == nullptr)
+  {
+    preroll_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/preroll_motors",
+      make_service_callback(
+        "PREROLL", "ODrive index search complete. Motors remain released.", true, false));
+  }
+  if (engage_service_ == nullptr)
+  {
+    engage_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/engage_motors",
+      make_service_callback("ENGAGE", "ODrive motors engaged.", true, false));
+  }
+  if (release_service_ == nullptr)
+  {
+    release_service_ = node->create_service<std_srvs::srv::Trigger>(
+      "odrive/release_motors",
+      make_service_callback("RELEASE", "ODrive motors released.", true, false));
+  }
   return true;
 }
 
 void ODriveHardwareInterface::poll_and_publish_status()
 {
+  std::lock_guard<std::recursive_mutex> lock(backend_mutex_);
   if (!ensure_publishers())
   {
     return;

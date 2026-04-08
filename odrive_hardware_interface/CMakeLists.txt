@@ -14,6 +14,7 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/odrive_hardware_interface.cpp
@@ -33,6 +34,7 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   rclcpp_lifecycle
   std_msgs
+  std_srvs
 )
 
 pluginlib_export_plugin_description_file(hardware_interface odrive_hardware_interface.xml)

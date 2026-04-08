@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -15,9 +16,11 @@
 #include "hardware_interface/system_interface.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp/publisher.hpp"
+#include "rclcpp/service.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_srvs/srv/trigger.hpp"
 
 namespace odrive_hardware_interface
 {
@@ -88,6 +91,9 @@ private:
   bool response_has_error(const std::string & response) const;
   void set_backend_error(const std::string & error);
   void clear_backend_error();
+  bool run_service_command(
+    const std::string & command, const std::string & success_message, bool zero_commands,
+    bool allow_backend_start, std::string & message);
 
   std::string python_executable_;
   std::string front_serial_number_;
@@ -112,6 +118,7 @@ private:
   FILE * backend_in_{nullptr};
   FILE * backend_out_{nullptr};
   bool backend_running_{false};
+  std::recursive_mutex backend_mutex_;
 
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr status_pub_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr front_vbus_pub_;
@@ -122,6 +129,12 @@ private:
   std::vector<rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr> temp_pubs_;
   std::vector<rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr> i2t_pubs_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagnostics_pub_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr connect_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr disconnect_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr calibrate_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr preroll_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr engage_service_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr release_service_;
   std::chrono::steady_clock::time_point last_status_publish_{};
   bool has_published_status_{false};
   std::string last_status_summary_;
