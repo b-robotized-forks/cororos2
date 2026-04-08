@@ -139,7 +139,14 @@ class ODriveBoard:
     def connect(self) -> None:
         if self.driver is not None:
             self.disconnect()
-        self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
+        try:
+            self.driver = odrive.find_any(serial_number=self.serial_number, timeout=self.connect_timeout)
+        except Exception as exc:
+            detail = str(exc).strip()
+            detail = f"{type(exc).__name__}: {detail}" if detail else type(exc).__name__
+            raise RuntimeError(
+                f"could not connect to ODrive {self.serial_number} within {self.connect_timeout:.1f}s ({detail})"
+            ) from exc
         self.right_axis = self.driver.axis0 if self.right_axis_index == 0 else self.driver.axis1
         self.left_axis = self.driver.axis1 if self.right_axis_index == 0 else self.driver.axis0
         self._reset_runtime_state()
