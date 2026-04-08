@@ -1,13 +1,13 @@
 # Coordinated Robotics
 
-This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. It currently includes ROS 2 description, bringup, simulation, and sensor integration work for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
+This repository contains the ROS 2 workspace packages and setup for the Coordinated Robotics `cororos2` robots. It currently includes ROS 2 description, bringup, simulation, sensor and drivers integration work for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
 
 > [!WARNING]
 > This repository is under active development. Some robots still contain only partial ROS 2 support, and some hardware integrations are present in launch files but are not yet validated on the real robot.
 
 ## Overview
 
-The repository is the ROS 2 port of several robots and currently contains the most complete ROS 2 paths for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
+The repository is the ROS 2 port of several robots and currently contains the most complete ROS 2 implementations for **Allie / Ames**, **Cornelius / Julius**, and **Joe / Jeanine**.
 
 - **Robot-specific base backends:**
   - Allie: PWM hardware interface
@@ -45,11 +45,11 @@ The repository is the ROS 2 port of several robots and currently contains the mo
 
 ## Workspace setup
 
-You can set up the workspace in two ways.
+There are two ways to set up the workspace.
 
 ### 1. If you are using RTW
 
-If you have installed RTW from the [RTW installation guide](https://rtw.b-robotized.com/master/tutorials/setting_up_rtw.html#installation-of-rtw), you can create and build the workspace like this:
+If you have installed RTW from the [RTW installation guide](https://rtw.b-robotized.com/master/tutorials/setting_up_rtw.html#installation-of-rtw), you can create and build the workspace in following way:
 
 ```bash
 rtw workspace create --ws-folder cororos_ws --ros-distro jazzy
@@ -110,7 +110,7 @@ Now the workspace is ready for use.
 
 ## Starting the robots and the simulation
 
-The consolidated launch files use a shared `robot_model` argument:
+The launch files use a shared `robot_model` argument:
 
 - `allie`
 - `cornelius`
@@ -118,7 +118,7 @@ The consolidated launch files use a shared `robot_model` argument:
 
 Replace `<robot_model>` in the examples below with the robot you want to use.
 
-The shared bringup entry point can also be launched directly. By default it starts the selected robot in mock mode:
+The shared bringup can also be launched directly. By default, it starts the selected robot in mock mode.
 
 ```bash
 ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
@@ -126,7 +126,7 @@ ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_mod
 
 ### 1. View the robot description in RViz
 
-This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the shared RViz config.
+This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the common RViz config.
 
 ```bash
 ros2 launch cororos2_description view_robot.launch.py robot_model:=<robot_model>
@@ -153,7 +153,7 @@ ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=<robot_mod
 
 ### 3. Start hardware bringup
 
-This uses the same shared bringup core, but enables the hardware-specific robot description and integrated drivers.
+This uses the same bringup, but enables hardware-specific robot description and drivers.
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
@@ -355,16 +355,7 @@ PWM output topics for Allie:
 
 ## Roboclaw Diagnostics And Telemetry
 
-Cornelius's `roboclaw_hardware_interface` publishes `/diagnostics` with one Roboclaw diagnostic entry.
-
-Topics:
-
-- `roboclaw/battery_state`
-- `roboclaw/logic_battery_voltage`
-- `roboclaw/m1_current`
-- `roboclaw/m2_current`
-- `roboclaw/temp1`
-- `roboclaw/temp2`
+Cornelius's `roboclaw_hardware_interface` publishes `/diagnostics` with one Roboclaw diagnostic entry. The diagnostic message reports conditions such as overcurrent, emergency stop, battery voltage faults, driver faults, and temperature faults.
 
 The Roboclaw diagnostic includes:
 
@@ -378,4 +369,11 @@ The Roboclaw diagnostic includes:
 - `temp2_c`
 - `error_word`
 
-The diagnostic message comes from the Roboclaw error word. It reports things like over current, emergency stop, battery voltage faults, driver faults, and temperature faults.
+Published telemetry topics:
+
+- `roboclaw/battery_state`
+- `roboclaw/logic_battery_voltage`
+- `roboclaw/m1_current`
+- `roboclaw/m2_current`
+- `roboclaw/temp1`
+- `roboclaw/temp2`
