@@ -352,3 +352,30 @@ PWM output topics for Allie:
    ```bash
    ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.5}}"
    ```
+
+## Roboclaw Diagnostics And Telemetry
+
+Cornelius's `roboclaw_hardware_interface` publishes `/diagnostics` with one Roboclaw diagnostic entry.
+
+Topics:
+
+- `roboclaw/battery_state`
+- `roboclaw/logic_battery_voltage`
+- `roboclaw/m1_current`
+- `roboclaw/m2_current`
+- `roboclaw/temp1`
+- `roboclaw/temp2`
+
+The Roboclaw diagnostic includes:
+
+- `device`
+- `address`
+- `main_battery_voltage_v`
+- `logic_battery_voltage_v`
+- `m1_current_a`
+- `m2_current_a`
+- `temp1_c`
+- `temp2_c`
+- `error_word`
+
+The diagnostic message comes from the Roboclaw error word. It reports things like over current, emergency stop, battery voltage faults, driver faults, and temperature faults.
