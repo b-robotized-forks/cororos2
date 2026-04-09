@@ -249,15 +249,17 @@ def main() -> int:
                 )
             elif command == "EXIT":
                 backend.deactivate()
+                active = False
                 print("OK", flush=True)
                 return 0
             else:
                 print(f"ERROR unknown command: {command}", flush=True)
     finally:
-        try:
-            backend.deactivate()
-        except Exception:
-            pass
+        if active:
+            try:
+                backend.deactivate()
+            except Exception:
+                pass
 
     return 0
 
