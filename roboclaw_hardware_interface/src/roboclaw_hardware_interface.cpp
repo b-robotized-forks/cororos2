@@ -6,10 +6,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <algorithm>
+#include <cerrno>
 #include <cmath>
 #include <csignal>
 #include <cstdint>
 #include <exception>
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -501,6 +503,8 @@ hardware_interface::return_type RoboclawHardwareInterface::read(
 
   if (!poll_and_publish_status())
   {
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(), 5000, "Failed to read Roboclaw state from backend.");
     return hardware_interface::return_type::ERROR;
   }
   return hardware_interface::return_type::OK;
@@ -582,7 +586,8 @@ bool RoboclawHardwareInterface::read_state_from_backend()
   }
   if (!parse_state_response(response))
   {
-    RCLCPP_ERROR(get_logger(), "Failed to parse Roboclaw backend state response.");
+    RCLCPP_ERROR(
+      get_logger(), "Failed to parse Roboclaw backend state response: '%s'", response.c_str());
     return false;
   }
   return true;
@@ -640,14 +645,18 @@ bool RoboclawHardwareInterface::start_backend()
   int child_stdout[2];
   if (pipe(child_stdin) != 0 || pipe(child_stdout) != 0)
   {
-    perror("pipe");
+    const int saved_errno = errno;
+    RCLCPP_ERROR(
+      get_logger(), "Failed to create Roboclaw backend pipes: %s", std::strerror(saved_errno));
     return false;
   }
 
   backend_pid_ = fork();
   if (backend_pid_ < 0)
   {
-    perror("fork");
+    const int saved_errno = errno;
+    RCLCPP_ERROR(
+      get_logger(), "Failed to fork Roboclaw backend process: %s", std::strerror(saved_errno));
     return false;
   }
 
@@ -680,7 +689,10 @@ bool RoboclawHardwareInterface::start_backend()
   backend_out_ = fdopen(child_stdout[0], "r");
   if (backend_in_ == nullptr || backend_out_ == nullptr)
   {
-    perror("fdopen");
+    const int saved_errno = errno;
+    RCLCPP_ERROR(
+      get_logger(), "Failed to open Roboclaw backend pipes as streams: %s",
+      std::strerror(saved_errno));
     stop_backend();
     return false;
   }
@@ -690,7 +702,8 @@ bool RoboclawHardwareInterface::start_backend()
   std::string response;
   if (!send_command("PING", response) || response != "PONG")
   {
-    fprintf(stderr, "Failed to start Roboclaw backend, got response '%s'\n", response.c_str());
+    RCLCPP_ERROR(
+      get_logger(), "Failed to start Roboclaw backend, got response '%s'", response.c_str());
     stop_backend();
     return false;
   }
@@ -739,7 +752,10 @@ bool RoboclawHardwareInterface::send_command(const std::string & command, std::s
 
   if (fprintf(backend_in_, "%s\n", command.c_str()) < 0)
   {
-    perror("fprintf");
+    const int saved_errno = errno;
+    RCLCPP_ERROR(
+      get_logger(), "Failed to send command '%s' to Roboclaw backend: %s", command.c_str(),
+      std::strerror(saved_errno));
     return false;
   }
   fflush(backend_in_);
@@ -749,7 +765,10 @@ bool RoboclawHardwareInterface::send_command(const std::string & command, std::s
   {
     if (ferror(backend_out_) != 0)
     {
-      perror("fgets");
+      const int saved_errno = errno;
+      RCLCPP_ERROR(
+        get_logger(), "Failed to read response for command '%s' from Roboclaw backend: %s",
+        command.c_str(), std::strerror(saved_errno));
     }
     return false;
   }
@@ -772,7 +791,8 @@ bool RoboclawHardwareInterface::expect_ok(const std::string & command)
   }
   if (response != "OK")
   {
-    fprintf(stderr, "Command '%s' failed with response '%s'\n", command.c_str(), response.c_str());
+    RCLCPP_ERROR(
+      get_logger(), "Command '%s' failed with response '%s'", command.c_str(), response.c_str());
     return false;
   }
   return true;
@@ -785,7 +805,6 @@ bool RoboclawHardwareInterface::parse_state_response(const std::string & respons
   stream >> token;
   if (token != "STATE")
   {
-    fprintf(stderr, "Unexpected backend state response: '%s'\n", response.c_str());
     return false;
   }
 
@@ -795,7 +814,6 @@ bool RoboclawHardwareInterface::parse_state_response(const std::string & respons
   double right_velocity_mps = 0.0;
   if (!(stream >> left_position_m >> left_velocity_mps >> right_position_m >> right_velocity_mps))
   {
-    fprintf(stderr, "Failed to parse backend state response: '%s'\n", response.c_str());
     return false;
   }
 
@@ -815,7 +833,6 @@ bool RoboclawHardwareInterface::parse_status_response(
   stream >> token;
   if (token != "STATUS")
   {
-    fprintf(stderr, "Unexpected backend status response: '%s'\n", response.c_str());
     return false;
   }
 
@@ -823,7 +840,6 @@ bool RoboclawHardwareInterface::parse_status_response(
         telemetry.m1_current >> telemetry.m2_current >> telemetry.temp1_c >> telemetry.temp2_c >>
         telemetry.error_word))
   {
-    fprintf(stderr, "Failed to parse backend status response: '%s'\n", response.c_str());
     return false;
   }
 
@@ -887,7 +903,8 @@ bool RoboclawHardwareInterface::poll_and_publish_status()
   if (!parse_status_response(response, telemetry))
   {
     RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), 5000, "Failed to parse Roboclaw status response.");
+      get_logger(), *get_clock(), 5000, "Failed to parse Roboclaw status response: '%s'",
+      response.c_str());
     return false;
   }
 
