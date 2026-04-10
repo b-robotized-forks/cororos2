@@ -43,10 +43,22 @@ public:
 
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
+
   hardware_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_error(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::return_type read(
@@ -56,14 +68,21 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
+  bool validate_joint_configuration() const;
   bool start_backend();
   void stop_backend();
   bool send_command(const std::string & command, std::string & response);
   bool expect_ok(const std::string & command);
+  bool read_state_from_backend();
   bool parse_state_response(const std::string & response);
   bool parse_status_response(const std::string & response, RoboclawTelemetry & telemetry);
   bool ensure_publishers();
-  void poll_and_publish_status();
+  void release_publishers();
+  void reset_command_and_state_buffers();
+  void reset_runtime_state();
+  bool is_active_lifecycle_state() const;
+  bool can_read_in_current_state() const;
+  bool poll_and_publish_status();
   void publish_status(const RoboclawTelemetry & telemetry);
   void reset_status_publish_state();
 
