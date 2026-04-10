@@ -11,6 +11,7 @@
 #include <string>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <lifecycle_msgs/msg/state.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
@@ -37,45 +38,73 @@ hardware_interface::CallbackReturn ODriveHardwareInterface::on_init(
 
   std::signal(SIGPIPE, SIG_IGN);
 
-  if (info_.joints.size() != 4)
+  if (!validate_joint_configuration())
   {
-    fprintf(
-      stderr, "odrive_hardware_interface expects exactly 4 wheel joints, got %zu\n",
-      info_.joints.size());
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  python_executable_ = info_.hardware_parameters.count("python_executable") != 0
-                         ? info_.hardware_parameters.at("python_executable")
-                         : "python3";
-  front_serial_number_ = info_.hardware_parameters.count("front_serial_number") != 0
-                           ? info_.hardware_parameters.at("front_serial_number")
-                           : "";
-  rear_serial_number_ = info_.hardware_parameters.count("rear_serial_number") != 0
-                          ? info_.hardware_parameters.at("rear_serial_number")
-                          : "";
-  front_right_axis_ = info_.hardware_parameters.count("front_right_axis") != 0
-                        ? std::stoi(info_.hardware_parameters.at("front_right_axis"))
-                        : 0;
-  rear_right_axis_ = info_.hardware_parameters.count("rear_right_axis") != 0
-                       ? std::stoi(info_.hardware_parameters.at("rear_right_axis"))
-                       : 1;
-  connect_timeout_ = info_.hardware_parameters.count("connect_timeout") != 0
-                       ? std::stod(info_.hardware_parameters.at("connect_timeout"))
-                       : 30.0;
+  const auto & hardware_parameters = info_.hardware_parameters;
 
+  try
+  {
+    python_executable_ = hardware_parameters.count("python_executable") != 0
+                           ? hardware_parameters.at("python_executable")
+                           : "python3";
+    front_serial_number_ = hardware_parameters.count("front_serial_number") != 0
+                             ? hardware_parameters.at("front_serial_number")
+                             : "";
+    rear_serial_number_ = hardware_parameters.count("rear_serial_number") != 0
+                            ? hardware_parameters.at("rear_serial_number")
+                            : "";
+    front_right_axis_ = hardware_parameters.count("front_right_axis") != 0
+                          ? std::stoi(hardware_parameters.at("front_right_axis"))
+                          : 0;
+    rear_right_axis_ = hardware_parameters.count("rear_right_axis") != 0
+                         ? std::stoi(hardware_parameters.at("rear_right_axis"))
+                         : 1;
+    connect_timeout_ = hardware_parameters.count("connect_timeout") != 0
+                         ? std::stod(hardware_parameters.at("connect_timeout"))
+                         : 30.0;
+  }
+  catch (const std::exception & exception)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "odrive_hardware_interface failed to parse one or more parameters: %s",
+      exception.what());
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (python_executable_.empty())
+  {
+    RCLCPP_ERROR(get_logger(), "odrive_hardware_interface parameter 'python_executable' is empty.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
   if (front_serial_number_.empty() || rear_serial_number_.empty())
   {
-    fprintf(
-      stderr,
-      "odrive_hardware_interface requires front_serial_number and rear_serial_number when mock "
-      "hardware is disabled\n");
+    RCLCPP_ERROR(
+      get_logger(),
+      "odrive_hardware_interface requires non-empty 'front_serial_number' and "
+      "'rear_serial_number' parameters.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+  if (
+    (front_right_axis_ != 0 && front_right_axis_ != 1) ||
+    (rear_right_axis_ != 0 && rear_right_axis_ != 1))
+  {
+    RCLCPP_ERROR(
+      get_logger(),
+      "odrive_hardware_interface parameters 'front_right_axis' and 'rear_right_axis' must be 0 or "
+      "1.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+  if (connect_timeout_ <= 0.0)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "odrive_hardware_interface parameter 'connect_timeout' must be positive.");
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  hw_commands_.assign(info_.joints.size(), 0.0);
-  hw_positions_.assign(info_.joints.size(), 0.0);
-  hw_velocities_.assign(info_.joints.size(), 0.0);
+  reset_command_and_state_buffers();
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -111,25 +140,53 @@ ODriveHardwareInterface::export_command_interfaces()
   return command_interfaces;
 }
 
-hardware_interface::CallbackReturn ODriveHardwareInterface::on_activate(
+hardware_interface::CallbackReturn ODriveHardwareInterface::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  reset_command_and_state_buffers();
+
   if (!start_backend())
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  if (!expect_ok("ACTIVATE"))
+  std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+  std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+
+  if (!read_state_from_backend())
   {
     stop_backend();
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  if (
-    read(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.0)) !=
-    hardware_interface::return_type::OK)
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn ODriveHardwareInterface::on_activate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (!backend_running_)
   {
-    stop_backend();
+    RCLCPP_ERROR(get_logger(), "Cannot activate ODrive hardware before successful configuration.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+  std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+
+  if (!expect_ok("ACTIVATE"))
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (!read_state_from_backend())
+  {
+    std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    if (backend_running_ && !expect_ok("DEACTIVATE"))
+    {
+      RCLCPP_ERROR(get_logger(), "Failed to deactivate ODrive hardware after activate failure.");
+    }
     return hardware_interface::CallbackReturn::ERROR;
   }
 
@@ -139,29 +196,111 @@ hardware_interface::CallbackReturn ODriveHardwareInterface::on_activate(
 hardware_interface::CallbackReturn ODriveHardwareInterface::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+  std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+
+  if (backend_running_ && !expect_ok("DEACTIVATE"))
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to deactivate ODrive hardware safely.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn ODriveHardwareInterface::on_cleanup(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
   if (backend_running_)
   {
-    expect_ok("DEACTIVATE");
-    stop_backend();
+    std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    if (!expect_ok("DEACTIVATE"))
+    {
+      RCLCPP_ERROR(get_logger(), "Failed to deactivate ODrive hardware during cleanup.");
+    }
   }
+
+  stop_backend();
+  reset_runtime_state();
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn ODriveHardwareInterface::on_shutdown(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (backend_running_)
+  {
+    std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    if (!expect_ok("DEACTIVATE"))
+    {
+      RCLCPP_ERROR(get_logger(), "Failed to deactivate ODrive hardware during shutdown.");
+    }
+  }
+
+  stop_backend();
+  reset_runtime_state();
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn ODriveHardwareInterface::on_error(
+  const rclcpp_lifecycle::State & previous_state)
+{
+  RCLCPP_ERROR(
+    get_logger(), "ODrive hardware entering error handling from lifecycle state '%s'.",
+    previous_state.label().c_str());
+
+  if (backend_running_)
+  {
+    std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+    std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+    if (!expect_ok("DEACTIVATE"))
+    {
+      RCLCPP_ERROR(get_logger(), "Failed to deactivate ODrive hardware during error handling.");
+    }
+  }
+
+  stop_backend();
+  reset_runtime_state();
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::return_type ODriveHardwareInterface::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  std::string response;
-  if (!send_command("READ", response))
+  if (!backend_running_)
   {
+    RCLCPP_ERROR(get_logger(), "ODrive read called while communication is not configured.");
     return hardware_interface::return_type::ERROR;
   }
-  return parse_state_response(response) ? hardware_interface::return_type::OK
-                                        : hardware_interface::return_type::ERROR;
+
+  if (!can_read_in_current_state())
+  {
+    RCLCPP_ERROR(
+      get_logger(), "ODrive read called in lifecycle state '%s', which is not readable.",
+      get_lifecycle_state().label().c_str());
+    return hardware_interface::return_type::ERROR;
+  }
+
+  return read_state_from_backend() ? hardware_interface::return_type::OK
+                                   : hardware_interface::return_type::ERROR;
 }
 
 hardware_interface::return_type ODriveHardwareInterface::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
+  if (!backend_running_)
+  {
+    RCLCPP_ERROR(get_logger(), "ODrive write called while communication is not configured.");
+    return hardware_interface::return_type::ERROR;
+  }
+
+  if (!is_active_lifecycle_state())
+  {
+    return hardware_interface::return_type::OK;
+  }
+
   std::ostringstream command;
   command << "WRITE";
   for (double cmd_rad_s : hw_commands_)
@@ -171,6 +310,76 @@ hardware_interface::return_type ODriveHardwareInterface::write(
 
   return expect_ok(command.str()) ? hardware_interface::return_type::OK
                                   : hardware_interface::return_type::ERROR;
+}
+
+bool ODriveHardwareInterface::validate_joint_configuration() const
+{
+  if (info_.joints.size() != 4)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "odrive_hardware_interface expects exactly 4 wheel joints, got %zu.",
+      info_.joints.size());
+    return false;
+  }
+
+  for (const auto & joint : info_.joints)
+  {
+    if (
+      joint.command_interfaces.size() != 1 ||
+      joint.command_interfaces.front().name != hardware_interface::HW_IF_VELOCITY)
+    {
+      RCLCPP_ERROR(
+        get_logger(),
+        "Joint '%s' must expose exactly one '%s' command interface for ODrive hardware.",
+        joint.name.c_str(), hardware_interface::HW_IF_VELOCITY);
+      return false;
+    }
+
+    bool has_position_state = false;
+    bool has_velocity_state = false;
+    for (const auto & state_interface : joint.state_interfaces)
+    {
+      if (state_interface.name == hardware_interface::HW_IF_POSITION)
+      {
+        has_position_state = true;
+      }
+      else if (state_interface.name == hardware_interface::HW_IF_VELOCITY)
+      {
+        has_velocity_state = true;
+      }
+    }
+
+    if (joint.state_interfaces.size() != 2 || !has_position_state || !has_velocity_state)
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Joint '%s' must expose '%s' and '%s' state interfaces for ODrive hardware.",
+        joint.name.c_str(), hardware_interface::HW_IF_POSITION, hardware_interface::HW_IF_VELOCITY);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void ODriveHardwareInterface::reset_command_and_state_buffers()
+{
+  hw_commands_.assign(info_.joints.size(), 0.0);
+  hw_positions_.assign(info_.joints.size(), 0.0);
+  hw_velocities_.assign(info_.joints.size(), 0.0);
+}
+
+void ODriveHardwareInterface::reset_runtime_state() { reset_command_and_state_buffers(); }
+
+bool ODriveHardwareInterface::is_active_lifecycle_state() const
+{
+  return get_lifecycle_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE;
+}
+
+bool ODriveHardwareInterface::can_read_in_current_state() const
+{
+  const auto lifecycle_state = get_lifecycle_state().id();
+  return lifecycle_state == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE ||
+         lifecycle_state == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE;
 }
 
 bool ODriveHardwareInterface::start_backend()
@@ -316,6 +525,22 @@ bool ODriveHardwareInterface::expect_ok(const std::string & command)
   return true;
 }
 
+bool ODriveHardwareInterface::read_state_from_backend()
+{
+  std::string response;
+  if (!send_command("READ", response))
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to read state from the ODrive backend.");
+    return false;
+  }
+  if (!parse_state_response(response))
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to parse ODrive backend state response.");
+    return false;
+  }
+  return true;
+}
+
 bool ODriveHardwareInterface::parse_state_response(const std::string & response)
 {
   std::istringstream stream(response);
@@ -323,7 +548,7 @@ bool ODriveHardwareInterface::parse_state_response(const std::string & response)
   stream >> token;
   if (token != "STATE")
   {
-    fprintf(stderr, "Unexpected backend state response: '%s'\n", response.c_str());
+    RCLCPP_ERROR(get_logger(), "Unexpected ODrive backend state response: '%s'.", response.c_str());
     return false;
   }
 
@@ -333,7 +558,8 @@ bool ODriveHardwareInterface::parse_state_response(const std::string & response)
     double rotations_per_second = 0.0;
     if (!(stream >> rotations >> rotations_per_second))
     {
-      fprintf(stderr, "Failed to parse backend state response: '%s'\n", response.c_str());
+      RCLCPP_ERROR(
+        get_logger(), "Failed to parse ODrive backend state response: '%s'.", response.c_str());
       return false;
     }
     hw_positions_[i] = rotations * kTwoPi;

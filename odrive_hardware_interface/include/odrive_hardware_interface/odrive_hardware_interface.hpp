@@ -27,10 +27,22 @@ public:
 
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
+
   hardware_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_error(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::return_type read(
@@ -44,7 +56,13 @@ private:
   void stop_backend();
   bool send_command(const std::string & command, std::string & response);
   bool expect_ok(const std::string & command);
+  bool read_state_from_backend();
   bool parse_state_response(const std::string & response);
+  bool validate_joint_configuration() const;
+  void reset_command_and_state_buffers();
+  void reset_runtime_state();
+  bool is_active_lifecycle_state() const;
+  bool can_read_in_current_state() const;
 
   std::string python_executable_;
   std::string front_serial_number_;
