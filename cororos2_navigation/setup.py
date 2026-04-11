@@ -24,7 +24,7 @@ setup(
     zip_safe=True,
     maintainer="Gabriela Vitez",
     maintainer_email="gabriela.vitez@b-robotized.com",
-    description="MAHA-style Nav2, AMCL, and SLAM wrapper package for cororos2 robots.",
+    description="Nav2, AMCL, and SLAM wrapper package for cororos2 robots.",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={

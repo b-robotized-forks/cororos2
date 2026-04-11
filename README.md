@@ -220,6 +220,48 @@ ros2 topic echo /<robot_model>/imu/data --once
 ros2 topic echo /<robot_model>/gps/fix --once
 ```
 
+### 7. Start navigation
+
+Start one of the bringup modes first:
+
+```bash
+ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model>
+```
+
+Then start Nav2 in another terminal. To build a map with SLAM Toolbox:
+
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
+```
+
+To localize on an existing map with AMCL:
+
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=placeholder_map
+```
+
+The navigation launch routes commands through `twist_mux` by default:
+
+```text
+Nav2 -> /cmd_vel_smoothed
+keyboard -> /key_vel
+joystick -> /joy_vel
+twist_mux -> /cmd_vel
+cmd_vel_stamper -> /diff_drive_controller/cmd_vel
+```
+
+Keyboard teleop can be started separately with:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
+```
+
+Joystick teleop can be started with the navigation launch:
+
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true use_joystick:=true
+```
+
 ## Hardware bringup notes
 
 The following hardware drivers are already integrated into `cororos2_hw.launch.xml`:

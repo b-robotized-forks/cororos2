@@ -3,7 +3,7 @@
 <package format="3">
   <name>cororos2_navigation</name>
   <version>0.0.0</version>
-  <description>MAHA-style Nav2, AMCL, and SLAM wrapper package for cororos2 robots.</description>
+  <description>Nav2, AMCL, and SLAM wrapper package for cororos2 robots.</description>
   <maintainer email="gabriela.vitez@b-robotized.com">Gabriela Vitez</maintainer>
   <license>Apache-2.0</license>
 
@@ -11,11 +11,15 @@
 
   <exec_depend>cartographer_ros</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>joy</exec_depend>
   <exec_depend>nav2_bringup</exec_depend>
   <exec_depend>pointcloud_to_laserscan</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
+  <exec_depend>teleop_twist_keyboard</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
