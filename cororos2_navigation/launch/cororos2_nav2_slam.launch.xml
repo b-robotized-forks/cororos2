@@ -27,7 +27,13 @@
        description="PointCloud2 topic to convert into /laser_scan when use_pointcloud_to_laserscan is true." />
   <arg name="use_pointcloud_to_laserscan"
        default=""
-       description="Convert a point cloud to /laser_scan instead of republishing a LaserScan topic. Leave empty to auto-select true for allie/cornelius and false for joe." />
+       description="Convert a point cloud to /laser_scan instead of republishing a LaserScan topic." />
+  <arg name="laser_scan_range_min"
+       default="0.2"
+       description="Minimum range for the normalized /laser_scan topic." />
+  <arg name="laser_scan_range_max"
+       default="30.0"
+       description="Maximum range for the normalized /laser_scan topic." />
   <arg name="cmd_vel_output_topic"
        default="/diff_drive_controller/cmd_vel"
        description="Stamped velocity topic used by the diff-drive controller." />
@@ -57,7 +63,7 @@
   <let name="selected_pointcloud_topic"
        value="$(eval '\'$(var pointcloud_topic)\' if \'$(var pointcloud_topic)\' != \'\' else \'/\' + \'$(var robot_model)\' + \'/lidar/points\' if \'$(var use_sim_time)\' == \'true\' else \'/ouster/points\' if \'$(var robot_model)\' != \'joe\' else \'/lidar/points\'')" />
   <let name="selected_use_pointcloud_to_laserscan"
-       value="$(eval '\'$(var use_pointcloud_to_laserscan)\' if \'$(var use_pointcloud_to_laserscan)\' != \'\' else \'true\' if \'$(var robot_model)\' != \'joe\' else \'false\'')" />
+       value="$(eval '\'$(var use_pointcloud_to_laserscan)\' if \'$(var use_pointcloud_to_laserscan)\' != \'\' else \'true\'')" />
   <let name="selected_cmd_vel_input_topic"
        value="$(eval '\'/cmd_vel\' if \'$(var use_twist_mux)\' == \'true\' else \'/cmd_vel_nav_checked\'')" />
 
@@ -98,6 +104,8 @@
     <param name="use_sim_time" value="$(var use_sim_time)" />
     <param name="input_topic" value="$(var selected_scan_topic)" />
     <param name="output_topic" value="/laser_scan" />
+    <param name="range_min" value="$(var laser_scan_range_min)" />
+    <param name="range_max" value="$(var laser_scan_range_max)" />
   </node>
 
   <node if="$(var selected_use_pointcloud_to_laserscan)"
@@ -108,14 +116,14 @@
     <param name="use_sim_time" value="$(var use_sim_time)" />
     <param name="target_frame" value="base_footprint" />
     <param name="transform_tolerance" value="0.2" />
-    <param name="min_height" value="-0.10" />
-    <param name="max_height" value="0.60" />
+    <param name="min_height" value="0.0" />
+    <param name="max_height" value="1.2" />
     <param name="angle_min" value="-3.14159" />
     <param name="angle_max" value="3.14159" />
     <param name="angle_increment" value="0.004363323" />
     <param name="scan_time" value="0.1" />
-    <param name="range_min" value="0.1" />
-    <param name="range_max" value="30.0" />
+    <param name="range_min" value="$(var laser_scan_range_min)" />
+    <param name="range_max" value="$(var laser_scan_range_max)" />
     <param name="use_inf" value="true" />
     <param name="inf_epsilon" value="1.0" />
     <remap from="cloud_in" to="$(var selected_pointcloud_topic)" />

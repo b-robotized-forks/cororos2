@@ -248,11 +248,12 @@ Save the completed map:
 ros2 run nav2_map_server map_saver_cli -f my_map
 ```
 
-To localize on an existing map with AMCL:
+To localize on an existing map with AMCL pass the map and launch:
 
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=my_map
 ```
+In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
 
 Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
 
