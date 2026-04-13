@@ -9,11 +9,11 @@
                sim_gazebo_classic:=false
                sim_gazebo:=false
                simulation_controllers
-               pwm_topic:=/allie/pwm
-               front_left_pwm_topic:=/allie/pwm/front_left
-               rear_left_pwm_topic:=/allie/pwm/rear_left
-               front_right_pwm_topic:=/allie/pwm/front_right
-               rear_right_pwm_topic:=/allie/pwm/rear_right
+               device_path:=/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00
+               channel_fl:=0
+               channel_fr:=1
+               channel_rl:=2
+               channel_rr:=3
                pwm_min:=1000
                pwm_neutral:=1500
                pwm_max:=2000
@@ -36,11 +36,11 @@
         </xacro:if>
         <xacro:unless value="${use_mock_hardware or sim_gazebo_classic or sim_gazebo}">
           <plugin>pwm_hardware_interface/PwmHardwareInterface</plugin>
-          <param name="pwm_topic">${pwm_topic}</param>
-          <param name="front_left_pwm_topic">${front_left_pwm_topic}</param>
-          <param name="rear_left_pwm_topic">${rear_left_pwm_topic}</param>
-          <param name="front_right_pwm_topic">${front_right_pwm_topic}</param>
-          <param name="rear_right_pwm_topic">${rear_right_pwm_topic}</param>
+          <param name="device_path">${device_path}</param>
+          <param name="channel_fl">${channel_fl}</param>
+          <param name="channel_fr">${channel_fr}</param>
+          <param name="channel_rl">${channel_rl}</param>
+          <param name="channel_rr">${channel_rr}</param>
           <param name="pwm_min">${pwm_min}</param>
           <param name="pwm_neutral">${pwm_neutral}</param>
           <param name="pwm_max">${pwm_max}</param>

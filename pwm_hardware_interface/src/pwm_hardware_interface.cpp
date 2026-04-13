@@ -2,8 +2,13 @@
 
 #include "pwm_hardware_interface/pwm_hardware_interface.hpp"
 
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <utility>
 
 #include <pluginlib/class_list_macros.hpp>
@@ -43,20 +48,10 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
 
   const auto & hardware_parameters = info_.hardware_parameters;
 
-  pwm_topic_ = hardware_parameters.count("pwm_topic") != 0 ? hardware_parameters.at("pwm_topic")
-                                                           : "/allie/pwm";
-  front_left_pwm_topic_ = hardware_parameters.count("front_left_pwm_topic") != 0
-                            ? hardware_parameters.at("front_left_pwm_topic")
-                            : "/allie/pwm/front_left";
-  rear_left_pwm_topic_ = hardware_parameters.count("rear_left_pwm_topic") != 0
-                           ? hardware_parameters.at("rear_left_pwm_topic")
-                           : "/allie/pwm/rear_left";
-  front_right_pwm_topic_ = hardware_parameters.count("front_right_pwm_topic") != 0
-                             ? hardware_parameters.at("front_right_pwm_topic")
-                             : "/allie/pwm/front_right";
-  rear_right_pwm_topic_ = hardware_parameters.count("rear_right_pwm_topic") != 0
-                            ? hardware_parameters.at("rear_right_pwm_topic")
-                            : "/allie/pwm/rear_right";
+  device_path_ = hardware_parameters.count("device_path") != 0
+                   ? hardware_parameters.at("device_path")
+                   : "/dev/serial/by-id/"
+                     "usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00";
   pwm_min_ =
     hardware_parameters.count("pwm_min") != 0 ? std::stoi(hardware_parameters.at("pwm_min")) : 1000;
   pwm_neutral_ = hardware_parameters.count("pwm_neutral") != 0
@@ -76,6 +71,19 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
   invert_right_ = hardware_parameters.count("invert_right") != 0
                     ? hardware_parameters.at("invert_right") == "true"
                     : false;
+
+  channels_[0] = hardware_parameters.count("channel_fl") != 0
+                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_fl")))
+                   : 0;
+  channels_[1] = hardware_parameters.count("channel_fr") != 0
+                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_fr")))
+                   : 1;
+  channels_[2] = hardware_parameters.count("channel_rl") != 0
+                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_rl")))
+                   : 2;
+  channels_[3] = hardware_parameters.count("channel_rr") != 0
+                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_rr")))
+                   : 3;
 
   if (!(pwm_min_ < pwm_neutral_ && pwm_neutral_ < pwm_max_))
   {
@@ -126,18 +134,46 @@ std::vector<hardware_interface::CommandInterface> PwmHardwareInterface::export_c
   return command_interfaces;
 }
 
+hardware_interface::CallbackReturn PwmHardwareInterface::on_configure(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
+  std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
+
+  if (!start_backend())
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to start PWM backend.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (!write_neutral())
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to write neutral PWM during configure.");
+    stop_backend();
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  RCLCPP_INFO(get_logger(), "Allie PWM hardware interface configured.");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
 hardware_interface::CallbackReturn PwmHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
   std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
 
-  if (!ensure_publishers())
+  if (!backend_running_)
+  {
+    RCLCPP_ERROR(get_logger(), "PWM backend is not running.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  if (!write_neutral())
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  publish_pwm(pwm_neutral_, pwm_neutral_, pwm_neutral_, pwm_neutral_);
   RCLCPP_INFO(get_logger(), "Allie PWM hardware interface activated.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -148,12 +184,48 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_deactivate(
   std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
   std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
 
-  if (combined_pub_ != nullptr)
+  if (backend_running_)
   {
-    publish_pwm(pwm_neutral_, pwm_neutral_, pwm_neutral_, pwm_neutral_);
+    write_neutral();
   }
 
   RCLCPP_INFO(get_logger(), "Allie PWM hardware interface deactivated.");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn PwmHardwareInterface::on_cleanup(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (backend_running_)
+  {
+    write_neutral();
+  }
+  stop_backend();
+  RCLCPP_INFO(get_logger(), "Allie PWM hardware interface cleaned up.");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn PwmHardwareInterface::on_shutdown(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (backend_running_)
+  {
+    write_neutral();
+  }
+  stop_backend();
+  RCLCPP_INFO(get_logger(), "Allie PWM hardware interface shut down.");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn PwmHardwareInterface::on_error(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (backend_running_)
+  {
+    write_neutral();
+  }
+  stop_backend();
+  RCLCPP_ERROR(get_logger(), "Allie PWM hardware interface entered error state.");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -174,8 +246,9 @@ hardware_interface::return_type PwmHardwareInterface::read(
 hardware_interface::return_type PwmHardwareInterface::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  if (!ensure_publishers())
+  if (!backend_running_ || maestro_fd_ < 0)
   {
+    RCLCPP_ERROR(get_logger(), "PWM backend is not running.");
     return hardware_interface::return_type::ERROR;
   }
 
@@ -184,7 +257,17 @@ hardware_interface::return_type PwmHardwareInterface::write(
   const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_left_);
   const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_right_);
 
-  publish_pwm(front_left_pwm, rear_left_pwm, front_right_pwm, rear_right_pwm);
+  last_pwm_ = {front_left_pwm, front_right_pwm, rear_left_pwm, rear_right_pwm};
+
+  if (
+    !write_maestro_target(channels_[0], static_cast<uint16_t>(front_left_pwm * 4)) ||
+    !write_maestro_target(channels_[1], static_cast<uint16_t>(front_right_pwm * 4)) ||
+    !write_maestro_target(channels_[2], static_cast<uint16_t>(rear_left_pwm * 4)) ||
+    !write_maestro_target(channels_[3], static_cast<uint16_t>(rear_right_pwm * 4)))
+  {
+    return hardware_interface::return_type::ERROR;
+  }
+
   return hardware_interface::return_type::OK;
 }
 
@@ -208,55 +291,105 @@ int16_t PwmHardwareInterface::speed_to_pwm(double wheel_velocity_rad_s, bool inv
   return static_cast<int16_t>(std::lround(pwm_neutral_ + normalized * span));
 }
 
-bool PwmHardwareInterface::ensure_publishers()
+bool PwmHardwareInterface::start_backend()
 {
-  if (
-    combined_pub_ != nullptr && front_left_pub_ != nullptr && rear_left_pub_ != nullptr &&
-    front_right_pub_ != nullptr && rear_right_pub_ != nullptr)
+  if (backend_running_)
   {
     return true;
   }
 
-  const auto node = get_node();
-  if (node == nullptr)
+  if (!open_maestro())
   {
-    RCLCPP_ERROR(get_logger(), "Failed to access the default hardware component node.");
     return false;
   }
 
-  combined_pub_ = node->create_publisher<std_msgs::msg::Int16MultiArray>(pwm_topic_, 10);
-  front_left_pub_ = node->create_publisher<std_msgs::msg::Int16>(front_left_pwm_topic_, 10);
-  rear_left_pub_ = node->create_publisher<std_msgs::msg::Int16>(rear_left_pwm_topic_, 10);
-  front_right_pub_ = node->create_publisher<std_msgs::msg::Int16>(front_right_pwm_topic_, 10);
-  rear_right_pub_ = node->create_publisher<std_msgs::msg::Int16>(rear_right_pwm_topic_, 10);
+  if (!configure_maestro_serial())
+  {
+    close_maestro();
+    return false;
+  }
+
+  backend_running_ = true;
+  return true;
+}
+
+void PwmHardwareInterface::stop_backend()
+{
+  if (maestro_fd_ >= 0)
+  {
+    close_maestro();
+  }
+  backend_running_ = false;
+}
+
+bool PwmHardwareInterface::open_maestro()
+{
+  maestro_fd_ = ::open(device_path_.c_str(), O_RDWR | O_NOCTTY);
+  if (maestro_fd_ < 0)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "Failed to open Maestro device '%s': %s", device_path_.c_str(),
+      std::strerror(errno));
+    return false;
+  }
 
   return true;
 }
 
-void PwmHardwareInterface::publish_pwm(
-  int16_t front_left_pwm, int16_t rear_left_pwm, int16_t front_right_pwm, int16_t rear_right_pwm)
+void PwmHardwareInterface::close_maestro()
 {
-  std_msgs::msg::Int16 front_left_msg;
-  front_left_msg.data = front_left_pwm;
-  front_left_pub_->publish(front_left_msg);
+  if (maestro_fd_ >= 0)
+  {
+    ::close(maestro_fd_);
+    maestro_fd_ = -1;
+  }
+}
 
-  std_msgs::msg::Int16 rear_left_msg;
-  rear_left_msg.data = rear_left_pwm;
-  rear_left_pub_->publish(rear_left_msg);
+bool PwmHardwareInterface::configure_maestro_serial()
+{
+  struct termios options;
+  if (tcgetattr(maestro_fd_, &options) < 0)
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to get serial attributes for Maestro.");
+    return false;
+  }
 
-  std_msgs::msg::Int16 front_right_msg;
-  front_right_msg.data = front_right_pwm;
-  front_right_pub_->publish(front_right_msg);
+  options.c_iflag &= ~(INLCR | IGNCR | ICRNL | IXON | IXOFF);
+  options.c_oflag &= ~(ONLCR | OCRNL);
+  options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 
-  std_msgs::msg::Int16 rear_right_msg;
-  rear_right_msg.data = rear_right_pwm;
-  rear_right_pub_->publish(rear_right_msg);
+  if (tcsetattr(maestro_fd_, TCSANOW, &options) < 0)
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to set serial attributes for Maestro.");
+    return false;
+  }
 
-  std_msgs::msg::Int16MultiArray combined_msg;
-  combined_msg.data = {front_left_pwm, rear_left_pwm, front_right_pwm, rear_right_pwm};
-  combined_pub_->publish(combined_msg);
+  return true;
+}
 
-  last_pwm_ = {front_left_pwm, rear_left_pwm, front_right_pwm, rear_right_pwm};
+bool PwmHardwareInterface::write_maestro_target(uint8_t channel, uint16_t target)
+{
+  const uint8_t command[] = {
+    0x84, channel, static_cast<uint8_t>(target & 0x7F), static_cast<uint8_t>((target >> 7) & 0x7F)};
+
+  const auto bytes_written = ::write(maestro_fd_, command, sizeof(command));
+  if (bytes_written != static_cast<ssize_t>(sizeof(command)))
+  {
+    RCLCPP_ERROR(get_logger(), "Failed to write Maestro target for channel %u.", channel);
+    return false;
+  }
+
+  return true;
+}
+
+bool PwmHardwareInterface::write_neutral()
+{
+  const uint16_t neutral_target = static_cast<uint16_t>(pwm_neutral_ * 4);
+
+  return write_maestro_target(channels_[0], neutral_target) &&
+         write_maestro_target(channels_[1], neutral_target) &&
+         write_maestro_target(channels_[2], neutral_target) &&
+         write_maestro_target(channels_[3], neutral_target);
 }
 
 }  // namespace pwm_hardware_interface

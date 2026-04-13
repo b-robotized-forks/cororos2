@@ -10,11 +10,11 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="pwm_topic" default="/allie/pwm"/>
-  <xacro:arg name="front_left_pwm_topic" default="/allie/pwm/front_left"/>
-  <xacro:arg name="rear_left_pwm_topic" default="/allie/pwm/rear_left"/>
-  <xacro:arg name="front_right_pwm_topic" default="/allie/pwm/front_right"/>
-  <xacro:arg name="rear_right_pwm_topic" default="/allie/pwm/rear_right"/>
+  <xacro:arg name="device_path" default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00"/>
+  <xacro:arg name="channel_fl" default="0"/>
+  <xacro:arg name="channel_fr" default="1"/>
+  <xacro:arg name="channel_rl" default="2"/>
+  <xacro:arg name="channel_rr" default="3"/>
   <xacro:arg name="pwm_min" default="1000"/>
   <xacro:arg name="pwm_neutral" default="1500"/>
   <xacro:arg name="pwm_max" default="2000"/>
@@ -51,11 +51,11 @@
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
     simulation_controllers="$(arg simulation_controllers)"
-    pwm_topic="$(arg pwm_topic)"
-    front_left_pwm_topic="$(arg front_left_pwm_topic)"
-    rear_left_pwm_topic="$(arg rear_left_pwm_topic)"
-    front_right_pwm_topic="$(arg front_right_pwm_topic)"
-    rear_right_pwm_topic="$(arg rear_right_pwm_topic)"
+    device_path="$(arg device_path)"
+    channel_fl="$(arg channel_fl)"
+    channel_fr="$(arg channel_fr)"
+    channel_rl="$(arg channel_rl)"
+    channel_rr="$(arg channel_rr)"
     pwm_min="$(arg pwm_min)"
     pwm_neutral="$(arg pwm_neutral)"
     pwm_max="$(arg pwm_max)"
