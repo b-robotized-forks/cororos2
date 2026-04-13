@@ -90,11 +90,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="memsense_frame_id" default="imu_sensor_link" description="Frame id published by the Memsense MS-IMU3025 driver."/>
 
   <!-- pwm -->
-  <arg name="pwm_topic" default="/allie/pwm" description="Combined PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_left_topic" default="/allie/pwm/front_left" description="Front-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_left_topic" default="/allie/pwm/rear_left" description="Rear-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_right_topic" default="/allie/pwm/front_right" description="Front-right motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_right_topic" default="/allie/pwm/rear_right" description="Rear-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_device_path" default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00" description="Serial device used by the Maestro PWM controller."/>
+  <arg name="pwm_channel_fl" default="0" description="Maestro channel used for the front-left wheel motor."/>
+  <arg name="pwm_channel_fr" default="1" description="Maestro channel used for the front-right wheel motor."/>
+  <arg name="pwm_channel_rl" default="2" description="Maestro channel used for the rear-left wheel motor."/>
+  <arg name="pwm_channel_rr" default="3" description="Maestro channel used for the rear-right wheel motor."/>
   <arg name="pwm_min" default="1000" description="Minimum RC PWM command in microseconds."/>
   <arg name="pwm_neutral" default="1500" description="Neutral RC PWM command in microseconds."/>
   <arg name="pwm_max" default="2000" description="Maximum RC PWM command in microseconds."/>
@@ -139,11 +139,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="mock_sensor_commands" value="false"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
     <arg name="rviz" value="$(var rviz)"/>
-    <arg name="pwm_topic" value="$(var pwm_topic)"/>
-    <arg name="pwm_front_left_topic" value="$(var pwm_front_left_topic)"/>
-    <arg name="pwm_rear_left_topic" value="$(var pwm_rear_left_topic)"/>
-    <arg name="pwm_front_right_topic" value="$(var pwm_front_right_topic)"/>
-    <arg name="pwm_rear_right_topic" value="$(var pwm_rear_right_topic)"/>
+    <arg name="pwm_device_path" value="$(var pwm_device_path)"/>
+    <arg name="pwm_channel_fl" value="$(var pwm_channel_fl)"/>
+    <arg name="pwm_channel_fr" value="$(var pwm_channel_fr)"/>
+    <arg name="pwm_channel_rl" value="$(var pwm_channel_rl)"/>
+    <arg name="pwm_channel_rr" value="$(var pwm_channel_rr)"/>
     <arg name="pwm_min" value="$(var pwm_min)"/>
     <arg name="pwm_neutral" value="$(var pwm_neutral)"/>
     <arg name="pwm_max" value="$(var pwm_max)"/>

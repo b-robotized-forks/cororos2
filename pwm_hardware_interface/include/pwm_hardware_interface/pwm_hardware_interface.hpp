@@ -9,10 +9,7 @@
 
 #include "hardware_interface/system_interface.hpp"
 #include "rclcpp/macros.hpp"
-#include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "std_msgs/msg/int16.hpp"
-#include "std_msgs/msg/int16_multi_array.hpp"
 
 namespace pwm_hardware_interface
 {
@@ -29,10 +26,22 @@ public:
 
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
+
   hardware_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  hardware_interface::CallbackReturn on_error(
     const rclcpp_lifecycle::State & previous_state) override;
 
   hardware_interface::return_type read(
@@ -43,15 +52,21 @@ public:
 
 private:
   int16_t speed_to_pwm(double wheel_velocity_rad_s, bool invert) const;
-  bool ensure_publishers();
-  void publish_pwm(
-    int16_t front_left_pwm, int16_t rear_left_pwm, int16_t front_right_pwm, int16_t rear_right_pwm);
 
-  std::string pwm_topic_;
-  std::string front_left_pwm_topic_;
-  std::string rear_left_pwm_topic_;
-  std::string front_right_pwm_topic_;
-  std::string rear_right_pwm_topic_;
+  bool start_backend();
+  void stop_backend();
+
+  bool open_maestro();
+  void close_maestro();
+  bool configure_maestro_serial();
+  bool write_maestro_target(uint8_t channel, uint16_t target);
+  bool write_neutral();
+
+  std::string device_path_;
+  int maestro_fd_{-1};
+  bool backend_running_{false};
+  std::array<uint8_t, 4> channels_{0, 1, 2, 3};
+
   int pwm_min_{1000};
   int pwm_neutral_{1500};
   int pwm_max_{2000};
@@ -67,12 +82,6 @@ private:
   std::array<int16_t, 4> last_pwm_{
     {static_cast<int16_t>(0), static_cast<int16_t>(0), static_cast<int16_t>(0),
      static_cast<int16_t>(0)}};
-
-  rclcpp::Publisher<std_msgs::msg::Int16MultiArray>::SharedPtr combined_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr front_left_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr rear_left_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr front_right_pub_;
-  rclcpp::Publisher<std_msgs::msg::Int16>::SharedPtr rear_right_pub_;
 };
 
 }  // namespace pwm_hardware_interface

@@ -19,6 +19,7 @@ The repository is the ROS 2 port of several robots and currently contains the mo
   - Intel RealSense D455 camera
   - u-blox ZED-F9P GPS
   - Memsense MS-IMU3025 IMU
+  - Pololu Micro Maestro PWM controller
   - REV SPARK MAX motor controller using RC PWM input
 
 - **Cornelius hardware context:**
@@ -229,7 +230,7 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 - **Intel RealSense D455** via `realsense2_camera`
 - **u-blox GPS** via `ublox_gps`
 - **Memsense IMU** via `memsense_msimu3025_driver`
-- **Allie PWM base backend** via `pwm_hardware_interface`
+- **Allie Maestro PWM backend** via `pwm_hardware_interface`
 - **Cornelius Roboclaw base backend** via `roboclaw_hardware_interface`
 - **Joe ODrive base backend** via `odrive_hardware_interface`
 
@@ -242,6 +243,8 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
   - base backend: PWM hardware interface
   - lidar stack: Ouster
   - useful extra args:
+    - `pwm_device_path:=/dev/serial/by-id/<your-maestro-id>`
+    - `pwm_channel_fl:=0 pwm_channel_fr:=1 pwm_channel_rl:=2 pwm_channel_rr:=3`
     - `ouster_sensor_hostname:=<sensor-ip>`
     - `ouster_udp_dest:=<host-ip>`
 
@@ -264,10 +267,11 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 
 ### Hardware examples
 
-Allie with PWM base and Ouster:
+Allie with Maestro PWM base and Ouster:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
+  pwm_device_path:=/dev/serial/by-id/<your-maestro-id> \
   ouster_sensor_hostname:=<sensor-ip> \
   ouster_udp_dest:=<host-ip>
 ```
@@ -320,15 +324,6 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
   memsense_device:=/dev/serial/by-id/<your-device>
 ```
 
-PWM output topics for Allie:
-
-```bash
-/allie/pwm
-/allie/pwm/front_left
-/allie/pwm/rear_left
-/allie/pwm/front_right
-/allie/pwm/rear_right
-```
 
 > [!WARNING]
 > The Roboclaw path is still under active integration. The ROS 2 package, launch wiring, and encoder / no-encoder variants are present, but hardware validation and tuning are still needed.
@@ -347,8 +342,8 @@ PWM output topics for Allie:
    ```
    Then relaunch once from a clean terminal.
 
-2. *PWM output keeps returning to neutral while testing.*
-   The PWM driver uses a timeout of `0.5 s`. Publish `cmd_vel` faster than that, for example:
+2. *The base drive returns to neutral while testing.*
+   `diff_drive_controller` uses `cmd_vel_timeout: 0.5`. Publish `cmd_vel` faster than that, for example:
    ```bash
    ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.5}}"
    ```
