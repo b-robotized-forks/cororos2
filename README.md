@@ -196,7 +196,7 @@ ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:
 In another terminal, publish a velocity command to the Gazebo controller:
 
 ```bash
-ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
+ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
 ```
 
 You should see the robot move in Gazebo and the odometry change.
@@ -234,19 +234,36 @@ Then start Nav2 in another terminal. To build a map with SLAM Toolbox:
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
 ```
 
+When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
+```
+
+Wait until `/map` covers the area around the robot, and only send Nav2 goals inside the visible map in RViz. If a goal is outside the current map, the planner can report `worldToMap failed` because it cannot plan outside the known costmap.
+
+Save the completed map:
+
+```bash
+ros2 run nav2_map_server map_saver_cli -f my_map
+```
+
 To localize on an existing map with AMCL:
 
 ```bash
-ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=placeholder_map
+ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=my_map
 ```
+
+Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
 
 The navigation launch routes commands through `twist_mux` by default:
 
 ```text
 Nav2 -> /cmd_vel_smoothed
+/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_checked
 keyboard -> /key_vel
 joystick -> /joy_vel
-twist_mux -> /cmd_vel
+/cmd_vel_nav_checked + /key_vel + /joy_vel -> twist_mux -> /cmd_vel
 cmd_vel_stamper -> /diff_drive_controller/cmd_vel
 ```
 

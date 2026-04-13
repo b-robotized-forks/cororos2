@@ -12,7 +12,6 @@ slam_toolbox:
     scan_topic: /laser_scan
     mode: mapping
     use_map_saver: true
-    map_file_name: placeholder_map
     debug_logging: false
     throttle_scans: 1
     transform_publish_period: 0.02

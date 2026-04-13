@@ -18,28 +18,40 @@ This package provides cororos-specific launch files, configs, and map assets for
 1. Start the robot in Gazebo:
 
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=cornelius rviz:=false
+   ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:=false
    ```
 
 2. Run Nav2 with SLAM:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=cornelius use_sim_time:=true
+   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
    ```
 
-3. Save the map created by SLAM:
+3. Drive manually while SLAM builds the map:
+
+   ```bash
+   ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
+   ```
+
+   SLAM creates `/map` from lidar scans. The map starts small and grows only where the robot has scanned. Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
+
+4. Save the map created by SLAM:
 
    ```bash
    ros2 run nav2_map_server map_saver_cli -f my_map
    ```
 
-4. Or run Nav2 with AMCL against a saved map:
+5. Stop the SLAM launch and run Nav2 with AMCL against the saved map:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=cornelius use_sim_time:=true map:=my_map
+   ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=my_map
    ```
 
+   Use `robot_model:=joe` for Joe.
+
    Use `placeholder_map` only as a temporary dummy map before a real map is saved.
+
+Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
 
 ## Velocity command flow
 
@@ -47,10 +59,11 @@ The navigation launch files start `twist_mux` by default:
 
 ```text
 Nav2 -> /cmd_vel_smoothed
+/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_checked
 keyboard -> /key_vel
 joystick -> /joy_vel
 
-/cmd_vel_smoothed + /key_vel + /joy_vel
+/cmd_vel_nav_checked + /key_vel + /joy_vel
 -> twist_mux
 -> /cmd_vel
 -> cmd_vel_stamper
