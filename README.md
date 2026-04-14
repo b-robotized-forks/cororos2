@@ -98,6 +98,8 @@ cd ~/cororos2_ws
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
+The package manifests declare the ROS 2 control, Gazebo, RViz, and hardware-driver dependencies, so `rosdep install` is the supported way to install them. Separate `sudo apt install ros-jazzy-...` commands are not needed.
+
 #### Build the workspace
 
 ```bash
@@ -239,6 +241,22 @@ The following hardware drivers are already integrated into `cororos2_hw.launch.x
 > [!WARNING]
 > The drivers still need hardware validation.
 
+### Device permissions
+
+Some hardware backends use serial devices under `/dev/ttyUSB*`, `/dev/ttyACM*`, or `/dev/serial/by-id/...`. On Ubuntu these devices are commonly owned by the `dialout` group. If a hardware launch fails with a permission error while opening a serial device, add your user to `dialout`:
+
+```bash
+sudo usermod -a -G dialout $USER
+```
+
+Joystick and gamepad devices are commonly exposed through `/dev/input/...`. If joystick input fails with a permission error, add your user to `input`:
+
+```bash
+sudo usermod -a -G input $USER
+```
+
+Log out and back in, or reboot, before trying again.
+
 ### Robot-specific hardware choices
 
 - `robot_model:=allie`
@@ -349,6 +367,26 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
    ```bash
    ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.5}}"
    ```
+
+3. *Serial devices or joystick input fail with permission errors.*
+   Show input devices and their permissions / groups. This is useful to confirm joystick or gamepad devices are owned by `input` or another group:
+   ```bash
+   ll /dev/input
+   ```
+   Show whether the `dialout` group exists and which users are in it:
+   ```bash
+   cat /etc/group | grep dialout
+   ```
+   Show whether the `input` group exists and which users are in it:
+   ```bash
+   cat /etc/group | grep input
+   ```
+   If your user is not listed in the needed group, add it:
+   ```bash
+   sudo usermod -a -G dialout $USER
+   sudo usermod -a -G input $USER
+   ```
+   Log out and back in, or reboot, before trying again.
 
 ## Roboclaw Diagnostics And Telemetry
 
