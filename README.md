@@ -87,6 +87,7 @@ git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 
 ```bash
 sudo apt update
+sudo apt install -y python3-pip
 rosdep update
 export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
