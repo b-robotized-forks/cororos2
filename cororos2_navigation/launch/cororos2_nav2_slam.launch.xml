@@ -42,16 +42,7 @@
        description="Optional frame id used in the stamped velocity command." />
   <arg name="use_twist_mux"
        default="true"
-       description="Use twist_mux to choose between Nav2, keyboard, and joystick commands." />
-  <arg name="twist_mux_config_file"
-       default="twist_mux"
-       description="Twist mux config file basename without the .yaml suffix." />
-  <arg name="use_joystick"
-       default="false"
-       description="Start joy_node and teleop_twist_joy for local joystick control." />
-  <arg name="joy_dev"
-       default="/dev/input/js0"
-       description="Joystick device path." />
+       description="Read stamped output from /cmd_vel when an external twist_mux launch is used." />
   <let name="selected_nav2_config_file"
        value="$(eval '\'$(var nav2_config_file)\' if \'$(var nav2_config_file)\' != \'\' else \'allie_nav2\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_nav2\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_nav2\'')" />
   <let name="selected_scan_topic"
@@ -59,32 +50,9 @@
   <let name="selected_pointcloud_topic"
        value="$(eval '\'$(var pointcloud_topic)\' if \'$(var pointcloud_topic)\' != \'\' else \'/\' + \'$(var robot_model)\' + \'/lidar/points\' if \'$(var use_sim_time)\' == \'true\' else \'/ouster/points\' if \'$(var robot_model)\' != \'joe\' else \'/lidar/points\'')" />
   <let name="selected_use_pointcloud_to_laserscan"
-       value="$(eval '\'$(var use_pointcloud_to_laserscan)\' if \'$(var use_pointcloud_to_laserscan)\' != \'\' else \'true\'')" />
+       value="$(eval '\'$(var use_pointcloud_to_laserscan)\' if \'$(var use_pointcloud_to_laserscan)\' != \'\' else \'false\' if \'$(var robot_model)\' == \'joe\' else \'true\'')" />
   <let name="selected_cmd_vel_input_topic"
        value="$(eval '\'/cmd_vel\' if \'$(var use_twist_mux)\' == \'true\' else \'/cmd_vel_nav_checked\'')" />
-
-  <!-- Joystick and Teleop -->
-  <node if="$(var use_joystick)" pkg="joy" exec="joy_node" name="joy_node">
-     <param name="dev" value="$(var joy_dev)" />
-     <param name="deadzone" value="0.1" />
-     <param name="autorepeat_rate" value="20.0" />
-  </node>
-
-  <node if="$(var use_joystick)" pkg="teleop_twist_joy" exec="teleop_node" name="teleop_twist_joy_node">
-     <param from="$(find-pkg-share teleop_twist_joy)/config/xbox.config.yaml" />
-     <param name="publish_stamped_twist" value="true" />
-     <param name="default_trig_val" value="false" />
-     <remap from="/cmd_vel" to="/joy_vel" />
-  </node>
-
-  <node if="$(var use_twist_mux)"
-        pkg="twist_mux"
-        exec="twist_mux"
-        name="twist_mux"
-        output="screen">
-    <param from="$(find-pkg-share $(var config_package))/config/$(var twist_mux_config_file).yaml" />
-    <remap from="cmd_vel_out" to="/cmd_vel" />
-  </node>
 
   <node unless="$(var selected_use_pointcloud_to_laserscan)"
         pkg="cororos2_navigation"

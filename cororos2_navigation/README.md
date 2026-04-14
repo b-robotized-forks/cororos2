@@ -7,6 +7,7 @@ This package provides cororos-specific launch files, configs, and map assets for
 - `cororos2_nav2_amcl.launch.xml`
 - `cororos2_nav2_slam.launch.xml`
 - `cororos2_nav2_cartographer.launch.xml`
+- `cororos2_teleop_mux.launch.xml`
 - robot-specific Nav2 and AMCL config files for `allie`, `cornelius`, and `joe`
 - a `twist_mux` setup for choosing between Nav2, keyboard, and joystick velocity commands
 - a `cmd_vel_stamper` node that converts the selected `/cmd_vel` `Twist` output into the stamped velocity command expected by the diff-drive controller
@@ -51,7 +52,7 @@ Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
 
 ## Velocity command flow
 
-The navigation launch files start `twist_mux` by default:
+The navigation launch files send commands through `/cmd_vel` by default. Start `cororos2_teleop_mux.launch.xml` in a second terminal to run `twist_mux` and optional joystick teleop:
 
 ```text
 Nav2 -> /cmd_vel_smoothed
@@ -68,7 +69,7 @@ joystick -> /joy_vel
 
 `cmd_vel_stamper` is needed because Nav2, keyboard teleop, and `twist_mux` use `geometry_msgs/Twist`, while the current diff-drive controller command topic expects `geometry_msgs/TwistStamped`.
 
-To disable the mux and send Nav2 directly through `cmd_vel_stamper`, pass:
+To skip the external mux and send Nav2 directly through `cmd_vel_stamper`, pass:
 
 ```bash
 use_twist_mux:=false
@@ -82,13 +83,24 @@ Keyboard teleop is started manually because it needs the active terminal for key
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
 ```
 
-Joystick support can be started through the navigation launch:
+Start Nav2 in one terminal:
 
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   robot_model:=joe \
-  use_sim_time:=true \
-  use_joystick:=true
+  use_sim_time:=true
+```
+
+Start the mux and joystick in a second terminal:
+
+```bash
+ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
+```
+
+If Nav2 is not running and you only want to test keyboard or joystick driving with robot bringup, also start `cmd_vel_stamper`. It converts `/cmd_vel` from the mux to `/diff_drive_controller/cmd_vel` for the controller:
+
+```bash
+ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true use_cmd_vel_stamper:=true
 ```
 
 Joystick defaults for the Xbox 360 controller:
