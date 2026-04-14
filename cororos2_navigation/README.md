@@ -47,10 +47,6 @@ This package provides cororos-specific launch files, configs, and map assets for
    ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=my_map
    ```
 
-   Use `robot_model:=joe` for Joe.
-
-   Use `placeholder_map` only as a temporary dummy map before a real map is saved.
-
 Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
 
 ## Velocity command flow
@@ -86,7 +82,7 @@ Keyboard teleop is started manually because it needs the active terminal for key
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
 ```
 
-Joystick support can be started with the navigation launch:
+Joystick support can be started through the navigation launch:
 
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
@@ -95,11 +91,17 @@ ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   use_joystick:=true
 ```
 
-Joystick defaults:
+Joystick defaults for the Xbox 360 controller:
 
 - device: `/dev/input/js0`
-- config: `teleop_twist_joy_logitech_f710_diff_drive.config.yaml`
+- config: `teleop_twist_joy` package `xbox.config.yaml`
 - output topic: `/joy_vel`
+
+Use `joy_dev:=/dev/input/<device>` to choose a different joystick device.
+
+Joystick controls:
+
+Hold the left trigger button to enable movement. Use the left thumb stick vertical axis for linear movement and the left thumb stick horizontal axis for angular movement. Hold the right trigger button for turbo speed.
 
 The mux priorities are:
 

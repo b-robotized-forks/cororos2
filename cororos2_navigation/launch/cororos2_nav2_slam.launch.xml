@@ -49,13 +49,9 @@
   <arg name="use_joystick"
        default="false"
        description="Start joy_node and teleop_twist_joy for local joystick control." />
-  <arg name="teleop_config_file"
-       default="teleop_twist_joy_logitech_f710_diff_drive.config"
-       description="teleop_twist_joy config file basename without the .yaml suffix." />
   <arg name="joy_dev"
        default="/dev/input/js0"
        description="Joystick device path." />
-
   <let name="selected_nav2_config_file"
        value="$(eval '\'$(var nav2_config_file)\' if \'$(var nav2_config_file)\' != \'\' else \'allie_nav2\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_nav2\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_nav2\'')" />
   <let name="selected_scan_topic"
@@ -67,24 +63,18 @@
   <let name="selected_cmd_vel_input_topic"
        value="$(eval '\'/cmd_vel\' if \'$(var use_twist_mux)\' == \'true\' else \'/cmd_vel_nav_checked\'')" />
 
-  <node if="$(var use_joystick)"
-        pkg="joy"
-        exec="joy_node"
-        name="joy_node"
-        output="screen">
-    <param name="dev" value="$(var joy_dev)" />
-    <param name="deadzone" value="0.1" />
-    <param name="autorepeat_rate" value="20.0" />
+  <!-- Joystick and Teleop -->
+  <node if="$(var use_joystick)" pkg="joy" exec="joy_node" name="joy_node">
+     <param name="dev" value="$(var joy_dev)" />
+     <param name="deadzone" value="0.1" />
+     <param name="autorepeat_rate" value="20.0" />
   </node>
 
-  <node if="$(var use_joystick)"
-        pkg="teleop_twist_joy"
-        exec="teleop_node"
-        name="teleop_twist_joy_node"
-        output="screen">
-    <param from="$(find-pkg-share $(var config_package))/config/$(var teleop_config_file).yaml" />
-    <param name="publish_stamped_twist" value="false" />
-    <remap from="/cmd_vel" to="/joy_vel" />
+  <node if="$(var use_joystick)" pkg="teleop_twist_joy" exec="teleop_node" name="teleop_twist_joy_node">
+     <param from="$(find-pkg-share teleop_twist_joy)/config/xbox.config.yaml" />
+     <param name="publish_stamped_twist" value="true" />
+     <param name="default_trig_val" value="false" />
+     <remap from="/cmd_vel" to="/joy_vel" />
   </node>
 
   <node if="$(var use_twist_mux)"
