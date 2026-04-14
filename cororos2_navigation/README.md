@@ -99,6 +99,12 @@ Joystick defaults for the Xbox 360 controller:
 
 Use `joy_dev:=/dev/input/<device>` to choose a different joystick device.
 
+If the joystick device cannot be opened, add your user to the `input` group and then log out and back in:
+
+```bash
+sudo usermod -a -G input $USER
+```
+
 Joystick controls:
 
 Hold the left trigger button to enable movement. Use the left thumb stick vertical axis for linear movement and the left thumb stick horizontal axis for angular movement. Hold the right trigger button for turbo speed.
