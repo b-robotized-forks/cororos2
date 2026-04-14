@@ -55,21 +55,21 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <!-- base backend description parameters -->
   <!-- pwm (allie) -->
-  <arg name="pwm_topic"
-       default="/allie/pwm"
-       description="Combined PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_left_topic"
-       default="/allie/pwm/front_left"
-       description="Front-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_left_topic"
-       default="/allie/pwm/rear_left"
-       description="Rear-left motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_front_right_topic"
-       default="/allie/pwm/front_right"
-       description="Front-right motor PWM output topic from the hardware interface."/>
-  <arg name="pwm_rear_right_topic"
-       default="/allie/pwm/rear_right"
-       description="Rear-right motor PWM output topic from the hardware interface."/>
+  <arg name="pwm_device_path"
+       default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00"
+       description="Serial device used by the Maestro PWM controller."/>
+  <arg name="pwm_channel_fl"
+       default="0"
+       description="Maestro channel used for the front-left wheel motor."/>
+  <arg name="pwm_channel_fr"
+       default="1"
+       description="Maestro channel used for the front-right wheel motor."/>
+  <arg name="pwm_channel_rl"
+       default="2"
+       description="Maestro channel used for the rear-left wheel motor."/>
+  <arg name="pwm_channel_rr"
+       default="3"
+       description="Maestro channel used for the rear-right wheel motor."/>
   <arg name="pwm_min"
        default="1000"
        description="Minimum RC PWM command in microseconds."/>
@@ -156,7 +156,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <let name="selected_controllers_file"
        value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
   <let name="robot_description_content"
-       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false pwm_topic:=$(var pwm_topic) front_left_pwm_topic:=$(var pwm_front_left_topic) rear_left_pwm_topic:=$(var pwm_rear_left_topic) front_right_pwm_topic:=$(var pwm_front_right_topic) rear_right_pwm_topic:=$(var pwm_rear_right_topic) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right) python_executable:=$(var python_executable) roboclaw_device:=$(var roboclaw_device) roboclaw_baud:=$(var roboclaw_baud) roboclaw_address:=$(var roboclaw_address) roboclaw_use_encoder:=$(var roboclaw_use_encoder) roboclaw_max_speed:=$(var roboclaw_max_speed) roboclaw_ticks_at_max_speed:=$(var roboclaw_ticks_at_max_speed) roboclaw_acceleration:=$(var roboclaw_acceleration) roboclaw_ticks_per_meter:=$(var roboclaw_ticks_per_meter) roboclaw_m1_invert:=$(var roboclaw_m1_invert) roboclaw_m2_invert:=$(var roboclaw_m2_invert) roboclaw_m1_encoder_sign:=$(var roboclaw_m1_encoder_sign) roboclaw_m2_encoder_sign:=$(var roboclaw_m2_encoder_sign) roboclaw_wheel_radius:=$(var roboclaw_wheel_radius) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
+       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false device_path:=$(var pwm_device_path) channel_fl:=$(var pwm_channel_fl) channel_fr:=$(var pwm_channel_fr) channel_rl:=$(var pwm_channel_rl) channel_rr:=$(var pwm_channel_rr) pwm_min:=$(var pwm_min) pwm_neutral:=$(var pwm_neutral) pwm_max:=$(var pwm_max) wheel_radius:=$(var pwm_wheel_radius) max_wheel_speed_mps:=$(var pwm_max_wheel_speed) invert_left:=$(var pwm_invert_left) invert_right:=$(var pwm_invert_right) python_executable:=$(var python_executable) roboclaw_device:=$(var roboclaw_device) roboclaw_baud:=$(var roboclaw_baud) roboclaw_address:=$(var roboclaw_address) roboclaw_use_encoder:=$(var roboclaw_use_encoder) roboclaw_max_speed:=$(var roboclaw_max_speed) roboclaw_ticks_at_max_speed:=$(var roboclaw_ticks_at_max_speed) roboclaw_acceleration:=$(var roboclaw_acceleration) roboclaw_ticks_per_meter:=$(var roboclaw_ticks_per_meter) roboclaw_m1_invert:=$(var roboclaw_m1_invert) roboclaw_m2_invert:=$(var roboclaw_m2_invert) roboclaw_m1_encoder_sign:=$(var roboclaw_m1_encoder_sign) roboclaw_m2_encoder_sign:=$(var roboclaw_m2_encoder_sign) roboclaw_wheel_radius:=$(var roboclaw_wheel_radius) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number) front_right_axis:=$(var odrive_front_right_axis) rear_right_axis:=$(var odrive_rear_right_axis) connect_timeout:=$(var odrive_connect_timeout)')"/>
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>

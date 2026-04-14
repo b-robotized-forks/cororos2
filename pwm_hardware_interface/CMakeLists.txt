@@ -10,7 +10,6 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(std_msgs REQUIRED)
 
 add_library(pwm_hardware_interface SHARED
   src/pwm_hardware_interface.cpp)
@@ -22,8 +21,7 @@ ament_target_dependencies(pwm_hardware_interface
   hardware_interface
   pluginlib
   rclcpp
-  rclcpp_lifecycle
-  std_msgs)
+  rclcpp_lifecycle)
 
 pluginlib_export_plugin_description_file(hardware_interface pwm_hardware_interface.xml)
 
@@ -39,6 +37,6 @@ install(FILES pwm_hardware_interface.xml
 
 ament_export_include_directories(include)
 ament_export_libraries(pwm_hardware_interface)
-ament_export_dependencies(hardware_interface pluginlib rclcpp rclcpp_lifecycle std_msgs)
+ament_export_dependencies(hardware_interface pluginlib rclcpp rclcpp_lifecycle)
 
 ament_package()
