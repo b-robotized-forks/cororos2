@@ -197,8 +197,10 @@ ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:
 In another terminal, publish a velocity command to the Gazebo controller:
 
 ```bash
-ros2 topic pub /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
+ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
 ```
+
+The `diff_drive_controller` has a `cmd_vel_timeout` of 0.5 s, so velocity commands must publish faster than that. Otherwise, the controller may time out between messages and cause intermittent wheel turning.
 
 You should see the robot move in Gazebo and the odometry change.
 
@@ -343,7 +345,7 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
    Then relaunch once from a clean terminal.
 
 2. *The base drive returns to neutral while testing.*
-   `diff_drive_controller` uses `cmd_vel_timeout: 0.5`. Publish `cmd_vel` faster than that, for example:
+   `diff_drive_controller` uses `cmd_vel_timeout: 0.5`, so publish `cmd_vel` faster than that. Otherwise, the controller may time out between messages and cause intermittent wheel turning. For example:
    ```bash
    ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 0.5}}"
    ```
