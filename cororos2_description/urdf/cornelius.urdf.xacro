@@ -9,7 +9,6 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="python_executable" default="python3"/>
   <xacro:arg name="roboclaw_device" default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"/>
   <xacro:arg name="roboclaw_baud" default="115200"/>
   <xacro:arg name="roboclaw_address" default="128"/>
@@ -49,7 +48,6 @@
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
     simulation_controllers="$(arg simulation_controllers)"
-    python_executable="$(arg python_executable)"
     roboclaw_device="$(arg roboclaw_device)"
     roboclaw_baud="$(arg roboclaw_baud)"
     roboclaw_address="$(arg roboclaw_address)"

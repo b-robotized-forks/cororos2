@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include <sys/types.h>
+#include <array>
 #include <chrono>
-#include <cstdio>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -71,11 +72,16 @@ private:
   bool validate_joint_configuration() const;
   bool start_backend();
   void stop_backend();
-  bool send_command(const std::string & command, std::string & response);
-  bool expect_ok(const std::string & command);
+  bool open_roboclaw();
+  void close_roboclaw();
+  bool configure_roboclaw_serial();
+  bool ping_roboclaw();
+  bool activate_backend();
+  bool deactivate_backend();
+  bool drive_backend(double left_mps, double right_mps);
+  bool stop_motors();
   bool read_state_from_backend();
-  bool parse_state_response(const std::string & response);
-  bool parse_status_response(const std::string & response, RoboclawTelemetry & telemetry);
+  bool read_status_from_backend(RoboclawTelemetry & telemetry);
   bool ensure_publishers();
   void release_publishers();
   void reset_command_and_state_buffers();
@@ -86,8 +92,33 @@ private:
   void publish_status(const RoboclawTelemetry & telemetry);
   void reset_status_publish_state();
 
-  std::string python_executable_;
+  bool flush_serial_io();
+  bool write_all(const uint8_t * data, size_t size);
+  bool read_exact(uint8_t * data, size_t size);
+  void crc_clear();
+  void crc_update(uint8_t data);
+  bool send_packet_command(uint8_t command);
+  bool write_byte(uint8_t value);
+  bool write_word(uint16_t value);
+  bool write_long(uint32_t value);
+  bool write_signed_word(int16_t value);
+  bool write_signed_long(int32_t value);
+  bool write_checksum_and_ack();
+  bool read_byte(uint8_t & value);
+  bool read_word(uint16_t & value);
+  bool read_long(uint32_t & value);
+  bool read_signed_long(int32_t & value);
+  bool read_checksum();
+  bool read_uint16_command(uint8_t command, uint16_t & value);
+  bool read_uint32_command(uint8_t command, uint32_t & value);
+  bool read_encoder_command(uint8_t command, int32_t & ticks);
+  bool write_no_arg_command(uint8_t command);
+  bool write_byte_command(uint8_t command, uint8_t value);
+  bool write_signed_word_uint32_command(uint8_t command, int16_t value1, uint32_t value2);
+  bool write_signed_long_pair_command(uint8_t command, int32_t value1, int32_t value2);
+
   std::string device_;
+  int roboclaw_fd_{-1};
   int baud_{115200};
   int address_{128};
   bool use_encoder_{false};
@@ -106,10 +137,11 @@ private:
   std::vector<double> hw_positions_;
   std::vector<double> hw_velocities_;
 
-  pid_t backend_pid_{-1};
-  FILE * backend_in_{nullptr};
-  FILE * backend_out_{nullptr};
   bool backend_running_{false};
+  uint16_t crc_{0};
+  std::optional<int32_t> last_left_ticks_;
+  std::optional<int32_t> last_right_ticks_;
+  std::chrono::steady_clock::time_point last_encoder_read_time_{};
 
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_pub_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr logic_battery_voltage_pub_;

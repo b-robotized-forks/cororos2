@@ -9,7 +9,6 @@
                sim_gazebo_classic:=false
                sim_gazebo:=false
                simulation_controllers
-               python_executable:=python3
                roboclaw_device:=/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00
                roboclaw_baud:=115200
                roboclaw_address:=128
@@ -38,7 +37,6 @@
         </xacro:if>
         <xacro:unless value="${use_mock_hardware or sim_gazebo_classic or sim_gazebo}">
           <plugin>roboclaw_hardware_interface/RoboclawHardwareInterface</plugin>
-          <param name="python_executable">${python_executable}</param>
           <param name="device">${roboclaw_device}</param>
           <param name="baud">${roboclaw_baud}</param>
           <param name="address">${roboclaw_address}</param>
