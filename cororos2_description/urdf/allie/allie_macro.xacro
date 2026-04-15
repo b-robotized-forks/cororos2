@@ -44,55 +44,6 @@
           <box size="0.05 0.52 0.05" />
         </geometry>
       </collision>
-      <collision name="ouster_deck_collision">
-        <origin xyz="0.175 0.01 0.3625" rpy="0 0 0" />
-        <geometry>
-          <box size="0.24 0.18 0.02" />
-        </geometry>
-      </collision>
-      <collision name="beam1_collision">
-        <origin xyz="0.255 0.07 0.24375" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.02 0.2375" />
-        </geometry>
-      </collision>
-      <collision name="beam2_collision">
-        <origin xyz="0.255 -0.05 0.24375" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.02 0.2375" />
-        </geometry>
-      </collision>
-      <collision name="beam3_collision">
-        <origin xyz="0.095 0.07 0.24375" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.02 0.2375" />
-        </geometry>
-      </collision>
-      <collision name="beam4_collision">
-        <origin xyz="0.095 -0.05 0.24375" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.02 0.2375" />
-        </geometry>
-      </collision>
-      <collision name="sensor_mast_collision">
-        <origin xyz="0.255 0.07 1.01625" rpy="0 0 0" />
-        <geometry>
-          <box size="0.03 0.03 1.3175" />
-        </geometry>
-      </collision>
-      <collision name="camera_plate_collision">
-        <origin xyz="0.2745 0.01 1.552" rpy="0 0 0" />
-        <geometry>
-          <box size="0.095 0.16 0.02" />
-        </geometry>
-      </collision>
-      <collision name="gps_board_collision">
-        <origin xyz="0.27 0.09 1.675" rpy="0 0 0" />
-        <geometry>
-          <box size="0.12 0.08 0.02" />
-        </geometry>
-      </collision>
-
       <!-- visuals -->
       <visual name="chassis_main_visual">
         <origin xyz="0 0 0.05" rpy="0 0 0" />
@@ -303,6 +254,24 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="gps_base_collision">
+        <origin xyz="0 0 0.012" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.028" length="0.024" />
+        </geometry>
+      </collision>
+      <collision name="gps_cap_collision">
+        <origin xyz="0 0 0.028" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="0.016" />
+        </geometry>
+      </collision>
+      <collision name="gps_antenna_tip_collision">
+        <origin xyz="0 0 0.060" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.0035" length="0.024" />
+        </geometry>
+      </collision>
       <visual name="gps_base_visual">
         <origin xyz="0 0 0.012" rpy="0 0 0" />
         <geometry>
@@ -338,6 +307,12 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="d435i_realsense_camera_collision">
+        <origin xyz="-0.017356 0 -0.009938" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/allie/visual/realsense_d435.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </collision>
       <visual name="d435i_realsense_camera_visual">
         <origin xyz="-0.017356 0 -0.009938" rpy="0 0 0" />
         <geometry>
@@ -352,6 +327,18 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="ouster_body_collision">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.055" length="0.075" />
+        </geometry>
+      </collision>
+      <collision name="ouster_window_collision">
+        <origin xyz="0.042 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.008 0.09 0.035" />
+        </geometry>
+      </collision>
       <visual name="ouster_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -439,7 +426,7 @@
     <joint name="${prefix}base_link_to_gps_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}gps_link" />
-      <origin xyz="0.27 0.09 1.685" rpy="0 0 0" />
+      <origin xyz="0.27 0.09 1.681" rpy="0 0 0" />
     </joint>
     <!-- base link to front RGB-D camera frame -->
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
