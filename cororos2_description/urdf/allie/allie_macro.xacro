@@ -20,6 +20,30 @@
           <box size="0.555 0.355 0.13" />
         </geometry>
       </collision>
+      <collision name="emergency_stop_bottom_collision">
+        <origin xyz="0.2 0.15 0.125" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.015" length="0.015" />
+        </geometry>
+      </collision>
+      <collision name="emergency_stop_top_collision">
+        <origin xyz="0.2 0.15 0.135" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.02" length="0.005" />
+        </geometry>
+      </collision>
+      <collision name="wheel_mount_front_collision">
+        <origin xyz="0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.52 0.05" />
+        </geometry>
+      </collision>
+      <collision name="wheel_mount_rear_collision">
+        <origin xyz="-0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.52 0.05" />
+        </geometry>
+      </collision>
       <collision name="ouster_deck_collision">
         <origin xyz="0.175 0.01 0.3625" rpy="0 0 0" />
         <geometry>
