@@ -18,10 +18,6 @@
                roboclaw_ticks_at_max_speed:=32760.0
                roboclaw_acceleration:=32000
                roboclaw_ticks_per_meter:=4342.2
-               roboclaw_m1_invert:=false
-               roboclaw_m2_invert:=false
-               roboclaw_m1_encoder_sign:=1
-               roboclaw_m2_encoder_sign:=1
                roboclaw_wheel_radius:=0.129">
 
     <ros2_control name="${name}" type="system">
@@ -47,10 +43,6 @@
           <param name="ticks_at_max_speed">${roboclaw_ticks_at_max_speed}</param>
           <param name="acceleration">${roboclaw_acceleration}</param>
           <param name="ticks_per_meter">${roboclaw_ticks_per_meter}</param>
-          <param name="m1_invert">${roboclaw_m1_invert}</param>
-          <param name="m2_invert">${roboclaw_m2_invert}</param>
-          <param name="m1_encoder_sign">${roboclaw_m1_encoder_sign}</param>
-          <param name="m2_encoder_sign">${roboclaw_m2_encoder_sign}</param>
           <param name="wheel_radius">${roboclaw_wheel_radius}</param>
         </xacro:unless>
       </hardware>

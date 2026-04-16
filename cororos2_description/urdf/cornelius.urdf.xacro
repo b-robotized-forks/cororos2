@@ -20,10 +20,6 @@
   <xacro:arg name="roboclaw_ticks_at_max_speed" default="${roboclaw_config['ticks_at_max_speed']}"/>
   <xacro:arg name="roboclaw_acceleration" default="${roboclaw_config['acceleration']}"/>
   <xacro:arg name="roboclaw_ticks_per_meter" default="${roboclaw_config['ticks_per_meter']}"/>
-  <xacro:arg name="roboclaw_m1_invert" default="${roboclaw_config['m1_invert']}"/>
-  <xacro:arg name="roboclaw_m2_invert" default="${roboclaw_config['m2_invert']}"/>
-  <xacro:arg name="roboclaw_m1_encoder_sign" default="${roboclaw_config['m1_encoder_sign']}"/>
-  <xacro:arg name="roboclaw_m2_encoder_sign" default="${roboclaw_config['m2_encoder_sign']}"/>
   <xacro:arg name="roboclaw_wheel_radius" default="${roboclaw_config['wheel_radius']}"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/cornelius/cornelius_macro.xacro"/>
@@ -60,10 +56,6 @@
     roboclaw_ticks_at_max_speed="$(arg roboclaw_ticks_at_max_speed)"
     roboclaw_acceleration="$(arg roboclaw_acceleration)"
     roboclaw_ticks_per_meter="$(arg roboclaw_ticks_per_meter)"
-    roboclaw_m1_invert="$(arg roboclaw_m1_invert)"
-    roboclaw_m2_invert="$(arg roboclaw_m2_invert)"
-    roboclaw_m1_encoder_sign="$(arg roboclaw_m1_encoder_sign)"
-    roboclaw_m2_encoder_sign="$(arg roboclaw_m2_encoder_sign)"
     roboclaw_wheel_radius="$(arg roboclaw_wheel_radius)"/>
 
 </robot>

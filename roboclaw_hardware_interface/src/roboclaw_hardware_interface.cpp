@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <algorithm>
 #include <cerrno>
-#include <cmath>
 #include <csignal>
 #include <cstdint>
 #include <cstring>
@@ -185,12 +184,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     ticks_per_meter_ = hardware_parameters.count("ticks_per_meter") != 0
                          ? std::stod(hardware_parameters.at("ticks_per_meter"))
                          : 4342.2;
-    m1_encoder_sign_ = hardware_parameters.count("m1_encoder_sign") != 0
-                         ? std::stoi(hardware_parameters.at("m1_encoder_sign"))
-                         : 1;
-    m2_encoder_sign_ = hardware_parameters.count("m2_encoder_sign") != 0
-                         ? std::stoi(hardware_parameters.at("m2_encoder_sign"))
-                         : 1;
     wheel_radius_ = hardware_parameters.count("wheel_radius") != 0
                       ? std::stod(hardware_parameters.at("wheel_radius"))
                       : 0.129;
@@ -238,10 +231,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     return false;
   };
 
-  if (
-    !parse_bool_or_log("use_encoder", false, use_encoder_) ||
-    !parse_bool_or_log("m1_invert", false, m1_invert_) ||
-    !parse_bool_or_log("m2_invert", false, m2_invert_))
+  if (!parse_bool_or_log("use_encoder", false, use_encoder_))
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -261,13 +251,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     RCLCPP_ERROR(get_logger(), "roboclaw_hardware_interface received invalid numeric parameters.");
     return hardware_interface::CallbackReturn::ERROR;
   }
-  if (std::abs(m1_encoder_sign_) != 1 || std::abs(m2_encoder_sign_) != 1)
-  {
-    RCLCPP_ERROR(
-      get_logger(), "roboclaw_hardware_interface encoder sign parameters must be either -1 or 1.");
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
   reset_command_and_state_buffers();
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -674,10 +657,7 @@ bool RoboclawHardwareInterface::start_backend()
       "--max-speed", std::to_string(max_speed_).c_str(), "--ticks-at-max-speed",
       std::to_string(ticks_at_max_speed_).c_str(), "--acceleration",
       std::to_string(acceleration_).c_str(), "--ticks-per-meter",
-      std::to_string(ticks_per_meter_).c_str(), "--m1-invert", bool_to_string(m1_invert_),
-      "--m2-invert", bool_to_string(m2_invert_), "--m1-encoder-sign",
-      std::to_string(m1_encoder_sign_).c_str(), "--m2-encoder-sign",
-      std::to_string(m2_encoder_sign_).c_str(), static_cast<char *>(nullptr));
+      std::to_string(ticks_per_meter_).c_str(), static_cast<char *>(nullptr));
     perror("execlp");
     _exit(127);
   }
