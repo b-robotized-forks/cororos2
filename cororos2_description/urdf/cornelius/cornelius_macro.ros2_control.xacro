@@ -22,7 +22,8 @@
                roboclaw_m2_invert:=false
                roboclaw_m1_encoder_sign:=1
                roboclaw_m2_encoder_sign:=1
-               roboclaw_wheel_radius:=0.129">
+               roboclaw_wheel_radius:=0.129
+               roboclaw_status_interval_sec:=2.0">
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -52,6 +53,7 @@
           <param name="m1_encoder_sign">${roboclaw_m1_encoder_sign}</param>
           <param name="m2_encoder_sign">${roboclaw_m2_encoder_sign}</param>
           <param name="wheel_radius">${roboclaw_wheel_radius}</param>
+          <param name="status_interval_sec">${roboclaw_status_interval_sec}</param>
         </xacro:unless>
       </hardware>
 

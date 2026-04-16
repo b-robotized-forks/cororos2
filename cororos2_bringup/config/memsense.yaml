@@ -14,17 +14,8 @@
 
 /**:
   ros__parameters:
-    debug: 0
-    device: /dev/ttyACM0
-    frame_id: gps_link
-    uart1:
-      baudrate: 9600
-    tmode3: 0
-    inf:
-      all: true
-    publish:
-      all: true
-      aid:
-        hui: false
-      nav:
-        posecef: false
+    serial_path_msimu3025: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
+    frame_id: imu_sensor_link
+    imu_topic: /msimu3025_raw
+    magnetic_topic: /msimu3025_magnetic
+    temperature_topic: /msimu3025_temperature

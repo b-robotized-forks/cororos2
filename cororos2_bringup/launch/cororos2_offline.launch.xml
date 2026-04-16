@@ -20,7 +20,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 -->
 
 <launch>
-  <!-- offline / mock bringup -->
+  <!-- wrapper for offline/mock robot bringup -->
   <arg name="robot_model"
        default="allie"
        description="Robot model to bring up in offline mode. Choices are: [allie, cornelius, joe].">
