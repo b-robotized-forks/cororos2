@@ -1,4 +1,4 @@
-ublox_gps_node:
+/**:
   ros__parameters:
     debug: 0
     device: /dev/ttyACM0
