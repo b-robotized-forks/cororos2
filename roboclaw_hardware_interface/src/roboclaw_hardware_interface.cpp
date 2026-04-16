@@ -2,15 +2,8 @@
 
 #include "roboclaw_hardware_interface/roboclaw_hardware_interface.hpp"
 
-#include <fcntl.h>
-#include <termios.h>
-#include <unistd.h>
-
 #include <algorithm>
-#include <cerrno>
 #include <cmath>
-#include <cstdint>
-#include <cstring>
 #include <exception>
 #include <iomanip>
 #include <limits>
@@ -137,48 +130,6 @@ T clamp_value(T value, T minimum, T maximum)
 {
   return std::max(minimum, std::min(value, maximum));
 }
-
-speed_t baud_rate_to_termios_speed(int baud)
-{
-  switch (baud)
-  {
-    case 9600:
-      return B9600;
-    case 19200:
-      return B19200;
-    case 38400:
-      return B38400;
-    case 57600:
-      return B57600;
-    case 115200:
-      return B115200;
-    case 230400:
-      return B230400;
-    case 460800:
-      return B460800;
-    default:
-      return 0;
-  }
-}
-
-namespace cmd
-{
-constexpr uint8_t M1_FORWARD = 0;
-constexpr uint8_t M2_FORWARD = 4;
-constexpr uint8_t GET_M1_ENC = 16;
-constexpr uint8_t GET_M2_ENC = 17;
-constexpr uint8_t RESET_ENC = 20;
-constexpr uint8_t GET_VERSION = 21;
-constexpr uint8_t GET_MAIN_BATTERY = 24;
-constexpr uint8_t GET_LOGIC_BATTERY = 25;
-constexpr uint8_t MIXED_SPEED = 37;
-constexpr uint8_t GET_CURRENTS = 49;
-constexpr uint8_t M1_DUTY_ACCEL = 52;
-constexpr uint8_t M2_DUTY_ACCEL = 53;
-constexpr uint8_t GET_TEMP = 82;
-constexpr uint8_t GET_TEMP2 = 83;
-constexpr uint8_t GET_ERROR = 90;
-}  // namespace cmd
 }  // namespace
 
 namespace roboclaw_hardware_interface
@@ -617,11 +568,9 @@ bool RoboclawHardwareInterface::read_state_from_backend()
 {
   int32_t right_raw_ticks = 0;
   int32_t left_raw_ticks = 0;
-  if (
-    !read_encoder_command(cmd::GET_M1_ENC, right_raw_ticks) ||
-    !read_encoder_command(cmd::GET_M2_ENC, left_raw_ticks))
+  if (!protocol_.read_encoders(right_raw_ticks, left_raw_ticks))
   {
-    RCLCPP_ERROR(get_logger(), "Failed to read Roboclaw encoders.");
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
 
@@ -704,15 +653,18 @@ bool RoboclawHardwareInterface::start_backend()
 
   if (!open_roboclaw())
   {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
   if (!configure_roboclaw_serial())
   {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     close_roboclaw();
     return false;
   }
   if (!ping_roboclaw())
   {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     close_roboclaw();
     return false;
   }
@@ -736,92 +688,14 @@ void RoboclawHardwareInterface::stop_backend()
 
 bool RoboclawHardwareInterface::open_roboclaw()
 {
-  roboclaw_fd_ = ::open(device_.c_str(), O_RDWR | O_NOCTTY);
-  if (roboclaw_fd_ < 0)
-  {
-    RCLCPP_ERROR(
-      get_logger(), "Failed to open Roboclaw device '%s': %s", device_.c_str(),
-      std::strerror(errno));
-    return false;
-  }
-  return true;
+  return protocol_.connect(device_, baud_, address_);
 }
 
-void RoboclawHardwareInterface::close_roboclaw()
-{
-  if (roboclaw_fd_ >= 0)
-  {
-    ::close(roboclaw_fd_);
-    roboclaw_fd_ = -1;
-  }
-}
+void RoboclawHardwareInterface::close_roboclaw() { protocol_.disconnect(); }
 
-bool RoboclawHardwareInterface::configure_roboclaw_serial()
-{
-  const speed_t speed = baud_rate_to_termios_speed(baud_);
-  if (speed == 0)
-  {
-    RCLCPP_ERROR(get_logger(), "Unsupported Roboclaw baud rate %d.", baud_);
-    return false;
-  }
+bool RoboclawHardwareInterface::configure_roboclaw_serial() { return protocol_.is_connected(); }
 
-  struct termios options;
-  if (tcgetattr(roboclaw_fd_, &options) < 0)
-  {
-    RCLCPP_ERROR(get_logger(), "Failed to get serial attributes for Roboclaw.");
-    return false;
-  }
-
-  cfmakeraw(&options);
-  cfsetispeed(&options, speed);
-  cfsetospeed(&options, speed);
-  options.c_cflag |= CLOCAL | CREAD;
-  options.c_cflag &= ~CRTSCTS;
-  options.c_cc[VMIN] = 0;
-  options.c_cc[VTIME] = 1;
-
-  if (tcsetattr(roboclaw_fd_, TCSANOW, &options) < 0)
-  {
-    RCLCPP_ERROR(get_logger(), "Failed to set serial attributes for Roboclaw.");
-    return false;
-  }
-
-  return flush_serial_io();
-}
-
-bool RoboclawHardwareInterface::ping_roboclaw()
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (!flush_serial_io() || !send_packet_command(cmd::GET_VERSION))
-    {
-      continue;
-    }
-
-    bool passed = true;
-    for (int i = 0; i < 48; ++i)
-    {
-      uint8_t value = 0;
-      if (!read_byte(value))
-      {
-        passed = false;
-        break;
-      }
-      if (value == 0)
-      {
-        break;
-      }
-    }
-
-    if (passed && read_checksum())
-    {
-      return true;
-    }
-  }
-
-  RCLCPP_ERROR(get_logger(), "Connected to Roboclaw but could not read controller version.");
-  return false;
-}
+bool RoboclawHardwareInterface::ping_roboclaw() { return protocol_.ping(); }
 
 bool RoboclawHardwareInterface::activate_backend()
 {
@@ -830,8 +704,9 @@ bool RoboclawHardwareInterface::activate_backend()
     return false;
   }
 
-  if (use_encoder_ && !write_no_arg_command(cmd::RESET_ENC))
+  if (use_encoder_ && !protocol_.reset_encoders())
   {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
 
@@ -860,8 +735,16 @@ bool RoboclawHardwareInterface::drive_backend(double left_mps, double right_mps)
     {
       m2 = -m2;
     }
-    return (m1 == 0 && m2 == 0) ? stop_motors()
-                                : write_signed_long_pair_command(cmd::MIXED_SPEED, m1, m2);
+    if (m1 == 0 && m2 == 0)
+    {
+      return stop_motors();
+    }
+    if (!protocol_.drive_closed_loop(m1, m2))
+    {
+      RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+      return false;
+    }
+    return true;
   }
 
   auto m1 = static_cast<int16_t>((right_mps / max_speed_) * ticks_at_max_speed_);
@@ -879,337 +762,27 @@ bool RoboclawHardwareInterface::drive_backend(double left_mps, double right_mps)
     return stop_motors();
   }
 
-  return write_signed_word_uint32_command(cmd::M1_DUTY_ACCEL, m1, acceleration_) &&
-         write_signed_word_uint32_command(cmd::M2_DUTY_ACCEL, m2, acceleration_);
+  if (!protocol_.drive_open_loop(m1, m2, static_cast<uint32_t>(acceleration_)))
+  {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+    return false;
+  }
+  return true;
 }
 
 bool RoboclawHardwareInterface::stop_motors()
 {
-  if (use_encoder_)
+  if (!protocol_.stop(use_encoder_))
   {
-    return write_byte_command(cmd::M1_FORWARD, 0) && write_byte_command(cmd::M2_FORWARD, 0);
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+    return false;
   }
-  return write_signed_word_uint32_command(cmd::M1_DUTY_ACCEL, 0, 0) &&
-         write_signed_word_uint32_command(cmd::M2_DUTY_ACCEL, 0, 0);
+  return true;
 }
 
 bool RoboclawHardwareInterface::read_status_from_backend(RoboclawTelemetry & telemetry)
 {
-  uint16_t main_battery = 0;
-  uint16_t logic_battery = 0;
-  uint32_t currents = 0;
-  uint16_t temp1 = 0;
-  uint16_t temp2 = 0;
-  uint16_t error_word = 0;
-
-  telemetry.main_battery_voltage = read_uint16_command(cmd::GET_MAIN_BATTERY, main_battery)
-                                     ? main_battery / 10.0
-                                     : std::numeric_limits<double>::quiet_NaN();
-  telemetry.logic_battery_voltage = read_uint16_command(cmd::GET_LOGIC_BATTERY, logic_battery)
-                                      ? logic_battery / 10.0
-                                      : std::numeric_limits<double>::quiet_NaN();
-  if (read_uint32_command(cmd::GET_CURRENTS, currents))
-  {
-    auto m1_current = static_cast<int16_t>((currents >> 16) & 0xFFFF);
-    auto m2_current = static_cast<int16_t>(currents & 0xFFFF);
-    telemetry.m1_current = static_cast<double>(m1_current) / 100.0;
-    telemetry.m2_current = static_cast<double>(m2_current) / 100.0;
-  }
-  else
-  {
-    telemetry.m1_current = std::numeric_limits<double>::quiet_NaN();
-    telemetry.m2_current = std::numeric_limits<double>::quiet_NaN();
-  }
-  telemetry.temp1_c = read_uint16_command(cmd::GET_TEMP, temp1)
-                        ? temp1 / 10.0
-                        : std::numeric_limits<double>::quiet_NaN();
-  telemetry.temp2_c = read_uint16_command(cmd::GET_TEMP2, temp2)
-                        ? temp2 / 10.0
-                        : std::numeric_limits<double>::quiet_NaN();
-  telemetry.error_word = read_uint16_command(cmd::GET_ERROR, error_word) ? error_word : -1;
-  return true;
-}
-
-bool RoboclawHardwareInterface::flush_serial_io()
-{
-  if (tcflush(roboclaw_fd_, TCIOFLUSH) < 0)
-  {
-    RCLCPP_ERROR(get_logger(), "Failed to flush Roboclaw serial buffers.");
-    return false;
-  }
-  return true;
-}
-
-bool RoboclawHardwareInterface::write_all(const uint8_t * data, size_t size)
-{
-  size_t written = 0;
-  while (written < size)
-  {
-    const ssize_t result = ::write(roboclaw_fd_, data + written, size - written);
-    if (result < 0)
-    {
-      if (errno == EINTR)
-      {
-        continue;
-      }
-      RCLCPP_ERROR(get_logger(), "Failed to write Roboclaw serial data: %s", std::strerror(errno));
-      return false;
-    }
-    if (result == 0)
-    {
-      return false;
-    }
-    written += static_cast<size_t>(result);
-  }
-  return true;
-}
-
-bool RoboclawHardwareInterface::read_exact(uint8_t * data, size_t size)
-{
-  size_t read_count = 0;
-  while (read_count < size)
-  {
-    const ssize_t result = ::read(roboclaw_fd_, data + read_count, size - read_count);
-    if (result < 0)
-    {
-      if (errno == EINTR)
-      {
-        continue;
-      }
-      RCLCPP_ERROR(get_logger(), "Failed to read Roboclaw serial data: %s", std::strerror(errno));
-      return false;
-    }
-    if (result == 0)
-    {
-      return false;
-    }
-    read_count += static_cast<size_t>(result);
-  }
-  return true;
-}
-
-void RoboclawHardwareInterface::crc_clear() { crc_ = 0; }
-
-void RoboclawHardwareInterface::crc_update(uint8_t data)
-{
-  crc_ ^= static_cast<uint16_t>(data) << 8;
-  for (int bit = 0; bit < 8; ++bit)
-  {
-    if ((crc_ & 0x8000) != 0)
-    {
-      crc_ = static_cast<uint16_t>((crc_ << 1) ^ 0x1021);
-    }
-    else
-    {
-      crc_ = static_cast<uint16_t>(crc_ << 1);
-    }
-  }
-}
-
-bool RoboclawHardwareInterface::send_packet_command(uint8_t command)
-{
-  const std::array<uint8_t, 2> data = {static_cast<uint8_t>(address_), command};
-  crc_clear();
-  crc_update(data[0]);
-  crc_update(data[1]);
-  return write_all(data.data(), data.size());
-}
-
-bool RoboclawHardwareInterface::write_byte(uint8_t value)
-{
-  crc_update(value);
-  return write_all(&value, 1);
-}
-
-bool RoboclawHardwareInterface::write_word(uint16_t value)
-{
-  return write_byte(static_cast<uint8_t>((value >> 8) & 0xFF)) &&
-         write_byte(static_cast<uint8_t>(value & 0xFF));
-}
-
-bool RoboclawHardwareInterface::write_long(uint32_t value)
-{
-  return write_byte(static_cast<uint8_t>((value >> 24) & 0xFF)) &&
-         write_byte(static_cast<uint8_t>((value >> 16) & 0xFF)) &&
-         write_byte(static_cast<uint8_t>((value >> 8) & 0xFF)) &&
-         write_byte(static_cast<uint8_t>(value & 0xFF));
-}
-
-bool RoboclawHardwareInterface::write_signed_word(int16_t value)
-{
-  return write_word(static_cast<uint16_t>(value));
-}
-
-bool RoboclawHardwareInterface::write_signed_long(int32_t value)
-{
-  return write_long(static_cast<uint32_t>(value));
-}
-
-bool RoboclawHardwareInterface::write_checksum_and_ack()
-{
-  if (!write_word(crc_))
-  {
-    return false;
-  }
-
-  uint8_t ack = 0;
-  return read_exact(&ack, 1);
-}
-
-bool RoboclawHardwareInterface::read_byte(uint8_t & value)
-{
-  if (!read_exact(&value, 1))
-  {
-    return false;
-  }
-  crc_update(value);
-  return true;
-}
-
-bool RoboclawHardwareInterface::read_word(uint16_t & value)
-{
-  uint8_t high = 0;
-  uint8_t low = 0;
-  if (!read_byte(high) || !read_byte(low))
-  {
-    return false;
-  }
-  value = static_cast<uint16_t>((high << 8) | low);
-  return true;
-}
-
-bool RoboclawHardwareInterface::read_long(uint32_t & value)
-{
-  uint8_t byte1 = 0;
-  uint8_t byte2 = 0;
-  uint8_t byte3 = 0;
-  uint8_t byte4 = 0;
-  if (!read_byte(byte1) || !read_byte(byte2) || !read_byte(byte3) || !read_byte(byte4))
-  {
-    return false;
-  }
-  value = (static_cast<uint32_t>(byte1) << 24) | (static_cast<uint32_t>(byte2) << 16) |
-          (static_cast<uint32_t>(byte3) << 8) | static_cast<uint32_t>(byte4);
-  return true;
-}
-
-bool RoboclawHardwareInterface::read_signed_long(int32_t & value)
-{
-  uint32_t raw_value = 0;
-  if (!read_long(raw_value))
-  {
-    return false;
-  }
-  value = static_cast<int32_t>(raw_value);
-  return true;
-}
-
-bool RoboclawHardwareInterface::read_checksum()
-{
-  uint8_t high = 0;
-  uint8_t low = 0;
-  if (!read_exact(&high, 1) || !read_exact(&low, 1))
-  {
-    return false;
-  }
-
-  const uint16_t received_crc = static_cast<uint16_t>((high << 8) | low);
-  return (crc_ & 0xFFFF) == received_crc;
-}
-
-bool RoboclawHardwareInterface::read_uint16_command(uint8_t command, uint16_t & value)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (flush_serial_io() && send_packet_command(command) && read_word(value) && read_checksum())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::read_uint32_command(uint8_t command, uint32_t & value)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (flush_serial_io() && send_packet_command(command) && read_long(value) && read_checksum())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::read_encoder_command(uint8_t command, int32_t & ticks)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    uint8_t status = 0;
-    if (
-      flush_serial_io() && send_packet_command(command) && read_signed_long(ticks) &&
-      read_byte(status) && read_checksum())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::write_no_arg_command(uint8_t command)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (flush_serial_io() && send_packet_command(command) && write_checksum_and_ack())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::write_byte_command(uint8_t command, uint8_t value)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (
-      flush_serial_io() && send_packet_command(command) && write_byte(value) &&
-      write_checksum_and_ack())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::write_signed_word_uint32_command(
-  uint8_t command, int16_t value1, uint32_t value2)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (
-      flush_serial_io() && send_packet_command(command) && write_signed_word(value1) &&
-      write_long(value2) && write_checksum_and_ack())
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool RoboclawHardwareInterface::write_signed_long_pair_command(
-  uint8_t command, int32_t value1, int32_t value2)
-{
-  for (int tries = 0; tries < 3; ++tries)
-  {
-    if (
-      flush_serial_io() && send_packet_command(command) && write_signed_long(value1) &&
-      write_signed_long(value2) && write_checksum_and_ack())
-    {
-      return true;
-    }
-  }
-  return false;
+  return protocol_.read_status(telemetry);
 }
 
 bool RoboclawHardwareInterface::ensure_publishers()

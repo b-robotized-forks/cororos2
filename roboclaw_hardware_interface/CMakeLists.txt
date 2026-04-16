@@ -16,6 +16,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
+  src/roboclaw_protocol.cpp
   src/roboclaw_hardware_interface.cpp
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

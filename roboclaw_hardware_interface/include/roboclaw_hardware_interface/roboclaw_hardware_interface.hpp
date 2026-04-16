@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include <array>
 #include <chrono>
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -14,22 +12,12 @@
 #include "rclcpp/macros.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "roboclaw_hardware_interface/roboclaw_protocol.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_msgs/msg/float32.hpp"
 
 namespace roboclaw_hardware_interface
 {
-
-struct RoboclawTelemetry
-{
-  double main_battery_voltage{0.0};
-  double logic_battery_voltage{0.0};
-  double m1_current{0.0};
-  double m2_current{0.0};
-  double temp1_c{0.0};
-  double temp2_c{0.0};
-  int error_word{-1};
-};
 
 class RoboclawHardwareInterface : public hardware_interface::SystemInterface
 {
@@ -92,33 +80,7 @@ private:
   void publish_status(const RoboclawTelemetry & telemetry);
   void reset_status_publish_state();
 
-  bool flush_serial_io();
-  bool write_all(const uint8_t * data, size_t size);
-  bool read_exact(uint8_t * data, size_t size);
-  void crc_clear();
-  void crc_update(uint8_t data);
-  bool send_packet_command(uint8_t command);
-  bool write_byte(uint8_t value);
-  bool write_word(uint16_t value);
-  bool write_long(uint32_t value);
-  bool write_signed_word(int16_t value);
-  bool write_signed_long(int32_t value);
-  bool write_checksum_and_ack();
-  bool read_byte(uint8_t & value);
-  bool read_word(uint16_t & value);
-  bool read_long(uint32_t & value);
-  bool read_signed_long(int32_t & value);
-  bool read_checksum();
-  bool read_uint16_command(uint8_t command, uint16_t & value);
-  bool read_uint32_command(uint8_t command, uint32_t & value);
-  bool read_encoder_command(uint8_t command, int32_t & ticks);
-  bool write_no_arg_command(uint8_t command);
-  bool write_byte_command(uint8_t command, uint8_t value);
-  bool write_signed_word_uint32_command(uint8_t command, int16_t value1, uint32_t value2);
-  bool write_signed_long_pair_command(uint8_t command, int32_t value1, int32_t value2);
-
   std::string device_;
-  int roboclaw_fd_{-1};
   int baud_{115200};
   int address_{128};
   bool use_encoder_{false};
@@ -138,7 +100,7 @@ private:
   std::vector<double> hw_velocities_;
 
   bool backend_running_{false};
-  uint16_t crc_{0};
+  RoboclawProtocol protocol_;
   std::optional<int32_t> last_left_ticks_;
   std::optional<int32_t> last_right_ticks_;
   std::chrono::steady_clock::time_point last_encoder_read_time_{};
