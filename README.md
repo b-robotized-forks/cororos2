@@ -133,7 +133,7 @@ ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_mod
 This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the common RViz config.
 
 ```bash
-ros2 launch cororos2_description view_robot.launch.py robot_model:=<robot_model>
+ros2 launch cororos2_description view_robot.launch.xml robot_model:=<robot_model>
 ```
 
 Example RViz views:
@@ -186,13 +186,13 @@ This starts:
 - optional RViz
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model>
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
 ```
 
 To run Gazebo without RViz:
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:=false
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
 ```
 
 ### 5. Drive the simulated robot
