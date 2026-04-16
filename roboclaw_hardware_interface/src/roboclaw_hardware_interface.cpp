@@ -14,6 +14,7 @@
 #include <exception>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -133,6 +134,36 @@ diagnostic_msgs::msg::KeyValue make_key_value(const std::string & key, const std
   item.value = value;
   return item;
 }
+
+std::string parse_non_empty_string(const std::string & value)
+{
+  if (value.empty())
+  {
+    throw std::invalid_argument("must not be empty");
+  }
+  return value;
+}
+
+int parse_int(const std::string & value) { return std::stoi(value); }
+
+double parse_double(const std::string & value) { return std::stod(value); }
+
+bool parse_flexible_bool(const std::string & value)
+{
+  if (
+    value == "true" || value == "True" || value == "TRUE" || value == "1" || value == "yes" ||
+    value == "on")
+  {
+    return true;
+  }
+  if (
+    value == "false" || value == "False" || value == "FALSE" || value == "0" || value == "no" ||
+    value == "off")
+  {
+    return false;
+  }
+  throw std::invalid_argument("must be a boolean value");
+}
 }  // namespace
 
 namespace roboclaw_hardware_interface
@@ -159,98 +190,62 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
 
   const auto & hardware_parameters = info_.hardware_parameters;
 
-  python_executable_ = hardware_parameters.count("python_executable") != 0
-                         ? hardware_parameters.at("python_executable")
-                         : "python3";
-  device_ = hardware_parameters.count("device") != 0
-              ? hardware_parameters.at("device")
-              : "/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00";
-
-  try
-  {
-    baud_ =
-      hardware_parameters.count("baud") != 0 ? std::stoi(hardware_parameters.at("baud")) : 115200;
-    address_ = hardware_parameters.count("address") != 0
-                 ? std::stoi(hardware_parameters.at("address"))
-                 : 128;
-    max_speed_ = hardware_parameters.count("max_speed") != 0
-                   ? std::stod(hardware_parameters.at("max_speed"))
-                   : 1.2;
-    ticks_at_max_speed_ = hardware_parameters.count("ticks_at_max_speed") != 0
-                            ? std::stod(hardware_parameters.at("ticks_at_max_speed"))
-                            : 32760.0;
-    acceleration_ = hardware_parameters.count("acceleration") != 0
-                      ? std::stoi(hardware_parameters.at("acceleration"))
-                      : 32000;
-    ticks_per_meter_ = hardware_parameters.count("ticks_per_meter") != 0
-                         ? std::stod(hardware_parameters.at("ticks_per_meter"))
-                         : 4342.2;
-    m1_encoder_sign_ = hardware_parameters.count("m1_encoder_sign") != 0
-                         ? std::stoi(hardware_parameters.at("m1_encoder_sign"))
-                         : 1;
-    m2_encoder_sign_ = hardware_parameters.count("m2_encoder_sign") != 0
-                         ? std::stoi(hardware_parameters.at("m2_encoder_sign"))
-                         : 1;
-    wheel_radius_ = hardware_parameters.count("wheel_radius") != 0
-                      ? std::stod(hardware_parameters.at("wheel_radius"))
-                      : 0.129;
-    status_interval_sec_ = hardware_parameters.count("status_interval_sec") != 0
-                             ? std::stod(hardware_parameters.at("status_interval_sec"))
-                             : 2.0;
-  }
-  catch (const std::exception & exception)
-  {
-    RCLCPP_ERROR(
-      get_logger(), "roboclaw_hardware_interface failed to parse one or more parameters: %s",
-      exception.what());
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
-  auto parse_bool_or_log = [this, &hardware_parameters](
-                             const std::string & key, bool default_value, bool & output) -> bool
+  const auto parse_required_parameter = [this, &hardware_parameters](
+                                          const char * key, const char * expected_description,
+                                          auto parser, auto & output) -> bool
   {
     const auto iterator = hardware_parameters.find(key);
     if (iterator == hardware_parameters.end())
     {
-      output = default_value;
-      return true;
+      RCLCPP_ERROR(
+        get_logger(), "Missing required hardware parameter '%s' for roboclaw_hardware_interface.",
+        key);
+      return false;
     }
 
-    const std::string & value = iterator->second;
-    if (
-      value == "true" || value == "True" || value == "TRUE" || value == "1" || value == "yes" ||
-      value == "on")
+    try
     {
-      output = true;
-      return true;
+      output = parser(iterator->second);
     }
-    if (
-      value == "false" || value == "False" || value == "FALSE" || value == "0" || value == "no" ||
-      value == "off")
+    catch (const std::exception & error)
     {
-      output = false;
-      return true;
+      RCLCPP_ERROR(
+        get_logger(), "Invalid hardware parameter '%s' value '%s': %s. Expected %s.", key,
+        iterator->second.c_str(), error.what(), expected_description);
+      return false;
     }
 
-    RCLCPP_ERROR(
-      get_logger(), "roboclaw_hardware_interface parameter '%s' must be boolean, got '%s'.",
-      key.c_str(), value.c_str());
-    return false;
+    return true;
   };
 
   if (
-    !parse_bool_or_log("use_encoder", false, use_encoder_) ||
-    !parse_bool_or_log("m1_invert", false, m1_invert_) ||
-    !parse_bool_or_log("m2_invert", false, m2_invert_))
+    !parse_required_parameter(
+      "python_executable", "a non-empty string", parse_non_empty_string, python_executable_) ||
+    !parse_required_parameter("device", "a non-empty string", parse_non_empty_string, device_) ||
+    !parse_required_parameter("baud", "an integer", parse_int, baud_) ||
+    !parse_required_parameter("address", "an integer", parse_int, address_) ||
+    !parse_required_parameter("max_speed", "a floating-point number", parse_double, max_speed_) ||
+    !parse_required_parameter(
+      "ticks_at_max_speed", "a floating-point number", parse_double, ticks_at_max_speed_) ||
+    !parse_required_parameter("acceleration", "an integer", parse_int, acceleration_) ||
+    !parse_required_parameter(
+      "ticks_per_meter", "a floating-point number", parse_double, ticks_per_meter_) ||
+    !parse_required_parameter("m1_encoder_sign", "an integer", parse_int, m1_encoder_sign_) ||
+    !parse_required_parameter("m2_encoder_sign", "an integer", parse_int, m2_encoder_sign_) ||
+    !parse_required_parameter(
+      "wheel_radius", "a floating-point number", parse_double, wheel_radius_) ||
+    !parse_required_parameter(
+      "status_interval_sec", "a floating-point number", parse_double, status_interval_sec_) ||
+    !parse_required_parameter(
+      "use_encoder", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, use_encoder_) ||
+    !parse_required_parameter(
+      "m1_invert", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, m1_invert_) ||
+    !parse_required_parameter(
+      "m2_invert", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, m2_invert_))
   {
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
-  if (python_executable_.empty() || device_.empty())
-  {
-    RCLCPP_ERROR(
-      get_logger(),
-      "roboclaw_hardware_interface requires non-empty python_executable and device parameters.");
     return hardware_interface::CallbackReturn::ERROR;
   }
   if (

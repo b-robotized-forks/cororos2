@@ -23,13 +23,13 @@ ROBOT_CONFIG = {
         "lidar_frame": "ouster_link",
     },
     "cornelius": {
-        "controllers": "cornelius_gz_controllers.yaml",
+        "controllers": "cornelius_encoder_controllers.yaml",
         "urdf": "cornelius.urdf.xacro",
         "lidar_sensor": "ouster_lidar",
         "lidar_frame": "ouster_link",
     },
     "joe": {
-        "controllers": "joe_gz_controllers.yaml",
+        "controllers": "joe_controllers.yaml",
         "urdf": "joe.urdf.xacro",
         "lidar_sensor": "lidar",
         "lidar_frame": "lidar_link",
