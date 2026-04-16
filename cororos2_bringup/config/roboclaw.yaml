@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-python_executable: python3
 device: /dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00
 baud: 115200
 address: 128

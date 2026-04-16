@@ -89,7 +89,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <param name="robot_description" value="$(var robot_description_content)"/>
   </node>
 
-  <node pkg="controller_manager" exec="ros2_control_node" name="b_controlled_box_cm" output="both">
+  <node pkg="controller_manager" exec="ros2_control_node" name="controller_manager" output="both">
     <remap from="~/robot_description" to="/robot_description"/>
     <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_controllers_file).yaml"/>
   </node>
@@ -100,5 +100,5 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </node>
 
   <node pkg="controller_manager" exec="spawner"
-        args="joint_state_broadcaster $(var robot_controller) --controller-manager /b_controlled_box_cm"/>
+        args="joint_state_broadcaster $(var robot_controller) --controller-manager /controller_manager"/>
 </launch>
