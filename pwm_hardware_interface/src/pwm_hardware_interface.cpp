@@ -50,17 +50,21 @@ int parse_int(const std::string & value) { return std::stoi(value); }
 
 double parse_double(const std::string & value) { return std::stod(value); }
 
-bool parse_strict_bool(const std::string & value)
+bool parse_flexible_bool(const std::string & value)
 {
-  if (value == "true")
+  if (
+    value == "true" || value == "True" || value == "TRUE" || value == "1" || value == "yes" ||
+    value == "on")
   {
     return true;
   }
-  if (value == "false")
+  if (
+    value == "false" || value == "False" || value == "FALSE" || value == "0" || value == "no" ||
+    value == "off")
   {
     return false;
   }
-  throw std::invalid_argument("must be 'true' or 'false'");
+  throw std::invalid_argument("must be a boolean value");
 }
 
 uint8_t parse_channel(const std::string & value)
@@ -135,9 +139,11 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
     !parse_required_parameter(
       "max_wheel_speed_mps", "a floating-point number", parse_double, max_wheel_speed_mps_) ||
     !parse_required_parameter(
-      "invert_left", "'true' or 'false'", parse_strict_bool, invert_left_) ||
+      "invert_left", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, invert_left_) ||
     !parse_required_parameter(
-      "invert_right", "'true' or 'false'", parse_strict_bool, invert_right_) ||
+      "invert_right", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, invert_right_) ||
     !parse_required_parameter(
       "channel_fl", "an integer in the range [0, 255]", parse_channel, channels_[0]) ||
     !parse_required_parameter(
