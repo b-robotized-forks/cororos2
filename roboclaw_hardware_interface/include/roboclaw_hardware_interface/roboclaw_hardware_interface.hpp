@@ -88,10 +88,6 @@ private:
   double ticks_at_max_speed_{32760.0};
   int acceleration_{32000};
   double ticks_per_meter_{4342.2};
-  bool m1_invert_{false};
-  bool m2_invert_{false};
-  int m1_encoder_sign_{1};
-  int m2_encoder_sign_{1};
   double wheel_radius_{0.129};
   double status_interval_sec_{2.0};
 

@@ -112,10 +112,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="roboclaw_ticks_at_max_speed" default="32760.0" description="Full-scale duty command used by the Roboclaw no-encoder mode."/>
   <arg name="roboclaw_acceleration" default="32000" description="Acceleration value used for Roboclaw duty commands."/>
   <arg name="roboclaw_ticks_per_meter" default="4342.2" description="Encoder ticks per meter for the Roboclaw encoder mode."/>
-  <arg name="roboclaw_m1_invert" default="false" description="Invert the M1 motor direction in software."/>
-  <arg name="roboclaw_m2_invert" default="false" description="Invert the M2 motor direction in software."/>
-  <arg name="roboclaw_m1_encoder_sign" default="1" description="Sign correction applied to the Roboclaw M1 encoder ticks."/>
-  <arg name="roboclaw_m2_encoder_sign" default="1" description="Sign correction applied to the Roboclaw M2 encoder ticks."/>
   <arg name="roboclaw_wheel_radius" default="0.129" description="Track drive wheel radius used to convert Cornelius joint velocity commands."/>
 
   <!-- odrive -->
@@ -160,10 +156,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="roboclaw_ticks_at_max_speed" value="$(var roboclaw_ticks_at_max_speed)"/>
     <arg name="roboclaw_acceleration" value="$(var roboclaw_acceleration)"/>
     <arg name="roboclaw_ticks_per_meter" value="$(var roboclaw_ticks_per_meter)"/>
-    <arg name="roboclaw_m1_invert" value="$(var roboclaw_m1_invert)"/>
-    <arg name="roboclaw_m2_invert" value="$(var roboclaw_m2_invert)"/>
-    <arg name="roboclaw_m1_encoder_sign" value="$(var roboclaw_m1_encoder_sign)"/>
-    <arg name="roboclaw_m2_encoder_sign" value="$(var roboclaw_m2_encoder_sign)"/>
     <arg name="roboclaw_wheel_radius" value="$(var roboclaw_wheel_radius)"/>
     <arg name="odrive_front_serial_number" value="$(var odrive_front_serial_number)"/>
     <arg name="odrive_rear_serial_number" value="$(var odrive_rear_serial_number)"/>
