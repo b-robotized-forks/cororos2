@@ -437,7 +437,7 @@ bool PwmHardwareInterface::write_maestro_target(uint8_t channel, uint16_t target
   const uint8_t command[] = {
     0x84, channel, static_cast<uint8_t>(target & 0x7F), static_cast<uint8_t>((target >> 7) & 0x7F)};
 
-  const auto bytes_written = write(maestro_fd_, command, sizeof(command));
+  const auto bytes_written = ::write(maestro_fd_, command, sizeof(command));
   if (bytes_written != static_cast<ssize_t>(sizeof(command)))
   {
     RCLCPP_ERROR(get_logger(), "Failed to write Maestro target for channel %u.", channel);

@@ -9,9 +9,6 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
-  <depend>sensor_msgs</depend>
-
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>cororos2_description</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
