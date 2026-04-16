@@ -32,10 +32,6 @@ class RoboclawBackend:
         ticks_at_max_speed: float,
         acceleration: int,
         ticks_per_meter: float,
-        m1_invert: bool,
-        m2_invert: bool,
-        m1_encoder_sign: int,
-        m2_encoder_sign: int,
     ) -> None:
         self.device = device
         self.baud = baud
@@ -45,10 +41,6 @@ class RoboclawBackend:
         self.ticks_at_max_speed = ticks_at_max_speed
         self.acceleration = acceleration
         self.ticks_per_meter = ticks_per_meter
-        self.m1_invert = m1_invert
-        self.m2_invert = m2_invert
-        self.m1_encoder_sign = m1_encoder_sign
-        self.m2_encoder_sign = m2_encoder_sign
         self.last_left_ticks = None
         self.last_right_ticks = None
         self.last_read_time = None
@@ -77,10 +69,6 @@ class RoboclawBackend:
         if self.use_encoder:
             m1 = int(right_mps * self.ticks_per_meter)
             m2 = int(left_mps * self.ticks_per_meter)
-            if self.m1_invert:
-                m1 = -m1
-            if self.m2_invert:
-                m2 = -m2
             if m1 == 0 and m2 == 0:
                 self.stop_motors()
             else:
@@ -89,10 +77,6 @@ class RoboclawBackend:
 
         m1 = int((right_mps / self.max_speed) * self.ticks_at_max_speed)
         m2 = int((left_mps / self.max_speed) * self.ticks_at_max_speed)
-        if self.m1_invert:
-            m1 = -m1
-        if self.m2_invert:
-            m2 = -m2
         if m1 == 0 and m2 == 0:
             self.stop_motors()
         else:
@@ -105,8 +89,8 @@ class RoboclawBackend:
         if not enc1[0] or not enc2[0]:
             raise RuntimeError("failed to read Roboclaw encoders")
 
-        right_ticks = int(enc1[1]) * self.m1_encoder_sign
-        left_ticks = int(enc2[1]) * self.m2_encoder_sign
+        right_ticks = int(enc1[1])
+        left_ticks = int(enc2[1])
         now = time.monotonic()
 
         left_position_m = left_ticks / self.ticks_per_meter
@@ -195,10 +179,6 @@ def main() -> int:
     parser.add_argument("--ticks-at-max-speed", type=float, default=32760.0)
     parser.add_argument("--acceleration", type=int, default=32000)
     parser.add_argument("--ticks-per-meter", type=float, default=4342.2)
-    parser.add_argument("--m1-invert", type=parse_bool, default=False)
-    parser.add_argument("--m2-invert", type=parse_bool, default=False)
-    parser.add_argument("--m1-encoder-sign", type=int, default=1)
-    parser.add_argument("--m2-encoder-sign", type=int, default=1)
     args = parser.parse_args()
 
     backend = RoboclawBackend(
@@ -210,10 +190,6 @@ def main() -> int:
         ticks_at_max_speed=args.ticks_at_max_speed,
         acceleration=args.acceleration,
         ticks_per_meter=args.ticks_per_meter,
-        m1_invert=args.m1_invert,
-        m2_invert=args.m2_invert,
-        m1_encoder_sign=args.m1_encoder_sign,
-        m2_encoder_sign=args.m2_encoder_sign,
     )
 
     try:

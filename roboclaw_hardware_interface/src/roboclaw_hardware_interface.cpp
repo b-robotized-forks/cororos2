@@ -242,21 +242,13 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     !parse_required_parameter("acceleration", "an integer", parse_int, acceleration_) ||
     !parse_required_parameter(
       "ticks_per_meter", "a floating-point number", parse_double, ticks_per_meter_) ||
-    !parse_required_parameter("m1_encoder_sign", "an integer", parse_int, m1_encoder_sign_) ||
-    !parse_required_parameter("m2_encoder_sign", "an integer", parse_int, m2_encoder_sign_) ||
     !parse_required_parameter(
       "wheel_radius", "a floating-point number", parse_double, wheel_radius_) ||
     !parse_required_parameter(
       "status_interval_sec", "a floating-point number", parse_double, status_interval_sec_) ||
     !parse_required_parameter(
       "use_encoder", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, use_encoder_) ||
-    !parse_required_parameter(
-      "m1_invert", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, m1_invert_) ||
-    !parse_required_parameter(
-      "m2_invert", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, m2_invert_))
+      parse_flexible_bool, use_encoder_))
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -266,12 +258,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     wheel_radius_ <= 0.0 || status_interval_sec_ < 0.0)
   {
     RCLCPP_ERROR(get_logger(), "roboclaw_hardware_interface received invalid numeric parameters.");
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-  if (std::abs(m1_encoder_sign_) != 1 || std::abs(m2_encoder_sign_) != 1)
-  {
-    RCLCPP_ERROR(
-      get_logger(), "roboclaw_hardware_interface encoder sign parameters must be either -1 or 1.");
     return hardware_interface::CallbackReturn::ERROR;
   }
 
@@ -681,10 +667,7 @@ bool RoboclawHardwareInterface::start_backend()
       "--max-speed", std::to_string(max_speed_).c_str(), "--ticks-at-max-speed",
       std::to_string(ticks_at_max_speed_).c_str(), "--acceleration",
       std::to_string(acceleration_).c_str(), "--ticks-per-meter",
-      std::to_string(ticks_per_meter_).c_str(), "--m1-invert", bool_to_string(m1_invert_),
-      "--m2-invert", bool_to_string(m2_invert_), "--m1-encoder-sign",
-      std::to_string(m1_encoder_sign_).c_str(), "--m2-encoder-sign",
-      std::to_string(m2_encoder_sign_).c_str(), static_cast<char *>(nullptr));
+      std::to_string(ticks_per_meter_).c_str(), static_cast<char *>(nullptr));
     perror("execlp");
     _exit(127);
   }
