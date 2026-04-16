@@ -40,9 +40,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
-  <arg name="mock_sensor_commands"
-       default="false"
-       description="Enable mock command interfaces for sensors used for simple simulations."/>
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
@@ -57,7 +54,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="controllers_file" value="$(var controllers_file)"/>
     <arg name="prefix" value="$(var prefix)"/>
     <arg name="use_mock_hardware" value="true"/>
-    <arg name="mock_sensor_commands" value="$(var mock_sensor_commands)"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
     <arg name="rviz" value="$(var rviz)"/>
   </include>

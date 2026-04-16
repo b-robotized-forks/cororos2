@@ -38,7 +38,9 @@ def _launch_setup(context, *args, **kwargs):
         mappings={
             "prefix": LaunchConfiguration("prefix").perform(context),
             "use_mock_hardware": LaunchConfiguration("use_mock_hardware").perform(context),
-            "mock_sensor_commands": LaunchConfiguration("mock_sensor_commands").perform(context),
+            "mock_sensor_commands": (
+                "true" if _is_true(LaunchConfiguration("use_mock_hardware").perform(context)) else "false"
+            ),
         },
     )
     robot_description = {"robot_description": robot_description_config.toxml()}
@@ -85,11 +87,6 @@ def generate_launch_description():
                 "use_mock_hardware",
                 default_value="true",
                 description="Whether to unfold the mock ros2_control configuration.",
-            ),
-            DeclareLaunchArgument(
-                "mock_sensor_commands",
-                default_value="false",
-                description="Enable mock sensor command interfaces when using mock hardware.",
             ),
             DeclareLaunchArgument(
                 "rviz",
