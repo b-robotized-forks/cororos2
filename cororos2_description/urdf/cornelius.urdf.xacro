@@ -9,7 +9,6 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="python_executable" default="python3"/>
   <xacro:arg name="roboclaw_device" default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"/>
   <xacro:arg name="roboclaw_baud" default="115200"/>
   <xacro:arg name="roboclaw_address" default="128"/>
@@ -18,10 +17,6 @@
   <xacro:arg name="roboclaw_ticks_at_max_speed" default="32760.0"/>
   <xacro:arg name="roboclaw_acceleration" default="32000"/>
   <xacro:arg name="roboclaw_ticks_per_meter" default="4342.2"/>
-  <xacro:arg name="roboclaw_m1_invert" default="false"/>
-  <xacro:arg name="roboclaw_m2_invert" default="false"/>
-  <xacro:arg name="roboclaw_m1_encoder_sign" default="1"/>
-  <xacro:arg name="roboclaw_m2_encoder_sign" default="1"/>
   <xacro:arg name="roboclaw_wheel_radius" default="0.129"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/cornelius/cornelius_macro.xacro"/>
@@ -49,7 +44,6 @@
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
     simulation_controllers="$(arg simulation_controllers)"
-    python_executable="$(arg python_executable)"
     roboclaw_device="$(arg roboclaw_device)"
     roboclaw_baud="$(arg roboclaw_baud)"
     roboclaw_address="$(arg roboclaw_address)"
@@ -58,10 +52,6 @@
     roboclaw_ticks_at_max_speed="$(arg roboclaw_ticks_at_max_speed)"
     roboclaw_acceleration="$(arg roboclaw_acceleration)"
     roboclaw_ticks_per_meter="$(arg roboclaw_ticks_per_meter)"
-    roboclaw_m1_invert="$(arg roboclaw_m1_invert)"
-    roboclaw_m2_invert="$(arg roboclaw_m2_invert)"
-    roboclaw_m1_encoder_sign="$(arg roboclaw_m1_encoder_sign)"
-    roboclaw_m2_encoder_sign="$(arg roboclaw_m2_encoder_sign)"
     roboclaw_wheel_radius="$(arg roboclaw_wheel_radius)"/>
 
 </robot>

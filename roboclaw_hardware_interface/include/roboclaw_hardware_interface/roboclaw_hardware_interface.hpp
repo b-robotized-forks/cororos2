@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include <sys/types.h>
 #include <chrono>
-#include <cstdio>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -13,22 +12,12 @@
 #include "rclcpp/macros.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "roboclaw_hardware_interface/roboclaw_protocol.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_msgs/msg/float32.hpp"
 
 namespace roboclaw_hardware_interface
 {
-
-struct RoboclawTelemetry
-{
-  double main_battery_voltage{0.0};
-  double logic_battery_voltage{0.0};
-  double m1_current{0.0};
-  double m2_current{0.0};
-  double temp1_c{0.0};
-  double temp2_c{0.0};
-  int error_word{-1};
-};
 
 class RoboclawHardwareInterface : public hardware_interface::SystemInterface
 {
@@ -71,11 +60,16 @@ private:
   bool validate_joint_configuration() const;
   bool start_backend();
   void stop_backend();
-  bool send_command(const std::string & command, std::string & response);
-  bool expect_ok(const std::string & command);
+  bool open_roboclaw();
+  void close_roboclaw();
+  bool configure_roboclaw_serial();
+  bool ping_roboclaw();
+  bool activate_backend();
+  bool deactivate_backend();
+  bool drive_backend(double left_mps, double right_mps);
+  bool stop_motors();
   bool read_state_from_backend();
-  bool parse_state_response(const std::string & response);
-  bool parse_status_response(const std::string & response, RoboclawTelemetry & telemetry);
+  bool read_status_from_backend(RoboclawTelemetry & telemetry);
   bool ensure_publishers();
   void release_publishers();
   void reset_command_and_state_buffers();
@@ -86,7 +80,6 @@ private:
   void publish_status(const RoboclawTelemetry & telemetry);
   void reset_status_publish_state();
 
-  std::string python_executable_;
   std::string device_;
   int baud_{115200};
   int address_{128};
@@ -95,10 +88,6 @@ private:
   double ticks_at_max_speed_{32760.0};
   int acceleration_{32000};
   double ticks_per_meter_{4342.2};
-  bool m1_invert_{false};
-  bool m2_invert_{false};
-  int m1_encoder_sign_{1};
-  int m2_encoder_sign_{1};
   double wheel_radius_{0.129};
   double status_interval_sec_{2.0};
 
@@ -106,10 +95,11 @@ private:
   std::vector<double> hw_positions_;
   std::vector<double> hw_velocities_;
 
-  pid_t backend_pid_{-1};
-  FILE * backend_in_{nullptr};
-  FILE * backend_out_{nullptr};
   bool backend_running_{false};
+  RoboclawProtocol protocol_;
+  std::optional<int32_t> last_left_ticks_;
+  std::optional<int32_t> last_right_ticks_;
+  std::chrono::steady_clock::time_point last_encoder_read_time_{};
 
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_pub_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr logic_battery_voltage_pub_;
