@@ -1,37 +1,18 @@
 // Copyright (c) 2026, b-robotized Group
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 #include "roboclaw_hardware_interface/roboclaw_hardware_interface.hpp"
 
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <algorithm>
-#include <cerrno>
 #include <cmath>
-#include <csignal>
-#include <cstdint>
-#include <cstring>
 #include <exception>
 #include <iomanip>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
 #include <lifecycle_msgs/msg/state.hpp>
@@ -42,8 +23,6 @@
 
 namespace
 {
-const char * bool_to_string(bool value) { return value ? "true" : "false"; }
-
 bool has_interface(
   const std::vector<hardware_interface::InterfaceInfo> & interfaces, const std::string & name)
 {
@@ -147,6 +126,12 @@ diagnostic_msgs::msg::KeyValue make_key_value(const std::string & key, const std
   return item;
 }
 
+template <typename T>
+T clamp_value(T value, T minimum, T maximum)
+{
+  return std::max(minimum, std::min(value, maximum));
+}
+
 std::string parse_non_empty_string(const std::string & value)
 {
   if (value.empty())
@@ -193,8 +178,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  std::signal(SIGPIPE, SIG_IGN);
-
   if (!validate_joint_configuration())
   {
     return hardware_interface::CallbackReturn::ERROR;
@@ -231,8 +214,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
   };
 
   if (
-    !parse_required_parameter(
-      "python_executable", "a non-empty string", parse_non_empty_string, python_executable_) ||
     !parse_required_parameter("device", "a non-empty string", parse_non_empty_string, device_) ||
     !parse_required_parameter("baud", "an integer", parse_int, baud_) ||
     !parse_required_parameter("address", "an integer", parse_int, address_) ||
@@ -252,6 +233,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
+
   if (
     baud_ <= 0 || address_ < 0 || address_ > 255 || max_speed_ <= 0.0 ||
     ticks_at_max_speed_ <= 0.0 || acceleration_ < 0 || ticks_per_meter_ <= 0.0 ||
@@ -260,7 +242,6 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_init(
     RCLCPP_ERROR(get_logger(), "roboclaw_hardware_interface received invalid numeric parameters.");
     return hardware_interface::CallbackReturn::ERROR;
   }
-
   reset_command_and_state_buffers();
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -348,7 +329,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_activate(
   std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
   std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
 
-  if (!expect_ok("ACTIVATE"))
+  if (!activate_backend())
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -359,7 +340,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_activate(
   {
     std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
     std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
-    if (backend_running_ && !expect_ok("DEACTIVATE"))
+    if (backend_running_ && !deactivate_backend())
     {
       RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware after activate failure.");
     }
@@ -370,7 +351,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_activate(
   {
     std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
     std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
-    if (backend_running_ && !expect_ok("DEACTIVATE"))
+    if (backend_running_ && !deactivate_backend())
     {
       RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware after activate failure.");
     }
@@ -386,7 +367,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_deactivate(
   std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
   std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
 
-  if (backend_running_ && !expect_ok("DEACTIVATE"))
+  if (backend_running_ && !deactivate_backend())
   {
     RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware safely.");
     return hardware_interface::CallbackReturn::ERROR;
@@ -402,7 +383,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_cleanup(
   {
     std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
     std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
-    if (!expect_ok("DEACTIVATE"))
+    if (!deactivate_backend())
     {
       RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware during cleanup.");
     }
@@ -420,7 +401,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_shutdown(
   {
     std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
     std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
-    if (!expect_ok("DEACTIVATE"))
+    if (!deactivate_backend())
     {
       RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware during shutdown.");
     }
@@ -442,7 +423,7 @@ hardware_interface::CallbackReturn RoboclawHardwareInterface::on_error(
   {
     std::fill(hw_commands_.begin(), hw_commands_.end(), 0.0);
     std::fill(hw_velocities_.begin(), hw_velocities_.end(), 0.0);
-    if (!expect_ok("DEACTIVATE"))
+    if (!deactivate_backend())
     {
       RCLCPP_ERROR(get_logger(), "Failed to deactivate Roboclaw hardware during error handling.");
     }
@@ -520,10 +501,7 @@ hardware_interface::return_type RoboclawHardwareInterface::write(
   const double left_mps = hw_commands_[0] * wheel_radius_;
   const double right_mps = hw_commands_[1] * wheel_radius_;
 
-  std::ostringstream command;
-  command << "WRITE " << left_mps << ' ' << right_mps;
-
-  if (!expect_ok(command.str()))
+  if (!drive_backend(left_mps, right_mps))
   {
     return hardware_interface::return_type::ERROR;
   }
@@ -571,18 +549,44 @@ bool RoboclawHardwareInterface::validate_joint_configuration() const
 
 bool RoboclawHardwareInterface::read_state_from_backend()
 {
-  std::string response;
-  if (!send_command("READ", response))
+  int32_t right_raw_ticks = 0;
+  int32_t left_raw_ticks = 0;
+  if (!protocol_.read_encoders(right_raw_ticks, left_raw_ticks))
   {
-    RCLCPP_ERROR(get_logger(), "Failed to read state from the Roboclaw backend.");
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
-  if (!parse_state_response(response))
+
+  const int32_t right_ticks = right_raw_ticks;
+  const int32_t left_ticks = left_raw_ticks;
+  const auto now = std::chrono::steady_clock::now();
+
+  const double left_position_m = static_cast<double>(left_ticks) / ticks_per_meter_;
+  const double right_position_m = static_cast<double>(right_ticks) / ticks_per_meter_;
+  double left_velocity_mps = 0.0;
+  double right_velocity_mps = 0.0;
+
+  if (last_left_ticks_.has_value() && last_right_ticks_.has_value())
   {
-    RCLCPP_ERROR(
-      get_logger(), "Failed to parse Roboclaw backend state response: '%s'", response.c_str());
-    return false;
+    const double dt = std::chrono::duration<double>(now - last_encoder_read_time_).count();
+    if (dt > 0.0)
+    {
+      left_velocity_mps =
+        static_cast<double>(left_ticks - last_left_ticks_.value()) / ticks_per_meter_ / dt;
+      right_velocity_mps =
+        static_cast<double>(right_ticks - last_right_ticks_.value()) / ticks_per_meter_ / dt;
+    }
   }
+
+  last_left_ticks_ = left_ticks;
+  last_right_ticks_ = right_ticks;
+  last_encoder_read_time_ = now;
+
+  hw_positions_[0] = left_position_m / wheel_radius_;
+  hw_velocities_[0] = left_velocity_mps / wheel_radius_;
+  hw_positions_[1] = right_position_m / wheel_radius_;
+  hw_velocities_[1] = right_velocity_mps / wheel_radius_;
+
   return true;
 }
 
@@ -630,74 +634,25 @@ bool RoboclawHardwareInterface::start_backend()
     return true;
   }
 
-  const auto share_dir =
-    ament_index_cpp::get_package_share_directory("roboclaw_hardware_interface");
-  const auto script_path = share_dir + "/python/roboclaw_backend.py";
-
-  int child_stdin[2];
-  int child_stdout[2];
-  if (pipe(child_stdin) != 0 || pipe(child_stdout) != 0)
+  if (!open_roboclaw())
   {
-    const int saved_errno = errno;
-    RCLCPP_ERROR(
-      get_logger(), "Failed to create Roboclaw backend pipes: %s", std::strerror(saved_errno));
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
-
-  backend_pid_ = fork();
-  if (backend_pid_ < 0)
+  if (!configure_roboclaw_serial())
   {
-    const int saved_errno = errno;
-    RCLCPP_ERROR(
-      get_logger(), "Failed to fork Roboclaw backend process: %s", std::strerror(saved_errno));
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+    close_roboclaw();
     return false;
   }
-
-  if (backend_pid_ == 0)
+  if (!ping_roboclaw())
   {
-    dup2(child_stdin[0], STDIN_FILENO);
-    dup2(child_stdout[1], STDOUT_FILENO);
-    close(child_stdin[1]);
-    close(child_stdout[0]);
-
-    execlp(
-      python_executable_.c_str(), python_executable_.c_str(), "-u", script_path.c_str(), "--device",
-      device_.c_str(), "--baud", std::to_string(baud_).c_str(), "--address",
-      std::to_string(address_).c_str(), "--use-encoder", bool_to_string(use_encoder_),
-      "--max-speed", std::to_string(max_speed_).c_str(), "--ticks-at-max-speed",
-      std::to_string(ticks_at_max_speed_).c_str(), "--acceleration",
-      std::to_string(acceleration_).c_str(), "--ticks-per-meter",
-      std::to_string(ticks_per_meter_).c_str(), static_cast<char *>(nullptr));
-    perror("execlp");
-    _exit(127);
-  }
-
-  close(child_stdin[0]);
-  close(child_stdout[1]);
-
-  backend_in_ = fdopen(child_stdin[1], "w");
-  backend_out_ = fdopen(child_stdout[0], "r");
-  if (backend_in_ == nullptr || backend_out_ == nullptr)
-  {
-    const int saved_errno = errno;
-    RCLCPP_ERROR(
-      get_logger(), "Failed to open Roboclaw backend pipes as streams: %s",
-      std::strerror(saved_errno));
-    stop_backend();
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+    close_roboclaw();
     return false;
   }
 
   backend_running_ = true;
-
-  std::string response;
-  if (!send_command("PING", response) || response != "PONG")
-  {
-    RCLCPP_ERROR(
-      get_logger(), "Failed to start Roboclaw backend, got response '%s'", response.c_str());
-    stop_backend();
-    return false;
-  }
-
   return true;
 }
 
@@ -705,135 +660,96 @@ void RoboclawHardwareInterface::stop_backend()
 {
   if (backend_running_)
   {
-    int status = 0;
-    const pid_t child_state = backend_pid_ > 0 ? waitpid(backend_pid_, &status, WNOHANG) : -1;
-    if (child_state == 0)
-    {
-      std::string response;
-      send_command("EXIT", response);
-    }
+    stop_motors();
   }
-
-  if (backend_in_ != nullptr)
-  {
-    fclose(backend_in_);
-    backend_in_ = nullptr;
-  }
-  if (backend_out_ != nullptr)
-  {
-    fclose(backend_out_);
-    backend_out_ = nullptr;
-  }
-  if (backend_pid_ > 0)
-  {
-    int status = 0;
-    waitpid(backend_pid_, &status, 0);
-    backend_pid_ = -1;
-  }
+  close_roboclaw();
   backend_running_ = false;
+  last_left_ticks_.reset();
+  last_right_ticks_.reset();
+  last_encoder_read_time_ = {};
 }
 
-bool RoboclawHardwareInterface::send_command(const std::string & command, std::string & response)
+bool RoboclawHardwareInterface::open_roboclaw()
 {
-  if (!backend_running_ || backend_in_ == nullptr || backend_out_ == nullptr)
+  return protocol_.connect(device_, baud_, address_);
+}
+
+void RoboclawHardwareInterface::close_roboclaw() { protocol_.disconnect(); }
+
+bool RoboclawHardwareInterface::configure_roboclaw_serial() { return protocol_.is_connected(); }
+
+bool RoboclawHardwareInterface::ping_roboclaw() { return protocol_.ping(); }
+
+bool RoboclawHardwareInterface::activate_backend()
+{
+  if (!stop_motors())
   {
     return false;
   }
 
-  if (fprintf(backend_in_, "%s\n", command.c_str()) < 0)
+  if (use_encoder_ && !protocol_.reset_encoders())
   {
-    const int saved_errno = errno;
-    RCLCPP_ERROR(
-      get_logger(), "Failed to send command '%s' to Roboclaw backend: %s", command.c_str(),
-      std::strerror(saved_errno));
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
-  fflush(backend_in_);
 
-  char buffer[1024];
-  if (fgets(buffer, sizeof(buffer), backend_out_) == nullptr)
+  last_left_ticks_.reset();
+  last_right_ticks_.reset();
+  last_encoder_read_time_ = {};
+  return true;
+}
+
+bool RoboclawHardwareInterface::deactivate_backend() { return stop_motors(); }
+
+bool RoboclawHardwareInterface::drive_backend(double left_mps, double right_mps)
+{
+  left_mps = clamp_value(left_mps, -max_speed_, max_speed_);
+  right_mps = clamp_value(right_mps, -max_speed_, max_speed_);
+
+  if (use_encoder_)
   {
-    if (ferror(backend_out_) != 0)
+    auto m1 = static_cast<int32_t>(right_mps * ticks_per_meter_);
+    auto m2 = static_cast<int32_t>(left_mps * ticks_per_meter_);
+    if (m1 == 0 && m2 == 0)
     {
-      const int saved_errno = errno;
-      RCLCPP_ERROR(
-        get_logger(), "Failed to read response for command '%s' from Roboclaw backend: %s",
-        command.c_str(), std::strerror(saved_errno));
+      return stop_motors();
     }
-    return false;
+    if (!protocol_.drive_closed_loop(m1, m2))
+    {
+      RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
+      return false;
+    }
+    return true;
   }
 
-  response = buffer;
-  while (!response.empty() && (response.back() == '\n' || response.back() == '\r'))
+  auto m1 = static_cast<int16_t>((right_mps / max_speed_) * ticks_at_max_speed_);
+  auto m2 = static_cast<int16_t>((left_mps / max_speed_) * ticks_at_max_speed_);
+  if (m1 == 0 && m2 == 0)
   {
-    response.pop_back();
+    return stop_motors();
   }
 
-  return true;
-}
-
-bool RoboclawHardwareInterface::expect_ok(const std::string & command)
-{
-  std::string response;
-  if (!send_command(command, response))
+  if (!protocol_.drive_open_loop(m1, m2, static_cast<uint32_t>(acceleration_)))
   {
-    return false;
-  }
-  if (response != "OK")
-  {
-    RCLCPP_ERROR(
-      get_logger(), "Command '%s' failed with response '%s'", command.c_str(), response.c_str());
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
   return true;
 }
 
-bool RoboclawHardwareInterface::parse_state_response(const std::string & response)
+bool RoboclawHardwareInterface::stop_motors()
 {
-  std::istringstream stream(response);
-  std::string token;
-  stream >> token;
-  if (token != "STATE")
+  if (!protocol_.stop(use_encoder_))
   {
+    RCLCPP_ERROR(get_logger(), "%s", protocol_.last_error().c_str());
     return false;
   }
-
-  double left_position_m = 0.0;
-  double left_velocity_mps = 0.0;
-  double right_position_m = 0.0;
-  double right_velocity_mps = 0.0;
-  if (!(stream >> left_position_m >> left_velocity_mps >> right_position_m >> right_velocity_mps))
-  {
-    return false;
-  }
-
-  hw_positions_[0] = left_position_m / wheel_radius_;
-  hw_velocities_[0] = left_velocity_mps / wheel_radius_;
-  hw_positions_[1] = right_position_m / wheel_radius_;
-  hw_velocities_[1] = right_velocity_mps / wheel_radius_;
-
   return true;
 }
 
-bool RoboclawHardwareInterface::parse_status_response(
-  const std::string & response, RoboclawTelemetry & telemetry)
+bool RoboclawHardwareInterface::read_status_from_backend(RoboclawTelemetry & telemetry)
 {
-  std::istringstream stream(response);
-  std::string token;
-  stream >> token;
-  if (token != "STATUS")
-  {
-    return false;
-  }
-
-  if (!(stream >> telemetry.main_battery_voltage >> telemetry.logic_battery_voltage >>
-        telemetry.m1_current >> telemetry.m2_current >> telemetry.temp1_c >> telemetry.temp2_c >>
-        telemetry.error_word))
-  {
-    return false;
-  }
-
-  return true;
+  return protocol_.read_status(telemetry);
 }
 
 bool RoboclawHardwareInterface::ensure_publishers()
@@ -881,20 +797,11 @@ bool RoboclawHardwareInterface::poll_and_publish_status()
     return true;
   }
 
-  std::string response;
-  if (!send_command("STATUS", response))
+  RoboclawTelemetry telemetry;
+  if (!read_status_from_backend(telemetry))
   {
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), 5000, "Failed to read Roboclaw status from backend.");
-    return false;
-  }
-
-  RoboclawTelemetry telemetry;
-  if (!parse_status_response(response, telemetry))
-  {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), 5000, "Failed to parse Roboclaw status response: '%s'",
-      response.c_str());
     return false;
   }
 
