@@ -72,6 +72,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="velodyne_port" default="2368" description="UDP data port used by the Velodyne VLP-16."/>
   <arg name="velodyne_rpm" default="600.0" description="Spin rate used by the Velodyne VLP-16."/>
 
+  <!-- TODO: Check mappings exactly for hardware devices. -->
   <!-- realsense -->
   <arg name="realsense_camera_name" default="d455" description="Node name used by the RealSense ROS 2 driver."/>
   <arg name="realsense_serial_no" default="''" description="Optional RealSense serial number used to select the D455 device."/>
