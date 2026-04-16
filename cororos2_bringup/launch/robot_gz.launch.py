@@ -189,7 +189,7 @@ def _launch_setup(context, *args, **kwargs):
 def generate_launch_description():
     pkg_bringup = get_package_share_directory("cororos2_bringup")
     pkg_description = get_package_share_directory("cororos2_description")
-    floor_world = os.path.join(pkg_bringup, "worlds", "floor.sdf")
+    floor_world = os.path.join(pkg_bringup, "worlds", "environment.sdf")
     gz_resource_path = os.pathsep.join(
         [
             os.path.dirname(pkg_description),
