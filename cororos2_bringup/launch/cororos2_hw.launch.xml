@@ -62,7 +62,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Start the Memsense MS-IMU3025 driver as part of hardware bringup."/>
 
   <!-- ouster -->
-  <arg name="ouster_namespace" default="ouster" description="Namespace used by the Ouster ROS 2 driver."/>
   <arg name="ouster_sensor_hostname" default="" description="Sensor hostname or IP for the Ouster OS0-128."/>
   <arg name="ouster_udp_dest" default="" description="Destination IP for Ouster UDP packets."/>
   <arg name="ouster_lidar_mode" default="1024x10" description="Initial lidar mode for the Ouster OS0-128."/>
@@ -74,7 +73,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="velodyne_rpm" default="600.0" description="Spin rate used by the Velodyne VLP-16."/>
 
   <!-- realsense -->
-  <arg name="realsense_namespace" default="camera" description="Namespace used by the RealSense ROS 2 driver."/>
   <arg name="realsense_camera_name" default="d455" description="Node name used by the RealSense ROS 2 driver."/>
   <arg name="realsense_serial_no" default="''" description="Optional RealSense serial number used to select the D455 device."/>
 
@@ -174,7 +172,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <group if="$(eval '\'$(var robot_model)\' == \'allie\'')">
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
-      <arg name="ouster_ns" value="$(var ouster_namespace)"/>
+      <arg name="ouster_ns" value="ouster"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
       <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
       <arg name="viz" value="false"/>
@@ -189,7 +187,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </include>
 
     <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="$(var realsense_namespace)"/>
+      <arg name="camera_namespace" value="camera"/>
       <arg name="camera_name" value="$(var realsense_camera_name)"/>
       <arg name="serial_no" value="$(var realsense_serial_no)"/>
       <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
@@ -216,7 +214,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <group if="$(eval '\'$(var robot_model)\' == \'cornelius\'')">
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
-      <arg name="ouster_ns" value="$(var ouster_namespace)"/>
+      <arg name="ouster_ns" value="ouster"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
       <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
       <arg name="viz" value="false"/>
@@ -231,7 +229,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </include>
 
     <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="$(var realsense_namespace)"/>
+      <arg name="camera_namespace" value="camera"/>
       <arg name="camera_name" value="$(var realsense_camera_name)"/>
       <arg name="serial_no" value="$(var realsense_serial_no)"/>
       <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
@@ -277,7 +275,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </node>
 
     <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="$(var realsense_namespace)"/>
+      <arg name="camera_namespace" value="camera"/>
       <arg name="camera_name" value="$(var realsense_camera_name)"/>
       <arg name="serial_no" value="$(var realsense_serial_no)"/>
       <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
