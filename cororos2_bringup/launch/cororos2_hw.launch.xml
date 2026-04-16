@@ -67,7 +67,6 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="ouster_lidar_mode" default="1024x10" description="Initial lidar mode for the Ouster OS0-128."/>
 
   <!-- velodyne -->
-  <arg name="velodyne_namespace" default="lidar" description="Namespace used by the Velodyne ROS 2 driver stack."/>
   <arg name="velodyne_device_ip" default="" description="Optional device IP used to filter Velodyne packets from the VLP-16."/>
   <arg name="velodyne_port" default="2368" description="UDP data port used by the Velodyne VLP-16."/>
   <arg name="velodyne_rpm" default="600.0" description="Spin rate used by the Velodyne VLP-16."/>
@@ -256,7 +255,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </group>
 
   <group if="$(eval '\'$(var robot_model)\' == \'joe\'')">
-    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="$(var velodyne_namespace)" name="velodyne_driver_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="lidar" name="velodyne_driver_node" output="both">
       <param from="$(find-pkg-share velodyne_driver)/config/VLP16-velodyne_driver_node-params.yaml"/>
       <param name="device_ip" value="$(var velodyne_device_ip)"/>
       <param name="frame_id" value="$(var prefix)lidar_link"/>
@@ -264,14 +263,14 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <param name="rpm" value="$(var velodyne_rpm)"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="$(var velodyne_namespace)" name="velodyne_transform_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="lidar" name="velodyne_transform_node" output="both">
       <param from="$(find-pkg-share velodyne_pointcloud)/config/VLP16-velodyne_transform_node-params.yaml"/>
       <param name="calibration" value="$(find-pkg-share velodyne_pointcloud)/params/VLP16db.yaml"/>
       <param name="fixed_frame" value="$(var prefix)lidar_link"/>
       <param name="target_frame" value="$(var prefix)lidar_link"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="$(var velodyne_namespace)" name="velodyne_laserscan_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="lidar" name="velodyne_laserscan_node" output="both">
       <param from="$(find-pkg-share velodyne_laserscan)/config/default-velodyne_laserscan_node-params.yaml"/>
     </node>
 
