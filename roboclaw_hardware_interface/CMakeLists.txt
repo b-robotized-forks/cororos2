@@ -6,6 +6,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
@@ -16,10 +17,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  src/roboclaw_protocol.cpp
   src/roboclaw_hardware_interface.cpp
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -27,6 +26,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 ament_target_dependencies(${PROJECT_NAME}
+  ament_index_cpp
   controller_manager
   diagnostic_msgs
   hardware_interface
@@ -56,17 +56,14 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
-ament_export_dependencies(
-  controller_manager
-  diagnostic_msgs
-  hardware_interface
-  pluginlib
-  rclcpp
-  rclcpp_lifecycle
-  sensor_msgs
-  std_msgs
+install(
+  PROGRAMS python/roboclaw_backend.py
+  DESTINATION share/${PROJECT_NAME}/python
+)
+
+install(
+  FILES python/roboclaw_protocol.py
+  DESTINATION share/${PROJECT_NAME}/python
 )
 
 ament_package()

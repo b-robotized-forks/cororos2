@@ -9,15 +9,18 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="roboclaw_device" default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"/>
-  <xacro:arg name="roboclaw_baud" default="115200"/>
-  <xacro:arg name="roboclaw_address" default="128"/>
-  <xacro:arg name="roboclaw_use_encoder" default="false"/>
-  <xacro:arg name="roboclaw_max_speed" default="1.2"/>
-  <xacro:arg name="roboclaw_ticks_at_max_speed" default="32760.0"/>
-  <xacro:arg name="roboclaw_acceleration" default="32000"/>
-  <xacro:arg name="roboclaw_ticks_per_meter" default="4342.2"/>
-  <xacro:arg name="roboclaw_wheel_radius" default="0.129"/>
+  <xacro:arg name="roboclaw_config_file" default="$(find cororos2_bringup)/config/roboclaw.yaml"/>
+  <xacro:property name="roboclaw_config" value="${xacro.load_yaml('$(arg roboclaw_config_file)')}"/>
+  <xacro:arg name="python_executable" default="${roboclaw_config['python_executable']}"/>
+  <xacro:arg name="roboclaw_device" default="${roboclaw_config['device']}"/>
+  <xacro:arg name="roboclaw_baud" default="${roboclaw_config['baud']}"/>
+  <xacro:arg name="roboclaw_address" default="${roboclaw_config['address']}"/>
+  <xacro:arg name="roboclaw_use_encoder" default="${roboclaw_config['use_encoder']}"/>
+  <xacro:arg name="roboclaw_max_speed" default="${roboclaw_config['max_speed']}"/>
+  <xacro:arg name="roboclaw_ticks_at_max_speed" default="${roboclaw_config['ticks_at_max_speed']}"/>
+  <xacro:arg name="roboclaw_acceleration" default="${roboclaw_config['acceleration']}"/>
+  <xacro:arg name="roboclaw_ticks_per_meter" default="${roboclaw_config['ticks_per_meter']}"/>
+  <xacro:arg name="roboclaw_wheel_radius" default="${roboclaw_config['wheel_radius']}"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/cornelius/cornelius_macro.xacro"/>
   <xacro:include filename="$(find cororos2_description)/urdf/cornelius/cornelius_macro.ros2_control.xacro"/>
@@ -44,6 +47,7 @@
     sim_gazebo_classic="$(arg sim_gazebo_classic)"
     sim_gazebo="$(arg sim_gazebo)"
     simulation_controllers="$(arg simulation_controllers)"
+    python_executable="$(arg python_executable)"
     roboclaw_device="$(arg roboclaw_device)"
     roboclaw_baud="$(arg roboclaw_baud)"
     roboclaw_address="$(arg roboclaw_address)"
