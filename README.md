@@ -352,6 +352,44 @@ ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
 > [!NOTE]
 > The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
 
+## Zenoh (optional DDS alternative / bridge)
+
+This workspace can also be used with Zenoh to enable communication across networks (e.g. multiple machines or cloud setups).
+
+1. Configure ROS 2 to use Zenoh
+
+Zenoh is enabled via environment variables. You can set them permanently either in `~/.ros_team_ws_rc` or temporarily in each terminal:
+
+```bash
+export RMW_IMPLEMENTATION=rmw_zenoh_cpp
+```
+
+2. Launch the Zenoh router
+
+Start the router in a dedicated terminal:
+
+```bash
+rtw-zenoh-router
+```
+
+This is enough for local setups.
+
+For multi-machine setups, start the router with the remote endpoint:
+
+```bash
+rtw-zenoh-router <router-ip>
+```
+Or set the env variable:
+
+```bash
+export ZENOH_CONNECT_IP=192.168.28.28
+```
+
+> [!NOTE]
+> The router is **started once** (not per terminal).
+> Environment variables must be set **in every terminal running ROS 2**.
+> You need to have RTW installed and a RTW workspace
+
 ## Troubleshooting
 
 1. *Controllers are already loaded or active.*
