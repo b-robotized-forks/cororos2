@@ -43,8 +43,8 @@ diff_drive_controller:
 
     velocity_rolling_window_size: 10
     publish_limited_velocity: true
-    position_feedback: false
-    open_loop: true
+    position_feedback: true
+    open_loop: false
 
     linear.x.has_velocity_limits: true
     linear.x.max_velocity: 2.8

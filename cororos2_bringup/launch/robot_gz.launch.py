@@ -17,7 +17,7 @@ import xacro
 
 ROBOT_CONFIG = {
     "allie": {
-        "controllers": "allie_gz_controllers.yaml",
+        "controllers": "allie_controllers.yaml",
         "urdf": "allie.urdf.xacro",
         "lidar_sensor": "ouster_lidar",
         "lidar_frame": "ouster_link",
