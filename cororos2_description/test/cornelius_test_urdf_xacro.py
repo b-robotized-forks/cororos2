@@ -1,4 +1,3 @@
-# Copyright (c) 2024, B-Robotized Group
 # Copyright (c) 2022 FZI Forschungszentrum Informatik
 #
 # Redistribution and use in source and binary forms, with or without
