@@ -48,7 +48,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        value="$(eval '\'/world/empty/model/$(var robot_model)/link/base_footprint/sensor/rgbd_front\'')"/>
 
   <set_env name="GZ_SIM_RESOURCE_PATH"
-           value="$(eval '\'$(find-pkg-share cororos2_description)/..:$(find-pkg-share cororos2_bringup)/..:\' + (env(\'GZ_SIM_RESOURCE_PATH\') if env(\'GZ_SIM_RESOURCE_PATH\') else \'\')')"/>
+           value="$(find-pkg-share cororos2_description)/..:$(find-pkg-share cororos2_bringup)/..:$(env GZ_SIM_RESOURCE_PATH '')"/>
 
   <let name="robot_description_content"
        value="$(command '$(find-exec xacro) $(find-pkg-share cororos2_description)/urdf/$(var selected_urdf_file) prefix:= use_mock_hardware:=false mock_sensor_commands:=false sim_gazebo_classic:=false sim_gazebo:=true attach_world:=false simulation_controllers:=$(find-pkg-share cororos2_bringup)/config/$(var selected_controllers_file)')"/>
