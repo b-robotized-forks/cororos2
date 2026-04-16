@@ -40,6 +40,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
+  <let name="pwm_config_file"
+       value="$(find-pkg-share $(var runtime_config_package))/config/pwm.yaml"/>
+  <let name="roboclaw_config_file"
+       value="$(find-pkg-share $(var runtime_config_package))/config/roboclaw.yaml"/>
+  <let name="odrive_config_file"
+       value="$(find-pkg-share $(var runtime_config_package))/config/odrive.yaml"/>
   <arg name="use_mock_hardware"
        default="true"
        description="Start the selected robot with mock hardware mirroring commands into states."/>
@@ -75,7 +81,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <let name="selected_controllers_file"
        value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
   <let name="robot_description_content"
-       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false device_path:=$(var pwm_device_path) roboclaw_device:=$(var roboclaw_device) roboclaw_use_encoder:=$(var roboclaw_use_encoder) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number)')"/>
+       value="$(command '$(find-exec xacro) $(find-pkg-share $(var description_package))/urdf/$(var selected_urdf_file) prefix:=$(var prefix) use_mock_hardware:=$(var use_mock_hardware) mock_sensor_commands:=$(var mock_sensor_commands) attach_world:=false pwm_config_file:=$(var pwm_config_file) roboclaw_config_file:=$(var roboclaw_config_file) odrive_config_file:=$(var odrive_config_file) device_path:=$(var pwm_device_path) roboclaw_device:=$(var roboclaw_device) roboclaw_use_encoder:=$(var roboclaw_use_encoder) front_serial_number:=$(var odrive_front_serial_number) rear_serial_number:=$(var odrive_rear_serial_number)')"/>
 
   <node pkg="robot_state_publisher" exec="robot_state_publisher" output="both">
     <param name="robot_description" value="$(var robot_description_content)"/>

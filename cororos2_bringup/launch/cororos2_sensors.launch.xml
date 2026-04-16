@@ -56,12 +56,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="gps_device" default="/dev/ttyACM0" description="Serial device used by the u-blox ZED-F9P receiver."/>
   <arg name="memsense_device" default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0" description="Serial device used by the Memsense MS-IMU3025 receiver."/>
 
-  <let name="selected_gps_config_file"
-       value="$(eval '\'allie_ublox\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_ublox\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_ublox\'')"/>
-
-  <group if="$(eval '\'$(var robot_model)\' == \'allie\'')">
+  <group if="$(eval '\'$(var robot_model)\' == \'allie\' or \'$(var robot_model)\' == \'cornelius\'')">
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
-      <arg name="ouster_ns" value="ouster"/>
+      <arg name="ouster_ns" value="ouster_lidar"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
       <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
       <arg name="viz" value="false"/>
@@ -74,118 +71,47 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
       <arg name="point_cloud_frame" value="$(var prefix)ouster_link"/>
     </include>
-
-    <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="camera"/>
-      <arg name="camera_name" value="d455"/>
-      <arg name="serial_no" value="$(var realsense_serial_no)"/>
-      <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
-      <arg name="publish_tf" value="true"/>
-      <arg name="enable_color" value="true"/>
-      <arg name="enable_depth" value="true"/>
-      <arg name="align_depth.enable" value="true"/>
-      <arg name="pointcloud.enable" value="true"/>
-      <arg name="enable_sync" value="true"/>
-      <arg name="enable_rgbd" value="true"/>
-    </include>
-
-    <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
-      <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_gps_config_file).yaml"/>
-      <param name="device" value="$(var gps_device)"/>
-      <param name="frame_id" value="gps_link"/>
-    </node>
-
-    <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="msimu3025_driver" output="both">
-      <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
-      <param name="frame_id" value="imu_sensor_link"/>
-    </node>
-  </group>
-
-  <group if="$(eval '\'$(var robot_model)\' == \'cornelius\'')">
-    <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
-      <arg name="ouster_ns" value="ouster"/>
-      <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
-      <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
-      <arg name="viz" value="false"/>
-      <arg name="pub_static_tf" value="false"/>
-      <arg name="point_type" value="xyzir"/>
-      <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
-      <arg name="lidar_mode" value="1024x10"/>
-      <arg name="sensor_frame" value="$(var prefix)ouster_link"/>
-      <arg name="lidar_frame" value="$(var prefix)ouster_link"/>
-      <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
-      <arg name="point_cloud_frame" value="$(var prefix)ouster_link"/>
-    </include>
-
-    <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="camera"/>
-      <arg name="camera_name" value="d455"/>
-      <arg name="serial_no" value="$(var realsense_serial_no)"/>
-      <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
-      <arg name="publish_tf" value="true"/>
-      <arg name="enable_color" value="true"/>
-      <arg name="enable_depth" value="true"/>
-      <arg name="align_depth.enable" value="true"/>
-      <arg name="pointcloud.enable" value="true"/>
-      <arg name="enable_sync" value="true"/>
-      <arg name="enable_rgbd" value="true"/>
-    </include>
-
-    <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
-      <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_gps_config_file).yaml"/>
-      <param name="device" value="$(var gps_device)"/>
-      <param name="frame_id" value="gps_link"/>
-    </node>
-
-    <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="msimu3025_driver" output="both">
-      <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
-      <param name="frame_id" value="imu_sensor_link"/>
-    </node>
   </group>
 
   <group if="$(eval '\'$(var robot_model)\' == \'joe\'')">
-    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="lidar" name="velodyne_driver_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="velodyne_lidar" name="velodyne_driver_node" output="both">
       <param from="$(find-pkg-share velodyne_driver)/config/VLP16-velodyne_driver_node-params.yaml"/>
+      <param from="$(find-pkg-share $(var runtime_config_package))/config/velodyne_driver.yaml"/>
       <param name="device_ip" value="$(var velodyne_device_ip)"/>
-      <param name="frame_id" value="$(var prefix)lidar_link"/>
-      <param name="port" value="2368"/>
-      <param name="rpm" value="600.0"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="lidar" name="velodyne_transform_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="velodyne_lidar" name="velodyne_transform_node" output="both">
       <param from="$(find-pkg-share velodyne_pointcloud)/config/VLP16-velodyne_transform_node-params.yaml"/>
+      <param from="$(find-pkg-share $(var runtime_config_package))/config/velodyne_transform.yaml"/>
       <param name="calibration" value="$(find-pkg-share velodyne_pointcloud)/params/VLP16db.yaml"/>
-      <param name="fixed_frame" value="$(var prefix)lidar_link"/>
-      <param name="target_frame" value="$(var prefix)lidar_link"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="lidar" name="velodyne_laserscan_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="velodyne_lidar" name="velodyne_laserscan_node" output="both">
       <param from="$(find-pkg-share velodyne_laserscan)/config/default-velodyne_laserscan_node-params.yaml"/>
     </node>
-
-    <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-      <arg name="camera_namespace" value="camera"/>
-      <arg name="camera_name" value="d455"/>
-      <arg name="serial_no" value="$(var realsense_serial_no)"/>
-      <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
-      <arg name="publish_tf" value="true"/>
-      <arg name="enable_color" value="true"/>
-      <arg name="enable_depth" value="true"/>
-      <arg name="align_depth.enable" value="true"/>
-      <arg name="pointcloud.enable" value="true"/>
-      <arg name="enable_sync" value="true"/>
-      <arg name="enable_rgbd" value="true"/>
-    </include>
-
-    <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
-      <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_gps_config_file).yaml"/>
-      <param name="device" value="$(var gps_device)"/>
-      <param name="frame_id" value="gps_link"/>
-    </node>
-
-    <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="msimu3025_driver" output="both">
-      <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
-      <param name="frame_id" value="imu_sensor_link"/>
-    </node>
   </group>
+
+  <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
+    <arg name="camera_namespace" value="camera"/>
+    <arg name="camera_name" value="d455"/>
+    <arg name="serial_no" value="$(var realsense_serial_no)"/>
+    <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
+    <arg name="publish_tf" value="true"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="enable_depth" value="true"/>
+    <arg name="align_depth.enable" value="true"/>
+    <arg name="pointcloud.enable" value="true"/>
+    <arg name="enable_sync" value="true"/>
+    <arg name="enable_rgbd" value="true"/>
+  </include>
+
+  <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/ublox.yaml"/>
+    <param name="device" value="$(var gps_device)"/>
+  </node>
+
+  <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="msimu3025_driver" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/memsense.yaml"/>
+    <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
+  </node>
 </launch>
