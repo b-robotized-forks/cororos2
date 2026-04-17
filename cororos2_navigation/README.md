@@ -2,7 +2,7 @@
 
 This package provides cororos-specific launch files and configs for Nav2 with `slam_toolbox`.
 
-## What it adds
+## Package Contents
 
 - `cororos2_nav2_slam.launch.xml`
 - `cororos2_teleop_mux.launch.xml`
