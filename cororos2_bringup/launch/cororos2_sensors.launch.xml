@@ -66,6 +66,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="point_type" value="xyzir"/>
       <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
       <arg name="lidar_mode" value="1024x10"/>
+      <arg name="lidar_port" value="7502"/>
+      <arg name="imu_port" value="7503"/>
       <arg name="sensor_frame" value="$(var prefix)ouster_link"/>
       <arg name="lidar_frame" value="$(var prefix)ouster_link"/>
       <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
@@ -91,19 +93,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </node>
   </group>
 
-  <include if="$(var use_realsense)" file="$(find-pkg-share realsense2_camera)/launch/rs_launch.py">
-    <arg name="camera_namespace" value="camera"/>
-    <arg name="camera_name" value="d455"/>
-    <arg name="serial_no" value="$(var realsense_serial_no)"/>
-    <arg name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
-    <arg name="publish_tf" value="true"/>
-    <arg name="enable_color" value="true"/>
-    <arg name="enable_depth" value="true"/>
-    <arg name="align_depth.enable" value="true"/>
-    <arg name="pointcloud.enable" value="true"/>
-    <arg name="enable_sync" value="true"/>
-    <arg name="enable_rgbd" value="true"/>
-  </include>
+  <node if="$(var use_realsense)" pkg="realsense2_camera" exec="realsense2_camera_node" namespace="camera" name="d455" output="both"
+        args="--ros-args --log-level info">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/realsense.yaml"/>
+    <param name="serial_no" value="$(var realsense_serial_no)"/>
+    <param name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
+  </node>
 
   <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
     <param from="$(find-pkg-share $(var runtime_config_package))/config/ublox.yaml"/>
