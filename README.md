@@ -128,7 +128,7 @@ To start one of the robots, use one of the following launch files:
 
 1. View the robot description in RViz:
    ```bash
-   ros2 launch cororos2_description view_robot.launch.py robot_model:=<robot_model>
+   ros2 launch cororos2_description view_robot.launch.xml robot_model:=<robot_model>
    ```
 
    This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the common RViz config.
@@ -227,12 +227,12 @@ To start one of the robots, use one of the following launch files:
 
 6. Start Gazebo simulation:
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model>
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
    To run Gazebo without RViz:
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:=false
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
    ```
 
 7. Drive the simulated robot in a separate terminal:
@@ -316,6 +316,45 @@ Log out and back in, or reboot, before trying again.
 
 > [!NOTE]
 > The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
+
+## Zenoh (optional DDS alternative / bridge)
+
+This workspace can also be used with Zenoh to enable communication across networks, for example multiple machines or cloud setups.
+
+1. Configure ROS 2 to use Zenoh
+
+Zenoh is enabled via environment variables. You can set them permanently either in `~/.ros_team_ws_rc` or temporarily in each terminal:
+
+```bash
+export RMW_IMPLEMENTATION=rmw_zenoh_cpp
+```
+
+2. Launch the Zenoh router
+
+Start the router in a dedicated terminal:
+
+```bash
+rtw-zenoh-router
+```
+
+This is enough for local setups.
+
+For multi-machine setups, start the router with the remote endpoint:
+
+```bash
+rtw-zenoh-router <router-ip>
+```
+
+Or set the env variable:
+
+```bash
+export ZENOH_CONNECT_IP=192.168.28.28
+```
+
+> [!NOTE]
+> The router is started once, not per terminal.
+> Environment variables must be set in every terminal running ROS 2.
+> You need to have RTW installed and a RTW workspace.
 
 ## Troubleshooting
 

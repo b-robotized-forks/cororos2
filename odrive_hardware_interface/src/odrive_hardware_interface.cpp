@@ -1,4 +1,16 @@
 // Copyright (c) 2026, b-robotized Group
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "odrive_hardware_interface/odrive_hardware_interface.hpp"
 
@@ -8,6 +20,7 @@
 #include <cmath>
 #include <csignal>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
@@ -19,7 +32,20 @@
 namespace
 {
 constexpr double kTwoPi = 2.0 * M_PI;
+
+std::string parse_non_empty_string(const std::string & value)
+{
+  if (value.empty())
+  {
+    throw std::invalid_argument("must not be empty");
+  }
+  return value;
 }
+
+int parse_int(const std::string & value) { return std::stoi(value); }
+
+double parse_double(const std::string & value) { return std::stod(value); }
+}  // namespace
 
 namespace odrive_hardware_interface
 {
@@ -45,48 +71,49 @@ hardware_interface::CallbackReturn ODriveHardwareInterface::on_init(
 
   const auto & hardware_parameters = info_.hardware_parameters;
 
-  try
+  const auto parse_required_parameter = [this, &hardware_parameters](
+                                          const char * key, const char * expected_description,
+                                          auto parser, auto & output) -> bool
   {
-    python_executable_ = hardware_parameters.count("python_executable") != 0
-                           ? hardware_parameters.at("python_executable")
-                           : "python3";
-    front_serial_number_ = hardware_parameters.count("front_serial_number") != 0
-                             ? hardware_parameters.at("front_serial_number")
-                             : "";
-    rear_serial_number_ = hardware_parameters.count("rear_serial_number") != 0
-                            ? hardware_parameters.at("rear_serial_number")
-                            : "";
-    front_right_axis_ = hardware_parameters.count("front_right_axis") != 0
-                          ? std::stoi(hardware_parameters.at("front_right_axis"))
-                          : 0;
-    rear_right_axis_ = hardware_parameters.count("rear_right_axis") != 0
-                         ? std::stoi(hardware_parameters.at("rear_right_axis"))
-                         : 1;
-    connect_timeout_ = hardware_parameters.count("connect_timeout") != 0
-                         ? std::stod(hardware_parameters.at("connect_timeout"))
-                         : 30.0;
-  }
-  catch (const std::exception & exception)
+    const auto iterator = hardware_parameters.find(key);
+    if (iterator == hardware_parameters.end())
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Missing required hardware parameter '%s' for odrive_hardware_interface.",
+        key);
+      return false;
+    }
+
+    try
+    {
+      output = parser(iterator->second);
+    }
+    catch (const std::exception & error)
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Invalid hardware parameter '%s' value '%s': %s. Expected %s.", key,
+        iterator->second.c_str(), error.what(), expected_description);
+      return false;
+    }
+
+    return true;
+  };
+
+  if (
+    !parse_required_parameter(
+      "python_executable", "a non-empty string", parse_non_empty_string, python_executable_) ||
+    !parse_required_parameter(
+      "front_serial_number", "a non-empty string", parse_non_empty_string, front_serial_number_) ||
+    !parse_required_parameter(
+      "rear_serial_number", "a non-empty string", parse_non_empty_string, rear_serial_number_) ||
+    !parse_required_parameter("front_right_axis", "an integer", parse_int, front_right_axis_) ||
+    !parse_required_parameter("rear_right_axis", "an integer", parse_int, rear_right_axis_) ||
+    !parse_required_parameter(
+      "connect_timeout", "a floating-point number", parse_double, connect_timeout_))
   {
-    RCLCPP_ERROR(
-      get_logger(), "odrive_hardware_interface failed to parse one or more parameters: %s",
-      exception.what());
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  if (python_executable_.empty())
-  {
-    RCLCPP_ERROR(get_logger(), "odrive_hardware_interface parameter 'python_executable' is empty.");
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-  if (front_serial_number_.empty() || rear_serial_number_.empty())
-  {
-    RCLCPP_ERROR(
-      get_logger(),
-      "odrive_hardware_interface requires non-empty 'front_serial_number' and "
-      "'rear_serial_number' parameters.");
-    return hardware_interface::CallbackReturn::ERROR;
-  }
   if (
     (front_right_axis_ != 0 && front_right_axis_ != 1) ||
     (rear_right_axis_ != 0 && rear_right_axis_ != 1))

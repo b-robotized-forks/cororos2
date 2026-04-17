@@ -1,4 +1,4 @@
-# Copyright (c) 2026, Proprietary License - b-robotized Group
+# Copyright (c) 2026, b-robotized Group
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#
-# Source of this file are templates maintained by b-robotized Group.
-#
-# Author: Dr. Denis
-#
+# Source of this file are templates in https://github.com/StoglRobotics/ros_team_workspace repository.
 
-b_controlled_box_cm:
+controller_manager:
   ros__parameters:
     update_rate: 100
 
@@ -49,8 +45,8 @@ diff_drive_controller:
 
     velocity_rolling_window_size: 10
     publish_limited_velocity: true
-    position_feedback: false
-    open_loop: true
+    position_feedback: true
+    open_loop: false
 
     linear.x.has_velocity_limits: true
     linear.x.max_velocity: 2.8

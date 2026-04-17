@@ -1,4 +1,16 @@
 // Copyright (c) 2026, b-robotized Group
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "pwm_hardware_interface/pwm_hardware_interface.hpp"
 
@@ -9,6 +21,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <stdexcept>
 #include <utility>
 
 #include <pluginlib/class_list_macros.hpp>
@@ -22,6 +35,46 @@ template <typename T>
 T clamp_value(T value, T minimum, T maximum)
 {
   return std::max(minimum, std::min(value, maximum));
+}
+
+std::string parse_non_empty_string(const std::string & value)
+{
+  if (value.empty())
+  {
+    throw std::invalid_argument("must not be empty");
+  }
+  return value;
+}
+
+int parse_int(const std::string & value) { return std::stoi(value); }
+
+double parse_double(const std::string & value) { return std::stod(value); }
+
+bool parse_flexible_bool(const std::string & value)
+{
+  if (
+    value == "true" || value == "True" || value == "TRUE" || value == "1" || value == "yes" ||
+    value == "on")
+  {
+    return true;
+  }
+  if (
+    value == "false" || value == "False" || value == "FALSE" || value == "0" || value == "no" ||
+    value == "off")
+  {
+    return false;
+  }
+  throw std::invalid_argument("must be a boolean value");
+}
+
+uint8_t parse_channel(const std::string & value)
+{
+  const int channel = std::stoi(value);
+  if (channel < 0 || channel > 255)
+  {
+    throw std::out_of_range("must be within [0, 255]");
+  }
+  return static_cast<uint8_t>(channel);
 }
 }  // namespace
 
@@ -48,42 +101,60 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
 
   const auto & hardware_parameters = info_.hardware_parameters;
 
-  device_path_ = hardware_parameters.count("device_path") != 0
-                   ? hardware_parameters.at("device_path")
-                   : "/dev/serial/by-id/"
-                     "usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00";
-  pwm_min_ =
-    hardware_parameters.count("pwm_min") != 0 ? std::stoi(hardware_parameters.at("pwm_min")) : 1000;
-  pwm_neutral_ = hardware_parameters.count("pwm_neutral") != 0
-                   ? std::stoi(hardware_parameters.at("pwm_neutral"))
-                   : 1500;
-  pwm_max_ =
-    hardware_parameters.count("pwm_max") != 0 ? std::stoi(hardware_parameters.at("pwm_max")) : 2000;
-  wheel_radius_ = hardware_parameters.count("wheel_radius") != 0
-                    ? std::stod(hardware_parameters.at("wheel_radius"))
-                    : 0.205;
-  max_wheel_speed_mps_ = hardware_parameters.count("max_wheel_speed_mps") != 0
-                           ? std::stod(hardware_parameters.at("max_wheel_speed_mps"))
-                           : 2.8;
-  invert_left_ = hardware_parameters.count("invert_left") != 0
-                   ? hardware_parameters.at("invert_left") == "true"
-                   : false;
-  invert_right_ = hardware_parameters.count("invert_right") != 0
-                    ? hardware_parameters.at("invert_right") == "true"
-                    : false;
+  const auto parse_required_parameter = [this, &hardware_parameters](
+                                          const char * key, const char * expected_description,
+                                          auto parser, auto & output) -> bool
+  {
+    const auto iterator = hardware_parameters.find(key);
+    if (iterator == hardware_parameters.end())
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Missing required hardware parameter '%s' for pwm_hardware_interface.", key);
+      return false;
+    }
 
-  channels_[0] = hardware_parameters.count("channel_fl") != 0
-                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_fl")))
-                   : 0;
-  channels_[1] = hardware_parameters.count("channel_fr") != 0
-                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_fr")))
-                   : 1;
-  channels_[2] = hardware_parameters.count("channel_rl") != 0
-                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_rl")))
-                   : 2;
-  channels_[3] = hardware_parameters.count("channel_rr") != 0
-                   ? static_cast<uint8_t>(std::stoi(hardware_parameters.at("channel_rr")))
-                   : 3;
+    try
+    {
+      output = parser(iterator->second);
+    }
+    catch (const std::exception & error)
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Invalid hardware parameter '%s' value '%s': %s. Expected %s.", key,
+        iterator->second.c_str(), error.what(), expected_description);
+      return false;
+    }
+
+    return true;
+  };
+
+  if (
+    !parse_required_parameter(
+      "device_path", "a non-empty string", parse_non_empty_string, device_path_) ||
+    !parse_required_parameter("pwm_min", "an integer", parse_int, pwm_min_) ||
+    !parse_required_parameter("pwm_neutral", "an integer", parse_int, pwm_neutral_) ||
+    !parse_required_parameter("pwm_max", "an integer", parse_int, pwm_max_) ||
+    !parse_required_parameter(
+      "wheel_radius", "a floating-point number", parse_double, wheel_radius_) ||
+    !parse_required_parameter(
+      "max_wheel_speed_mps", "a floating-point number", parse_double, max_wheel_speed_mps_) ||
+    !parse_required_parameter(
+      "invert_left", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, invert_left_) ||
+    !parse_required_parameter(
+      "invert_right", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
+      parse_flexible_bool, invert_right_) ||
+    !parse_required_parameter(
+      "channel_fl", "an integer in the range [0, 255]", parse_channel, channels_[0]) ||
+    !parse_required_parameter(
+      "channel_fr", "an integer in the range [0, 255]", parse_channel, channels_[1]) ||
+    !parse_required_parameter(
+      "channel_rl", "an integer in the range [0, 255]", parse_channel, channels_[2]) ||
+    !parse_required_parameter(
+      "channel_rr", "an integer in the range [0, 255]", parse_channel, channels_[3]))
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
 
   if (!(pwm_min_ < pwm_neutral_ && pwm_neutral_ < pwm_max_))
   {
@@ -324,7 +395,7 @@ void PwmHardwareInterface::stop_backend()
 
 bool PwmHardwareInterface::open_maestro()
 {
-  maestro_fd_ = ::open(device_path_.c_str(), O_RDWR | O_NOCTTY);
+  maestro_fd_ = open(device_path_.c_str(), O_RDWR | O_NOCTTY);
   if (maestro_fd_ < 0)
   {
     RCLCPP_ERROR(
@@ -340,7 +411,7 @@ void PwmHardwareInterface::close_maestro()
 {
   if (maestro_fd_ >= 0)
   {
-    ::close(maestro_fd_);
+    close(maestro_fd_);
     maestro_fd_ = -1;
   }
 }

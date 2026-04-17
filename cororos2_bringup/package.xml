@@ -5,12 +5,9 @@
   <version>0.0.0</version>
   <description>Unified robot bringup package for Allie, Cornelius, and Joe.</description>
   <maintainer email="gabriela.vitez@b-robotized.com">Gabriela Vitez</maintainer>
-  <license>Copyright (c) 2026, Proprietary License - b-robotized Group</license>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <depend>rclcpp</depend>
-  <depend>sensor_msgs</depend>
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>cororos2_description</exec_depend>
