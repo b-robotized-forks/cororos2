@@ -235,17 +235,15 @@ To start one of the robots, use one of the following launch files:
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
    ```
 
-7. Drive the simulated robot in a separate terminal:
+7. Drive the robot directly through the diff-drive controller:
    ```bash
    ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
    ```
 
-   The `diff_drive_controller` has a `cmd_vel_timeout` of 0.5 s, so velocity commands must publish faster than that. Otherwise, the controller may time out between messages and cause intermittent wheel turning.
+   This is useful for base controller testing without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that. Otherwise, the controller may time out between messages and cause intermittent wheel turning.
 
-   You should see the robot move in Gazebo and the odometry change.
-
-8. Check the simulated ROS sensor topics:
-   The Gazebo launch bridges simulated sensor data into ROS under `/<robot_model>/...` topics.
+8. Check the hardware or simulated ROS sensor topics:
+   Both hardware bringup and Gazebo use the same `/<robot_model>/...` topic namespace for the main sensor topics.
 
    You can inspect them with:
 
@@ -253,95 +251,21 @@ To start one of the robots, use one of the following launch files:
    ros2 topic list | grep '^/<robot_model>/'
    ```
 
-   Examples:
+   Common examples:
 
    ```bash
-   ros2 topic echo /<robot_model>/lidar/scan --once
-   ros2 topic echo /<robot_model>/rgbd_front/camera_info --once
-   ros2 topic echo /<robot_model>/imu/data --once
+   ros2 topic echo /<robot_model>/imu/msimu3025_raw --once
    ros2 topic echo /<robot_model>/gps/fix --once
+   ros2 topic echo /<robot_model>/lidar/scan --once
    ```
 
-### 7. Start navigation
+## Navigation
 
-Start one of the bringup modes first:
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
-```
-
-Then start Nav2 in another terminal. To build a map with SLAM Toolbox:
-
-```bash
-ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true scan_topic:=/<robot_model>/lidar/scan
-```
-
-The SLAM launch defaults to `slam_mode:=mapping`. When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:
-
-```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
-```
-
-Wait until `/map` covers the area around the robot, and only send Nav2 goals inside the visible map in RViz. If a goal is outside the current map, the planner can report `worldToMap failed` because it cannot plan outside the known costmap.
-
-Save the serialized SLAM Toolbox pose graph before shutting down mapping:
-
-```bash
-mkdir -p ~/maps
-ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename: '${HOME}/maps/cororos_lab'}"
-```
-
-This writes `~/maps/cororos_lab.posegraph`. Use that pose graph when you relaunch for localization:
-
-```bash
-ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
-  robot_model:=<robot_model> \
-  use_sim_time:=true \
-  scan_topic:=/<robot_model>/lidar/scan \
-  slam_mode:=localization \
-  slam_map_file:=${HOME}/maps/cororos_lab
-```
-
-> [!NOTE]
-> For hardware navigation, use the same command without `use_sim_time:=true` and keep the default `scan_topic:=/lidar/scan` unless you changed the lidar namespace. `use_sim_time:=true` is only for simulation because it makes ROS use the Gazebo `/clock` topic.
-
-If the robot should start from a known pose in the saved graph, also pass `slam_map_start_pose:="[x, y, yaw]"`.
-
-You can also save a normal Nav2 occupancy map for viewing or map-server workflows:
-
-```bash
-ros2 run nav2_map_server map_saver_cli -f ~/maps/cororos_lab
-```
-
-In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
-
-Navigation uses the live SLAM map.
-
-The navigation launch routes stamped velocity commands through `twist_mux` by default:
-
-```text
-Nav2 -> /cmd_vel_smoothed
-/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_safe
-keyboard -> /key_vel
-joystick -> /joy_vel
-/cmd_vel_nav_safe + /key_vel + /joy_vel -> twist_mux -> /diff_drive_controller/cmd_vel
-```
-
-Keyboard teleop can be started separately with:
-
-```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
-```
-
-Joystick teleop can be started with the teleop mux launch:
-
-```bash
-ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
-```
+For the navigation instructions, see [cororos2_navigation/README.md](/home/gabrielav/cororos_ws/src/cororos2/cororos2_navigation/README.md).
 
 ## Hardware bringup notes
 
-The following hardware drivers are already integrated into `cororos2_hw.launch.xml`:
+The following hardware drivers are integrated into `cororos2_hw.launch.xml`:
 
 - **Ouster lidar** via `ouster_ros`
 - **Velodyne VLP-16** via `velodyne_driver`, `velodyne_pointcloud`, and `velodyne_laserscan`
@@ -368,28 +292,13 @@ Joystick and gamepad devices are commonly exposed through `/dev/input/...`. If j
 ```bash
 sudo usermod -a -G input $USER
 ```
-
 Log out and back in, or reboot, before trying again.
 
-### Robot-specific hardware choices
+### Robot-specific defaults
 
-- `robot_model:=allie`
-  - base backend: PWM hardware interface
-  - lidar stack: Ouster
-  - useful args: `pwm_device_path`, `ouster_sensor_hostname`, `ouster_udp_dest`
-
-- `robot_model:=cornelius`
-  - base backend: Roboclaw hardware interface
-  - lidar stack: Ouster
-  - useful args: `roboclaw_device`, `roboclaw_use_encoder`, `ouster_sensor_hostname`, `ouster_udp_dest`
-
-- `robot_model:=joe`
-  - base backend: ODrive hardware interface
-  - lidar stack: Velodyne VLP-16
-  - useful args: `odrive_front_serial_number`, `odrive_rear_serial_number`, `velodyne_device_ip`
-
-> [!WARNING]
-> The Roboclaw path is still under active integration. The ROS 2 package, launch wiring, and encoder / no-encoder variants are present, but hardware validation and tuning are still needed.
+- `robot_model:=allie`: PWM base, Ouster lidar
+- `robot_model:=cornelius`: Roboclaw base, Ouster lidar
+- `robot_model:=joe`: ODrive base, Velodyne VLP-16 lidar
 
 > [!NOTE]
 > The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.

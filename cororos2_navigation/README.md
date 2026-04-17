@@ -67,20 +67,18 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
      slam_map_file:=${HOME}/maps/cororos_lab
    ```
 
-   Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
-
-   > [!NOTE]
-   > For hardware navigation, use the same command without `use_sim_time:=true`. Hardware and simulation both use the default `/<robot_model>/lidar/scan` topic. `use_sim_time:=true` is only for simulation because it makes ROS use the Gazebo `/clock` topic.
-
-   Keep `slam_mode:=mapping` when building or updating the map.
-
    If the robot should start from a known pose in the saved graph, also pass:
 
    ```bash
    slam_map_start_pose:="[x, y, yaw]"
    ```
 
-This package keeps navigation on the live SLAM map.
+   > [!NOTE]
+   > For hardware navigation, use the same command without `use_sim_time:=true`.
+   > Hardware and simulation both use the default `/<robot_model>/lidar/scan` topic.
+
+   In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
+   Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
 
 ## Velocity command flow
 
@@ -96,8 +94,6 @@ joystick -> /joy_vel
 -> twist_mux
 -> /diff_drive_controller/cmd_vel
 ```
-
-Nav2, joystick teleop, keyboard teleop, `twist_mux`, and the diff-drive controller are configured to use `geometry_msgs/TwistStamped`.
 
 To skip the external mux and send Nav2 directly to the diff-drive controller, pass:
 
@@ -148,5 +144,3 @@ The mux priorities are:
 - joystick: highest
 - keyboard: middle
 - Nav2: lowest
-
-This means manual joystick or keyboard commands can override navigation while they are actively publishing.
