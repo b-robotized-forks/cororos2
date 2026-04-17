@@ -267,13 +267,13 @@ To start one of the robots, use one of the following launch files:
 Start one of the bringup modes first:
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model>
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
 ```
 
 Then start Nav2 in another terminal. To build a map with SLAM Toolbox:
 
 ```bash
-ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true scan_topic:=/<robot_model>/lidar/scan
 ```
 
 When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:

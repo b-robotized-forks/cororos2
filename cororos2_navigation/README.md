@@ -15,13 +15,13 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 1. Start the robot in Gazebo:
 
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.py robot_model:=<robot_model> rviz:=false
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
    ```
 
 2. Run Nav2 with SLAM:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
+   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true scan_topic:=/<robot_model>/lidar/scan
    ```
 
 3. Drive manually while SLAM builds the map:
@@ -76,7 +76,8 @@ Start Nav2 in one terminal:
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   robot_model:=joe \
-  use_sim_time:=true
+  use_sim_time:=true \
+  scan_topic:=/joe/lidar/scan
 ```
 
 Start the mux and joystick in a second terminal:

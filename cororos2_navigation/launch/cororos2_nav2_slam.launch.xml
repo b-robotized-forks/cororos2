@@ -20,15 +20,13 @@
        description="Use simulation time." />
 
   <arg name="scan_topic"
-       default=""
-       description="LaserScan topic to use. Leave empty to use a robot-dependent default." />
+       default="/lidar/scan"
+       description="LaserScan topic to use." />
   <arg name="use_twist_mux"
        default="true"
        description="Send Nav2 commands to twist_mux input instead of directly to the diff-drive controller." />
   <let name="selected_nav2_config_file"
        value="$(eval '\'$(var nav2_config_file)\' if \'$(var nav2_config_file)\' != \'\' else \'allie_nav2\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_nav2\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_nav2\'')" />
-  <let name="selected_scan_topic"
-       value="$(eval '\'$(var scan_topic)\' if \'$(var scan_topic)\' != \'\' else \'/\' + \'$(var robot_model)\' + \'/lidar/scan\' if \'$(var use_sim_time)\' == \'true\' else \'/lidar/scan\' if \'$(var robot_model)\' == \'joe\' else \'/ouster/scan\'')" />
   <let name="selected_cmd_vel_out_topic"
        value="$(eval '\'cmd_vel_nav_safe\' if \'$(var use_twist_mux)\' == \'true\' else \'/diff_drive_controller/cmd_vel\'')" />
 
@@ -40,7 +38,7 @@
     <param from="$(var slam_params).yaml" />
     <param name="use_sim_time" value="$(var use_sim_time)" />
     <param name="use_lifecycle_manager" value="true" />
-    <param name="scan_topic" value="$(var selected_scan_topic)" />
+    <param name="scan_topic" value="$(var scan_topic)" />
   </node>
 
   <node pkg="nav2_lifecycle_manager"
@@ -57,7 +55,7 @@
     <arg name="use_composition" value="False" />
     <arg name="params_file" value="$(var nav2_params)" />
     <arg name="use_sim_time" value="$(var use_sim_time)" />
-    <arg name="selected_laser_scan_topic" value="$(var selected_scan_topic)" />
+    <arg name="selected_laser_scan_topic" value="$(var scan_topic)" />
     <arg name="selected_cmd_vel_out_topic" value="$(var selected_cmd_vel_out_topic)" />
   </include>
 </launch>
