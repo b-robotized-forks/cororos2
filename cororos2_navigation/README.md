@@ -15,7 +15,7 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 1. Start the robot in Gazebo:
 
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=true
    ```
 
 2. Run Nav2 with SLAM:
@@ -63,6 +63,7 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
      robot_model:=<robot_model> \
      use_sim_time:=true \
+     use_twist_mux:=false \
      slam_mode:=localization \
      slam_map_file:=${HOME}/maps/cororos_lab
    ```
