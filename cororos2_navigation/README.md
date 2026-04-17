@@ -121,6 +121,8 @@ Start the mux and joystick in a second terminal:
 ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
 ```
 
+Try moving the joystick or pressing keys in the active teleop keyboard terminal.
+
 Joystick defaults for the Xbox 360 controller:
 
 - device: `/dev/input/js0`
