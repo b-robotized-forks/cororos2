@@ -276,7 +276,7 @@ Then start Nav2 in another terminal. To build a map with SLAM Toolbox:
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true scan_topic:=/<robot_model>/lidar/scan
 ```
 
-When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:
+The SLAM launch defaults to `slam_mode:=mapping`. When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:
 
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
@@ -284,10 +284,33 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true
 
 Wait until `/map` covers the area around the robot, and only send Nav2 goals inside the visible map in RViz. If a goal is outside the current map, the planner can report `worldToMap failed` because it cannot plan outside the known costmap.
 
-Save the completed map when needed:
+Save the serialized SLAM Toolbox pose graph before shutting down mapping:
 
 ```bash
-ros2 run nav2_map_server map_saver_cli -f my_map
+mkdir -p ~/maps
+ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename: '${HOME}/maps/cororos_lab'}"
+```
+
+This writes `~/maps/cororos_lab.posegraph`. Use that pose graph when you relaunch for localization:
+
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
+  robot_model:=<robot_model> \
+  use_sim_time:=true \
+  scan_topic:=/<robot_model>/lidar/scan \
+  slam_mode:=localization \
+  slam_map_file:=${HOME}/maps/cororos_lab
+```
+
+> [!NOTE]
+> For hardware navigation, use the same command without `use_sim_time:=true` and keep the default `scan_topic:=/lidar/scan` unless you changed the lidar namespace. `use_sim_time:=true` is only for simulation because it makes ROS use the Gazebo `/clock` topic.
+
+If the robot should start from a known pose in the saved graph, also pass `slam_map_start_pose:="[x, y, yaw]"`.
+
+You can also save a normal Nav2 occupancy map for viewing or map-server workflows:
+
+```bash
+ros2 run nav2_map_server map_saver_cli -f ~/maps/cororos_lab
 ```
 
 In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.

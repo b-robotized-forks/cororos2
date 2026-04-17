@@ -15,6 +15,18 @@
   <arg name="slam_config_file"
        default="cororos_slam"
        description="SLAM Toolbox config file basename without the .yaml suffix." />
+  <arg name="slam_mode"
+       default="mapping"
+       description="SLAM Toolbox mode. Use 'mapping' to build/update a map or 'localization' to navigate using an existing pose graph." >
+    <choice value="mapping"/>
+    <choice value="localization"/>
+  </arg>
+  <arg name="slam_map_file"
+       default=""
+       description="Serialized SLAM Toolbox pose graph basename for localization mode, without the .posegraph suffix." />
+  <arg name="slam_map_start_pose"
+       default="[0.0, 0.0, 0.0]"
+       description="Initial [x, y, yaw] pose used when loading a serialized pose graph in localization mode." />
   <arg name="use_sim_time"
        default="false"
        description="Use simulation time." />
@@ -29,16 +41,21 @@
        value="$(eval '\'$(var nav2_config_file)\' if \'$(var nav2_config_file)\' != \'\' else \'allie_nav2\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_nav2\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_nav2\'')" />
   <let name="selected_cmd_vel_out_topic"
        value="$(eval '\'cmd_vel_nav_safe\' if \'$(var use_twist_mux)\' == \'true\' else \'/diff_drive_controller/cmd_vel\'')" />
+  <let name="selected_slam_executable"
+       value="$(eval '\'localization_slam_toolbox_node\' if \'$(var slam_mode)\' == \'localization\' else \'sync_slam_toolbox_node\'')" />
 
   <let name="slam_params" value="$(find-pkg-share $(var config_package))/config/$(var slam_config_file)" />
   <node name="slam_toolbox"
         pkg="slam_toolbox"
-        exec="sync_slam_toolbox_node"
+        exec="$(var selected_slam_executable)"
         output="screen">
     <param from="$(var slam_params).yaml" />
     <param name="use_sim_time" value="$(var use_sim_time)" />
     <param name="use_lifecycle_manager" value="true" />
     <param name="scan_topic" value="$(var scan_topic)" />
+    <param name="mode" value="$(var slam_mode)" />
+    <param name="map_file_name" value="$(var slam_map_file)" />
+    <param name="map_start_pose" value="$(var slam_map_start_pose)" />
   </node>
 
   <node pkg="nav2_lifecycle_manager"
