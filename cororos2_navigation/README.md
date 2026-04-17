@@ -21,18 +21,26 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 2. Run Nav2 with SLAM:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true scan_topic:=/<robot_model>/lidar/scan
+   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
    ```
 
-3. Drive manually while SLAM builds the map:
+3. Start the velocity mux in a second terminal:
+
+   ```bash
+   ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=false
+   ```
+
+4. Drive manually while SLAM builds the map:
 
    ```bash
    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
    ```
 
-   SLAM creates `/map` from lidar scans. The map starts small and grows only where the robot has scanned. Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
+   In RViz, add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
 
-4. Save the map created by SLAM when needed.
+   SLAM creates `/map` from lidar scans. The map starts small and grows only where the robot has scanned.
+
+5. Save the map created by SLAM when needed.
 
    For later SLAM Toolbox localization, save the serialized pose graph:
 
@@ -49,19 +57,20 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
    ros2 run nav2_map_server map_saver_cli -f ~/maps/cororos_lab
    ```
 
-5. Relaunch Nav2 with SLAM Toolbox localization:
+6. Relaunch Nav2 with SLAM Toolbox localization:
 
    ```bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
      robot_model:=<robot_model> \
      use_sim_time:=true \
-     scan_topic:=/<robot_model>/lidar/scan \
      slam_mode:=localization \
      slam_map_file:=${HOME}/maps/cororos_lab
    ```
 
+   Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
+
    > [!NOTE]
-   > For hardware navigation, use the same command without `use_sim_time:=true` and keep the default `scan_topic:=/lidar/scan` unless you changed the lidar namespace. `use_sim_time:=true` is only for simulation because it makes ROS use the Gazebo `/clock` topic.
+   > For hardware navigation, use the same command without `use_sim_time:=true`. Hardware and simulation both use the default `/<robot_model>/lidar/scan` topic. `use_sim_time:=true` is only for simulation because it makes ROS use the Gazebo `/clock` topic.
 
    Keep `slam_mode:=mapping` when building or updating the map.
 
@@ -104,22 +113,13 @@ Keyboard teleop is started manually because it needs the active terminal for key
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
 ```
 
-Start Nav2 in one terminal:
+For simulation-only manual driving, start Gazebo in one terminal:
 
 ```bash
-ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
-  robot_model:=joe \
-  use_sim_time:=true \
-  scan_topic:=/joe/lidar/scan
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe
 ```
 
 Start the mux and joystick in a second terminal:
-
-```bash
-ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
-```
-
-If Nav2 is not running and you only want to test keyboard or joystick driving with robot bringup, start the mux and publish stamped teleop commands:
 
 ```bash
 ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
