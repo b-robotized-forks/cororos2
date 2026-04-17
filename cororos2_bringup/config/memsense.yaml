@@ -16,6 +16,6 @@
   ros__parameters:
     serial_path_msimu3025: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
     frame_id: imu_sensor_link
-    imu_topic: /msimu3025_raw
-    magnetic_topic: /msimu3025_magnetic
-    temperature_topic: /msimu3025_temperature
+    imu_topic: msimu3025_raw
+    magnetic_topic: msimu3025_magnetic
+    temperature_topic: msimu3025_temperature

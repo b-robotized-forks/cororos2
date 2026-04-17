@@ -32,8 +32,8 @@
        description="Use simulation time." />
 
   <arg name="scan_topic"
-       default="/lidar/scan"
-       description="LaserScan topic to use." />
+       default=""
+       description="Optional LaserScan topic override. Defaults to /&lt;robot_model&gt;/lidar/scan." />
   <arg name="use_twist_mux"
        default="true"
        description="Send Nav2 commands to twist_mux input instead of directly to the diff-drive controller." />
@@ -43,6 +43,8 @@
        value="$(eval '\'cmd_vel_nav_safe\' if \'$(var use_twist_mux)\' == \'true\' else \'/diff_drive_controller/cmd_vel\'')" />
   <let name="selected_slam_executable"
        value="$(eval '\'localization_slam_toolbox_node\' if \'$(var slam_mode)\' == \'localization\' else \'sync_slam_toolbox_node\'')" />
+  <let name="selected_scan_topic"
+       value="$(eval '\'$(var scan_topic)\' if \'$(var scan_topic)\' != \'\' else \'/$(var robot_model)/lidar/scan\'')" />
 
   <let name="slam_params" value="$(find-pkg-share $(var config_package))/config/$(var slam_config_file)" />
   <node name="slam_toolbox"
@@ -52,7 +54,7 @@
     <param from="$(var slam_params).yaml" />
     <param name="use_sim_time" value="$(var use_sim_time)" />
     <param name="use_lifecycle_manager" value="true" />
-    <param name="scan_topic" value="$(var scan_topic)" />
+    <param name="scan_topic" value="$(var selected_scan_topic)" />
     <param name="mode" value="$(var slam_mode)" />
     <param name="map_file_name" value="$(var slam_map_file)" />
     <param name="map_start_pose" value="$(var slam_map_start_pose)" />
@@ -72,7 +74,7 @@
     <arg name="use_composition" value="False" />
     <arg name="params_file" value="$(var nav2_params)" />
     <arg name="use_sim_time" value="$(var use_sim_time)" />
-    <arg name="selected_laser_scan_topic" value="$(var scan_topic)" />
+    <arg name="selected_laser_scan_topic" value="$(var selected_scan_topic)" />
     <arg name="selected_cmd_vel_out_topic" value="$(var selected_cmd_vel_out_topic)" />
   </include>
 </launch>

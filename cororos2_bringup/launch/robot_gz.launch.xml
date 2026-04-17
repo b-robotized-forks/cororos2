@@ -75,7 +75,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <node pkg="ros_gz_bridge" exec="parameter_bridge" output="screen"
         args="/imu@sensor_msgs/msg/Imu[gz.msgs.IMU /navsat@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat $(var lidar_root)/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan $(var lidar_root)/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked $(var rgbd_root)/image@sensor_msgs/msg/Image[gz.msgs.Image $(var rgbd_root)/depth_image@sensor_msgs/msg/Image[gz.msgs.Image $(var rgbd_root)/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked $(var rgbd_root)/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo">
-    <remap from="/imu" to="/$(var robot_model)/imu/data"/>
+    <remap from="/imu" to="/$(var robot_model)/imu/msimu3025_raw"/>
     <remap from="/navsat" to="/$(var robot_model)/gps/fix"/>
     <remap from="$(var lidar_root)/scan" to="/$(var robot_model)/lidar/scan"/>
     <remap from="$(var lidar_root)/scan/points" to="/$(var robot_model)/lidar/points"/>
