@@ -429,6 +429,7 @@
         <always_on>1</always_on>
         <update_rate>50</update_rate>
         <topic>imu</topic>
+        <gz_frame_id>${prefix}imu_sensor_link</gz_frame_id>
         <imu>
           <enable_orientation>0</enable_orientation>
           <angular_velocity>
@@ -509,12 +510,14 @@
         <always_on>1</always_on>
         <update_rate>5</update_rate>
         <topic>navsat</topic>
+        <gz_frame_id>${prefix}gps_link</gz_frame_id>
       </sensor>
     </gazebo>
     <gazebo reference="${prefix}rgbd_front_link">
       <sensor name="rgbd_front" type="rgbd_camera">
         <always_on>1</always_on>
         <update_rate>30</update_rate>
+        <gz_frame_id>${prefix}rgbd_front_link</gz_frame_id>
         <camera name="rgbd_front">
           <horizontal_fov>1.50098</horizontal_fov>
           <lens>
@@ -561,6 +564,7 @@
       <sensor name="lidar" type="gpu_lidar">
         <visualize>0</visualize>
         <update_rate>10</update_rate>
+        <gz_frame_id>${prefix}lidar_link</gz_frame_id>
         <lidar>
           <scan>
             <horizontal>

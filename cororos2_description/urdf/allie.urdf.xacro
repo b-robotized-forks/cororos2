@@ -10,18 +10,20 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="device_path" default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00"/>
-  <xacro:arg name="channel_fl" default="0"/>
-  <xacro:arg name="channel_fr" default="1"/>
-  <xacro:arg name="channel_rl" default="2"/>
-  <xacro:arg name="channel_rr" default="3"/>
-  <xacro:arg name="pwm_min" default="1000"/>
-  <xacro:arg name="pwm_neutral" default="1500"/>
-  <xacro:arg name="pwm_max" default="2000"/>
-  <xacro:arg name="wheel_radius" default="0.205"/>
-  <xacro:arg name="max_wheel_speed_mps" default="2.8"/>
-  <xacro:arg name="invert_left" default="false"/>
-  <xacro:arg name="invert_right" default="false"/>
+  <xacro:arg name="pwm_config_file" default="$(find cororos2_bringup)/config/pwm.yaml"/>
+  <xacro:property name="pwm_config" value="${xacro.load_yaml('$(arg pwm_config_file)')}"/>
+  <xacro:arg name="device_path" default="${pwm_config['device_path']}"/>
+  <xacro:arg name="channel_fl" default="${pwm_config['channel_fl']}"/>
+  <xacro:arg name="channel_fr" default="${pwm_config['channel_fr']}"/>
+  <xacro:arg name="channel_rl" default="${pwm_config['channel_rl']}"/>
+  <xacro:arg name="channel_rr" default="${pwm_config['channel_rr']}"/>
+  <xacro:arg name="pwm_min" default="${pwm_config['pwm_min']}"/>
+  <xacro:arg name="pwm_neutral" default="${pwm_config['pwm_neutral']}"/>
+  <xacro:arg name="pwm_max" default="${pwm_config['pwm_max']}"/>
+  <xacro:arg name="wheel_radius" default="${pwm_config['wheel_radius']}"/>
+  <xacro:arg name="max_wheel_speed_mps" default="${pwm_config['max_wheel_speed_mps']}"/>
+  <xacro:arg name="invert_left" default="${pwm_config['invert_left']}"/>
+  <xacro:arg name="invert_right" default="${pwm_config['invert_right']}"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/allie/allie_macro.xacro"/>
   <xacro:include filename="$(find cororos2_description)/urdf/allie/allie_macro.ros2_control.xacro"/>

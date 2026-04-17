@@ -7,12 +7,14 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="python_executable" default="python3"/>
-  <xacro:arg name="front_serial_number" default=""/>
-  <xacro:arg name="rear_serial_number" default=""/>
-  <xacro:arg name="front_right_axis" default="0"/>
-  <xacro:arg name="rear_right_axis" default="1"/>
-  <xacro:arg name="connect_timeout" default="30.0"/>
+  <xacro:arg name="odrive_config_file" default="$(find cororos2_bringup)/config/odrive.yaml"/>
+  <xacro:property name="odrive_config" value="${xacro.load_yaml('$(arg odrive_config_file)')}"/>
+  <xacro:arg name="python_executable" default="${odrive_config['python_executable']}"/>
+  <xacro:arg name="front_serial_number" default="${odrive_config['front_serial_number']}"/>
+  <xacro:arg name="rear_serial_number" default="${odrive_config['rear_serial_number']}"/>
+  <xacro:arg name="front_right_axis" default="${odrive_config['front_right_axis']}"/>
+  <xacro:arg name="rear_right_axis" default="${odrive_config['rear_right_axis']}"/>
+  <xacro:arg name="connect_timeout" default="${odrive_config['connect_timeout']}"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/joe/joe_macro.xacro"/>
   <xacro:include filename="$(find cororos2_description)/urdf/joe/joe_macro.ros2_control.xacro"/>
