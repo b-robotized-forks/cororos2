@@ -243,47 +243,41 @@ ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robo
 When using SLAM, the map starts small and grows only where the robot has scanned with the lidar. Drive the robot manually first:
 
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
 ```
 
 Wait until `/map` covers the area around the robot, and only send Nav2 goals inside the visible map in RViz. If a goal is outside the current map, the planner can report `worldToMap failed` because it cannot plan outside the known costmap.
 
-Save the completed map:
+Save the completed map when needed:
 
 ```bash
 ros2 run nav2_map_server map_saver_cli -f my_map
 ```
 
-To localize on an existing map with AMCL pass the map and launch:
-
-```bash
-ros2 launch cororos2_navigation cororos2_nav2_amcl.launch.xml robot_model:=<robot_model> use_sim_time:=true map:=my_map
-```
 In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
 
-Use SLAM when creating a map. Use AMCL when navigating later with a saved map.
+Navigation uses the live SLAM map.
 
-The navigation launch routes commands through `twist_mux` by default:
+The navigation launch routes stamped velocity commands through `twist_mux` by default:
 
 ```text
 Nav2 -> /cmd_vel_smoothed
-/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_checked
+/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_safe
 keyboard -> /key_vel
 joystick -> /joy_vel
-/cmd_vel_nav_checked + /key_vel + /joy_vel -> twist_mux -> /cmd_vel
-cmd_vel_stamper -> /diff_drive_controller/cmd_vel
+/cmd_vel_nav_safe + /key_vel + /joy_vel -> twist_mux -> /diff_drive_controller/cmd_vel
 ```
 
 Keyboard teleop can be started separately with:
 
 ```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/key_vel
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
 ```
 
-Joystick teleop can be started with the navigation launch:
+Joystick teleop can be started with the teleop mux launch:
 
 ```bash
-ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true use_joystick:=true
+ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
 ```
 
 ## Hardware bringup notes
