@@ -98,7 +98,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
         args="diff_drive_controller --controller-manager /controller_manager"
         output="screen"/>
 
-  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_localization.launch.xml">
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
     <arg name="robot_model" value="$(var robot_model)"/>
     <arg name="runtime_config_package" value="cororos2_bringup"/>
     <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>

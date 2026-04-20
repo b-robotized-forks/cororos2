@@ -24,10 +24,10 @@ limitations under the License.
   </arg>
   <arg name="runtime_config_package"
        default="cororos2_bringup"
-       description="Package with the localization configuration in the config folder."/>
-  <arg name="localization_config_file"
+       description="Package with the EKF configuration in the config folder."/>
+  <arg name="fused_odometry_config_file"
        default="cororos_ekf"
-       description="Localization YAML file basename without the .yaml suffix."/>
+       description="Fused odometry EKF YAML file basename without the .yaml suffix."/>
   <arg name="raw_odom_topic"
        default="/diff_drive_controller/odom"
        description="Raw wheel odometry topic used as EKF input."/>
@@ -55,7 +55,7 @@ limitations under the License.
         exec="ekf_node"
         name="ekf_filter_node"
         output="screen">
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var localization_config_file).yaml"/>
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var fused_odometry_config_file).yaml"/>
     <param name="use_sim_time" value="$(var use_sim_time)"/>
     <param name="publish_tf" value="$(var publish_tf)"/>
     <param name="odom0" value="$(var raw_odom_topic)"/>

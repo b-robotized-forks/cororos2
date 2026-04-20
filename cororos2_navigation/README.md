@@ -128,7 +128,7 @@ ros2 topic echo /<robot_model>/imu/data --once
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
-You normally do not launch `cororos2_localization.launch.xml` manually. It is included automatically by `robot_gz.launch.xml`, `cororos2_hw.launch.xml`, and `cororos2_offline.launch.xml`.
+You normally do not launch `cororos2_fused_odometry.launch.xml` manually. It is included automatically by `robot_gz.launch.xml`, `cororos2_hw.launch.xml`, and `cororos2_offline.launch.xml`.
 
 ## Velocity command flow
 

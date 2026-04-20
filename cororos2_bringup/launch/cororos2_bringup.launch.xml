@@ -110,7 +110,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <node pkg="controller_manager" exec="spawner"
         args="joint_state_broadcaster $(var robot_controller) --controller-manager /controller_manager"/>
 
-  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_localization.launch.xml">
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
     <arg name="robot_model" value="$(var robot_model)"/>
     <arg name="runtime_config_package" value="$(var runtime_config_package)"/>
     <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
