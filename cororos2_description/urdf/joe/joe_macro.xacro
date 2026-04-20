@@ -431,7 +431,7 @@
         <topic>imu</topic>
         <gz_frame_id>${prefix}imu_sensor_link</gz_frame_id>
         <imu>
-          <enable_orientation>0</enable_orientation>
+          <enable_orientation>1</enable_orientation>
           <angular_velocity>
             <x>
               <noise type="gaussian">
