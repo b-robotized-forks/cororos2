@@ -112,73 +112,108 @@ source install/setup.bash
 
 Now the workspace is ready for use.
 
-## Starting the robots and the simulation
+## Starting the Robots
 
-The bringup files use the shared `robot_model` argument:
+The bringup files use the shared `robot_model` argument. Replace `<robot_model>` with one of:
 
 - `allie`
 - `cornelius`
 - `joe`
 
-Replace `<robot_model>` in the examples below with the robot you want to use.
+Open a new terminal and source the workspace before launching:
 
-## Robot bringup
+```bash
+cd ~/cororos2_ws
+source install/setup.bash
+```
 
-To start one of the robots, use one of the following launch files:
+### Check the Robot Description
 
-1. View the robot description in RViz:
+Use this first if you only want to confirm that the URDF, meshes, and TF tree load correctly:
+
+```bash
+ros2 launch cororos2_description view_robot.launch.xml robot_model:=<robot_model>
+```
+
+This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the common RViz config.
+
+Example RViz views:
+
+| Allie | Cornelius | Joe |
+| --- | --- | --- |
+| <img src="resources/allie_rviz.png" alt="Allie RViz view" height="220"> | <img src="resources/cornelius_rviz.png" alt="Cornelius RViz view" height="220"> | <img src="resources/joe_rviz.png" alt="Joe RViz view" height="220"> |
+
+### Simulation Bringup
+
+1. Start the robot in Gazebo:
+
    ```bash
-   ros2 launch cororos2_description view_robot.launch.xml robot_model:=<robot_model>
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
-   This starts the URDF, `robot_state_publisher`, `joint_state_publisher_gui`, and the common RViz config.
+2. To run Gazebo without RViz:
 
-   Example RViz views:
-
-   | Allie | Cornelius | Joe |
-   | --- | --- | --- |
-   | <img src="resources/allie_rviz.png" alt="Allie RViz view" height="220"> | <img src="resources/cornelius_rviz.png" alt="Cornelius RViz view" height="220"> | <img src="resources/joe_rviz.png" alt="Joe RViz view" height="220"> |
-
-2. Start standalone robot/control bringup:
    ```bash
-   ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
    ```
 
-   This is the base robot/control launch used by the wrappers.
+3. Check simulated sensor topics:
 
-   Default:
-   - `use_mock_hardware:=true`
-   - `rviz:=true`
-
-3. Start offline/mock wrapper bringup:
    ```bash
-   ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=<robot_model>
+   ros2 topic list | grep '^/<robot_model>/'
+   ros2 topic echo /<robot_model>/imu/data --once
+   ros2 topic echo /<robot_model>/lidar/scan --once
    ```
 
-   This wrapper uses the same robot/control bringup as above, but always runs it in offline/mock mode.
+### Offline Mock Bringup
 
-4. Start standalone hardware sensors:
-   ```bash
-   ros2 launch cororos2_bringup cororos2_sensors.launch.xml robot_model:=<robot_model>
-   ```
+Use offline/mock bringup when you want ROS 2 control, robot state, and RViz without Gazebo or real hardware:
 
-   This is useful when the base bringup is already running in a separate terminal and you only want to debug the sensor stack.
+```bash
+ros2 launch cororos2_bringup cororos2_offline.launch.xml robot_model:=<robot_model>
+```
 
-5. Start full hardware bringup:
-   ```bash
-   ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
-   ```
+This wrapper uses mock hardware and is useful for checking controllers, descriptions, topic names, and launch arguments.
 
-   This wrapper launches the robot/control bringup and the standalone sensor bringup together, and forces real hardware mode.
+### Hardware Bringup
 
-   Check the available arguments with:
+1. Check the available launch arguments:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml --show-args
    ```
 
-   Common examples:
+2. Check serial devices before launching hardware:
+
+   ```bash
+   ls -l /dev/serial/by-id/
+   ```
+
+3. You must pass the correct hardware paths, serial numbers, and IP addresses for the robot.
+
+   Do not copy placeholders like `<your-device>`, `<front-serial>`, or `<sensor-ip>` into a real launch command. Replace them with the actual hardware values for the connected robot.
+
+   Common hardware selectors:
+
+   - Allie: `pwm_device_path`, `ouster_sensor_hostname`, `ouster_udp_dest`
+   - Cornelius: `roboclaw_device`, `ouster_sensor_hostname`, `ouster_udp_dest`
+   - Joe: `odrive_front_serial_number`, `odrive_rear_serial_number`, `velodyne_device_ip`
+   - Optional sensors: `realsense_serial_no`, `gps_device`, `memsense_device`
+
+4. Start the full hardware stack:
+
+   ```bash
+   ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
+   ```
+
+   This launches robot/control bringup and the sensor bringup together, and forces real hardware mode.
+
+5. You must pass the robot-specific hardware selectors with the correct paths, serial numbers, and IP addresses.
+
+   **Examples:**
 
    Allie with Maestro PWM base and Ouster:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=allie \
      pwm_device_path:=/dev/serial/by-id/<your-maestro-id> \
@@ -187,12 +222,14 @@ To start one of the robots, use one of the following launch files:
    ```
 
    Cornelius with Roboclaw:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
      roboclaw_device:=/dev/serial/by-id/<your-device>
    ```
 
    Cornelius with encoder-based Roboclaw odometry:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=cornelius \
      roboclaw_use_encoder:=true \
@@ -200,6 +237,7 @@ To start one of the robots, use one of the following launch files:
    ```
 
    Joe with ODrive base and Velodyne:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe \
      odrive_front_serial_number:=<front-serial> \
@@ -207,61 +245,71 @@ To start one of the robots, use one of the following launch files:
      velodyne_device_ip:=<sensor-ip>
    ```
 
+6. Add optional sensor selectors when more than one device is connected.
+
+   **Examples:**
+
    RealSense on any robot:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
      realsense_serial_no:="'<serial>'"
    ```
 
    GPS on any robot:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
      gps_device:=/dev/ttyACM0
    ```
 
    Memsense IMU on any robot:
+
    ```bash
    ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> \
      memsense_device:=/dev/serial/by-id/<your-device>
    ```
 
-6. Start Gazebo simulation:
-   ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
-   ```
-
-   To run Gazebo without RViz:
-   ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
-   ```
-
-7. Drive the robot directly through the diff-drive controller:
-   ```bash
-   ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
-   ```
-
-   This is useful for base controller testing without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that. Otherwise, the controller may time out between messages and cause intermittent wheel turning.
-
-8. Check the hardware or simulated ROS sensor topics:
-   Both hardware bringup and Gazebo use the same `/<robot_model>/...` topic namespace for the main sensor topics.
-
-   You can inspect them with:
+7. Check hardware sensor topics:
 
    ```bash
    ros2 topic list | grep '^/<robot_model>/'
-   ```
-
-   Common examples:
-
-   ```bash
    ros2 topic echo /<robot_model>/imu/data --once
    ros2 topic echo /<robot_model>/gps/fix --once
    ros2 topic echo /<robot_model>/lidar/scan --once
    ```
 
+### Standalone Debug Launches
+
+Start only robot/control bringup:
+
+```bash
+ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
+```
+
+This is the base launch used by the wrappers. By default it uses `use_mock_hardware:=true` and `rviz:=true`.
+
+Start only the hardware sensor stack:
+
+```bash
+ros2 launch cororos2_bringup cororos2_sensors.launch.xml robot_model:=<robot_model>
+```
+
+This is useful when the base bringup is already running in another terminal and you only want to debug sensors.
+
+### Direct Drive Test
+
+Drive the robot directly through the diff-drive controller:
+
+```bash
+ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped "{header: {stamp: {sec: 0, nanosec: 0}, frame_id: ''}, twist: {linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.2}}}"
+```
+
+This is useful for base controller testing in both simulation (mock/Gazebo) and for real hardware, without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that.
+
 ## Navigation
 
-For the navigation instructions, see [cororos2_navigation/README.md]
+For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
 
 ## Hardware bringup notes
 
