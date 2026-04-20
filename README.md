@@ -261,7 +261,7 @@ To start one of the robots, use one of the following launch files:
 
 ## Navigation
 
-For the navigation instructions, see [cororos2_navigation/README.md](/home/gabrielav/cororos_ws/src/cororos2/cororos2_navigation/README.md).
+For the navigation instructions, see [cororos2_navigation/README.md]
 
 ## Hardware bringup notes
 

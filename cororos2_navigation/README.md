@@ -2,6 +2,19 @@
 
 This package provides cororos-specific launch files and configs for Nav2 with `slam_toolbox`.
 
+## Setup
+
+If you check out the `feat/navigation` branch, update dependencies and rebuild from the workspace root before running navigation:
+
+```bash
+cd ~/cororos_ws
+source /opt/ros/jazzy/setup.bash
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+colcon build --symlink-install
+source install/setup.bash
+```
+
 ## Package Contents
 
 - `cororos2_nav2_slam.launch.xml`
@@ -15,7 +28,7 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 1. Start the robot in Gazebo:
 
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=true
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe rviz:=true
    ```
 
 2. Run Nav2 with SLAM:
@@ -61,7 +74,7 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 
    ```bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
-     robot_model:=<robot_model> \
+     robot_model:=joe \
      use_sim_time:=true \
      use_twist_mux:=false \
      slam_mode:=localization \
