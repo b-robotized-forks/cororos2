@@ -33,14 +33,14 @@ diff_drive_controller:
       - front_right_wheel_joint
       - rear_right_wheel_joint
 
-    wheel_separation: 0.42
-    wheel_radius: 0.1275
+    wheel_separation: 0.51
+    wheel_radius: 0.205
     wheels_per_side: 2
 
     publish_rate: 50.0
     base_frame_id: base_footprint
     odom_frame_id: odom
-    enable_odom_tf: false
+    enable_odom_tf: true
     cmd_vel_timeout: 0.5
 
     velocity_rolling_window_size: 10
@@ -49,7 +49,7 @@ diff_drive_controller:
     open_loop: false
 
     linear.x.has_velocity_limits: true
-    linear.x.max_velocity: 2.5
+    linear.x.max_velocity: 2.8
     linear.x.has_acceleration_limits: true
     linear.x.max_acceleration: 2.0
 

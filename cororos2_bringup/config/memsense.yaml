@@ -17,5 +17,12 @@
     serial_path_msimu3025: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
     frame_id: imu_sensor_link
     imu_topic: msimu3025_raw
+    filtered_imu_topic: data
     magnetic_topic: msimu3025_magnetic
     temperature_topic: msimu3025_temperature
+    publish_orientation: true
+    magnetic_declination_radians: 0.0
+    orientation_smoothing_gain: 0.2
+    acceleration_magnitude_tolerance: 3.0
+    orientation_roll_pitch_variance: 0.05
+    orientation_yaw_variance: 0.1

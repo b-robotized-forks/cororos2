@@ -254,7 +254,7 @@ To start one of the robots, use one of the following launch files:
    Common examples:
 
    ```bash
-   ros2 topic echo /<robot_model>/imu/msimu3025_raw --once
+   ros2 topic echo /<robot_model>/imu/data --once
    ros2 topic echo /<robot_model>/gps/fix --once
    ros2 topic echo /<robot_model>/lidar/scan --once
    ```

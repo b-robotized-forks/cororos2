@@ -81,6 +81,55 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
    In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
    Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
 
+## Fused odometry
+
+Navigation consumes `/odometry/filtered` by default. The bringup launch decides what publishes that topic, so Nav2 can use the same odometry topic whether the EKF is enabled or disabled.
+
+Hardware bringup enables fused odometry by default:
+
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe
+```
+
+Gazebo and offline/mock bringup default to the raw-odom fallback. To enable fused odometry in Gazebo, pass:
+
+```bash
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe use_fused_odometry:=true
+```
+
+Defaults by launch:
+
+- Hardware: `use_fused_odometry:=true`
+- Gazebo: `use_fused_odometry:=false`
+- Offline/mock: `use_fused_odometry:=false`
+
+When fused odometry is enabled, `robot_localization` fuses wheel odometry and IMU data:
+
+- Hardware: `/diff_drive_controller/odom` + `/<robot_model>/imu/data` -> `/odometry/filtered`
+- Gazebo: `/diff_drive_controller/odom` + `/<robot_model>/imu/data` -> `/odometry/filtered`
+
+On hardware, `/<robot_model>/imu/data` is the Memsense driver topic with estimated orientation. In Gazebo, `/<robot_model>/imu/data` is the simulated IMU topic bridged from Gazebo, which already includes orientation.
+
+The EKF publishes the `odom -> base_footprint` transform. The diff-drive controller still publishes raw wheel odometry on `/diff_drive_controller/odom`, but it does not publish the odom TF in this mode.
+
+To run hardware without the EKF, disable fused odometry:
+
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe use_fused_odometry:=false
+```
+
+In fallback mode, raw wheel odometry is relayed from `/diff_drive_controller/odom` to `/odometry/filtered`, and the diff-drive controller publishes `odom -> base_footprint`. This is already the default for Gazebo and offline/mock bringup.
+
+Useful checks:
+
+```bash
+ros2 topic echo /odometry/filtered --once
+ros2 topic echo /<robot_model>/imu/data --once
+ros2 run tf2_ros tf2_echo odom base_footprint
+```
+
+You normally do not launch `cororos2_localization.launch.xml` manually. It is included automatically by `robot_gz.launch.xml`, `cororos2_hw.launch.xml`, and `cororos2_offline.launch.xml`.
+
 ## Velocity command flow
 
 The navigation launch files publish stamped velocity commands. Start `cororos2_teleop_mux.launch.xml` in a second terminal to run `twist_mux` and optional joystick teleop:

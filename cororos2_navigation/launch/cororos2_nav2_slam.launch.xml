@@ -34,6 +34,9 @@
   <arg name="scan_topic"
        default=""
        description="Optional LaserScan topic override. Defaults to /&lt;robot_model&gt;/lidar/scan." />
+  <arg name="odom_topic"
+       default="/odometry/filtered"
+       description="Odometry topic used by Nav2. Defaults to fused odometry from robot_localization." />
   <arg name="use_twist_mux"
        default="true"
        description="Send Nav2 commands to twist_mux input instead of directly to the diff-drive controller." />
@@ -45,6 +48,8 @@
        value="$(eval '\'localization_slam_toolbox_node\' if \'$(var slam_mode)\' == \'localization\' else \'sync_slam_toolbox_node\'')" />
   <let name="selected_scan_topic"
        value="$(eval '\'$(var scan_topic)\' if \'$(var scan_topic)\' != \'\' else \'/$(var robot_model)/lidar/scan\'')" />
+  <let name="selected_odom_topic"
+       value="$(var odom_topic)" />
 
   <let name="slam_params" value="$(find-pkg-share $(var config_package))/config/$(var slam_config_file)" />
   <node name="slam_toolbox"
