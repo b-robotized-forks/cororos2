@@ -20,25 +20,25 @@
         </geometry>
       </collision>
       <collision name="front_left_wheel_mount_collision">
-        <origin xyz="0.17 0.12 0" rpy="0 0 0"/>
+        <origin xyz="0.17 0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
       </collision>
       <collision name="front_right_wheel_mount_collision">
-        <origin xyz="0.17 -0.12 0" rpy="0 0 0"/>
+        <origin xyz="0.17 -0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
       </collision>
       <collision name="rear_left_wheel_mount_collision">
-        <origin xyz="-0.17 0.12 0" rpy="0 0 0"/>
+        <origin xyz="-0.17 0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
       </collision>
       <collision name="rear_right_wheel_mount_collision">
-        <origin xyz="-0.17 -0.12 0" rpy="0 0 0"/>
+        <origin xyz="-0.17 -0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
@@ -66,7 +66,7 @@
         </material>
       </visual>
       <visual name="front_left_wheel_mount_visual">
-        <origin xyz="0.17 0.12 0" rpy="0 0 0"/>
+        <origin xyz="0.17 0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
@@ -75,7 +75,7 @@
         </material>
       </visual>
       <visual name="front_right_wheel_mount_visual">
-        <origin xyz="0.17 -0.12 0" rpy="0 0 0"/>
+        <origin xyz="0.17 -0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
@@ -84,7 +84,7 @@
         </material>
       </visual>
       <visual name="rear_left_wheel_mount_visual">
-        <origin xyz="-0.17 0.12 0" rpy="0 0 0"/>
+        <origin xyz="-0.17 0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
@@ -93,7 +93,7 @@
         </material>
       </visual>
       <visual name="rear_right_wheel_mount_visual">
-        <origin xyz="-0.17 -0.12 0" rpy="0 0 0"/>
+        <origin xyz="-0.17 -0.22 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
