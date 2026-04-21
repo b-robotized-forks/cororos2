@@ -20,10 +20,15 @@
   <xacro:arg name="pwm_min" default="${pwm_config['pwm_min']}"/>
   <xacro:arg name="pwm_neutral" default="${pwm_config['pwm_neutral']}"/>
   <xacro:arg name="pwm_max" default="${pwm_config['pwm_max']}"/>
+  <xacro:arg name="min_active_pwm_delta" default="${pwm_config['min_active_pwm_delta']}"/>
   <xacro:arg name="wheel_radius" default="${pwm_config['wheel_radius']}"/>
   <xacro:arg name="max_wheel_speed_mps" default="${pwm_config['max_wheel_speed_mps']}"/>
   <xacro:arg name="invert_left" default="${pwm_config['invert_left']}"/>
   <xacro:arg name="invert_right" default="${pwm_config['invert_right']}"/>
+  <xacro:arg name="invert_fl" default="${pwm_config.get('invert_fl', pwm_config['invert_left'])}"/>
+  <xacro:arg name="invert_fr" default="${pwm_config.get('invert_fr', pwm_config['invert_right'])}"/>
+  <xacro:arg name="invert_rl" default="${pwm_config.get('invert_rl', pwm_config['invert_left'])}"/>
+  <xacro:arg name="invert_rr" default="${pwm_config.get('invert_rr', pwm_config['invert_right'])}"/>
 
   <xacro:include filename="$(find cororos2_description)/urdf/allie/allie_macro.xacro"/>
   <xacro:include filename="$(find cororos2_description)/urdf/allie/allie_macro.ros2_control.xacro"/>
@@ -61,9 +66,14 @@
     pwm_min="$(arg pwm_min)"
     pwm_neutral="$(arg pwm_neutral)"
     pwm_max="$(arg pwm_max)"
+    min_active_pwm_delta="$(arg min_active_pwm_delta)"
     wheel_radius="$(arg wheel_radius)"
     max_wheel_speed_mps="$(arg max_wheel_speed_mps)"
     invert_left="$(arg invert_left)"
-    invert_right="$(arg invert_right)"/>
+    invert_right="$(arg invert_right)"
+    invert_fl="$(arg invert_fl)"
+    invert_fr="$(arg invert_fr)"
+    invert_rl="$(arg invert_rl)"
+    invert_rr="$(arg invert_rr)"/>
 
 </robot>

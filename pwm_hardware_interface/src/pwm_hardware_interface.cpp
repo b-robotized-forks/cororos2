@@ -128,6 +128,34 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
     return true;
   };
 
+  const auto parse_optional_parameter = [this, &hardware_parameters](
+                                          const char * key, const char * expected_description,
+                                          auto parser, auto & output) -> bool
+  {
+    const auto iterator = hardware_parameters.find(key);
+    if (iterator == hardware_parameters.end())
+    {
+      return true;
+    }
+
+    try
+    {
+      output = parser(iterator->second);
+    }
+    catch (const std::exception & error)
+    {
+      RCLCPP_ERROR(
+        get_logger(), "Invalid hardware parameter '%s' value '%s': %s. Expected %s.", key,
+        iterator->second.c_str(), error.what(), expected_description);
+      return false;
+    }
+
+    return true;
+  };
+
+  const char * bool_description =
+    "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off";
+
   if (
     !parse_required_parameter(
       "device_path", "a non-empty string", parse_non_empty_string, device_path_) ||
@@ -138,12 +166,11 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
       "wheel_radius", "a floating-point number", parse_double, wheel_radius_) ||
     !parse_required_parameter(
       "max_wheel_speed_mps", "a floating-point number", parse_double, max_wheel_speed_mps_) ||
+    !parse_optional_parameter(
+      "min_active_pwm_delta", "a non-negative integer", parse_int, min_active_pwm_delta_) ||
+    !parse_required_parameter("invert_left", bool_description, parse_flexible_bool, invert_left_) ||
     !parse_required_parameter(
-      "invert_left", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, invert_left_) ||
-    !parse_required_parameter(
-      "invert_right", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, invert_right_) ||
+      "invert_right", bool_description, parse_flexible_bool, invert_right_) ||
     !parse_required_parameter(
       "channel_fl", "an integer in the range [0, 255]", parse_channel, channels_[0]) ||
     !parse_required_parameter(
@@ -156,9 +183,33 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  invert_wheels_ = {invert_left_, invert_right_, invert_left_, invert_right_};
+  if (
+    !parse_optional_parameter(
+      "invert_fl", bool_description, parse_flexible_bool, invert_wheels_[0]) ||
+    !parse_optional_parameter(
+      "invert_fr", bool_description, parse_flexible_bool, invert_wheels_[1]) ||
+    !parse_optional_parameter(
+      "invert_rl", bool_description, parse_flexible_bool, invert_wheels_[2]) ||
+    !parse_optional_parameter(
+      "invert_rr", bool_description, parse_flexible_bool, invert_wheels_[3]))
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
   if (!(pwm_min_ < pwm_neutral_ && pwm_neutral_ < pwm_max_))
   {
     RCLCPP_ERROR(get_logger(), "Expected pwm_min < pwm_neutral < pwm_max.");
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+  const int forward_span = pwm_max_ - pwm_neutral_;
+  const int reverse_span = pwm_neutral_ - pwm_min_;
+  if (
+    min_active_pwm_delta_ < 0 || min_active_pwm_delta_ >= forward_span ||
+    min_active_pwm_delta_ >= reverse_span)
+  {
+    RCLCPP_ERROR(
+      get_logger(), "min_active_pwm_delta must be non-negative and smaller than both PWM spans.");
     return hardware_interface::CallbackReturn::ERROR;
   }
   if (wheel_radius_ <= 0.0 || max_wheel_speed_mps_ <= 0.0)
@@ -323,10 +374,10 @@ hardware_interface::return_type PwmHardwareInterface::write(
     return hardware_interface::return_type::ERROR;
   }
 
-  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_left_);
-  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_right_);
-  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_left_);
-  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_right_);
+  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_wheels_[0]);
+  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_wheels_[1]);
+  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_wheels_[2]);
+  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_wheels_[3]);
 
   last_pwm_ = {front_left_pwm, front_right_pwm, rear_left_pwm, rear_right_pwm};
 
@@ -351,15 +402,23 @@ int16_t PwmHardwareInterface::speed_to_pwm(double wheel_velocity_rad_s, bool inv
   }
 
   const double normalized = clamp_value(wheel_speed_mps / max_wheel_speed_mps_, -1.0, 1.0);
+  if (std::abs(normalized) < 1e-6)
+  {
+    return static_cast<int16_t>(pwm_neutral_);
+  }
 
   if (normalized >= 0.0)
   {
     const double span = static_cast<double>(pwm_max_ - pwm_neutral_);
-    return static_cast<int16_t>(std::lround(pwm_neutral_ + normalized * span));
+    const double scaled_span =
+      static_cast<double>(min_active_pwm_delta_) + normalized * (span - min_active_pwm_delta_);
+    return static_cast<int16_t>(std::lround(pwm_neutral_ + scaled_span));
   }
 
   const double span = static_cast<double>(pwm_neutral_ - pwm_min_);
-  return static_cast<int16_t>(std::lround(pwm_neutral_ + normalized * span));
+  const double scaled_span = static_cast<double>(min_active_pwm_delta_) +
+                             std::abs(normalized) * (span - min_active_pwm_delta_);
+  return static_cast<int16_t>(std::lround(pwm_neutral_ - scaled_span));
 }
 
 bool PwmHardwareInterface::start_backend()

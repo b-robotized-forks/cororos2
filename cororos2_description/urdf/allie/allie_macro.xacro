@@ -12,18 +12,39 @@
         <mass value="26.6" />
         <inertia ixx="0.387" ixy="0" ixz="0" iyy="0.790" iyz="0" izz="0.962" />
       </inertial>
-      <collision name="chassis_collision">
+
+      <!-- collisions -->
+      <collision name="chassis_main_collision">
         <origin xyz="0 0 0.05" rpy="0 0 0" />
         <geometry>
           <box size="0.555 0.355 0.13" />
         </geometry>
       </collision>
-      <collision name="tower_collision">
-        <origin xyz="0.13 0 0.27" rpy="0 0 0" />
+      <collision name="emergency_stop_bottom_collision">
+        <origin xyz="0.2 0.15 0.125" rpy="0 0 0" />
         <geometry>
-          <box size="0.2 0.2 0.34" />
+          <cylinder radius="0.015" length="0.015" />
         </geometry>
       </collision>
+      <collision name="emergency_stop_top_collision">
+        <origin xyz="0.2 0.15 0.135" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.02" length="0.005" />
+        </geometry>
+      </collision>
+      <collision name="wheel_mount_front_collision">
+        <origin xyz="0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.52 0.05" />
+        </geometry>
+      </collision>
+      <collision name="wheel_mount_rear_collision">
+        <origin xyz="-0.249 0 0.011" rpy="0 0 0" />
+        <geometry>
+          <box size="0.05 0.52 0.05" />
+        </geometry>
+      </collision>
+      <!-- visuals -->
       <visual name="chassis_main_visual">
         <origin xyz="0 0 0.05" rpy="0 0 0" />
         <geometry>
@@ -54,7 +75,7 @@
       <visual name="wheel_mount_front_visual">
         <origin xyz="0.249 0 0.011" rpy="0 0 0" />
         <geometry>
-          <box size="0.05 0.5 0.05" />
+          <box size="0.05 0.52 0.05" />
         </geometry>
         <material name="wheel_mount_front_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0" />
@@ -63,72 +84,75 @@
       <visual name="wheel_mount_rear_visual">
         <origin xyz="-0.249 0 0.011" rpy="0 0 0" />
         <geometry>
-          <box size="0.05 0.5 0.05" />
+          <box size="0.05 0.52 0.05" />
         </geometry>
         <material name="wheel_mount_rear_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0" />
         </material>
       </visual>
-      <visual name="plate1_visual">
-        <origin xyz="0.13 0 0.42" rpy="0 0 0" />
+      <visual name="ouster_deck_visual">
+        <origin xyz="0.175 0.01 0.3625" rpy="0 0 0" />
         <geometry>
-          <box size="0.2 0.2 0.005" />
+          <box size="0.24 0.18 0.012" />
         </geometry>
-        <material name="plate1_visual_mat">
+        <material name="ouster_deck_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0" />
-        </material>
-      </visual>
-      <visual name="plate2_visual">
-        <origin xyz="0.13 0 0.31" rpy="0 0 0" />
-        <geometry>
-          <box size="0.2 0.2 0.005" />
-        </geometry>
-        <material name="plate2_visual_mat">
-          <color rgba="0.7843 0.7843 0.7843 1.0" />
-        </material>
-      </visual>
-      <visual name="plate3_visual">
-        <origin xyz="0.13 0 0.12" rpy="0 0 0" />
-        <geometry>
-          <box size="0.2 0.2 0.005" />
-        </geometry>
-        <material name="plate3_visual_mat">
-          <color rgba="0.9412 0.9412 0.9412 1.0" />
         </material>
       </visual>
       <visual name="beam1_visual">
-        <origin xyz="0.221 0.091 0.27" rpy="0 0 0" />
+        <origin xyz="0.255 0.07 0.24375" rpy="0 0 0" />
         <geometry>
-          <box size="0.02 0.02 0.3" />
+          <box size="0.018 0.018 0.2375" />
         </geometry>
-        <material name="beam1_visual_mat">
+        <material name="beam_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0" />
         </material>
       </visual>
       <visual name="beam2_visual">
-        <origin xyz="0.221 -0.091 0.27" rpy="0 0 0" />
+        <origin xyz="0.255 -0.05 0.24375" rpy="0 0 0" />
         <geometry>
-          <box size="0.02 0.02 0.3" />
+          <box size="0.018 0.018 0.2375" />
         </geometry>
-        <material name="beam2_visual_mat">
-          <color rgba="0.7843 0.7843 0.7843 1.0" />
-        </material>
+        <material name="beam_visual_mat" />
       </visual>
       <visual name="beam3_visual">
-        <origin xyz="0.039 0.091 0.27" rpy="0 0 0" />
+        <origin xyz="0.095 0.07 0.24375" rpy="0 0 0" />
         <geometry>
-          <box size="0.02 0.02 0.3" />
+          <box size="0.018 0.018 0.2375" />
         </geometry>
-        <material name="beam3_visual_mat">
+        <material name="beam_visual_mat" />
+      </visual>
+      <visual name="beam4_visual">
+        <origin xyz="0.095 -0.05 0.24375" rpy="0 0 0" />
+        <geometry>
+          <box size="0.018 0.018 0.2375" />
+        </geometry>
+        <material name="beam_visual_mat" />
+      </visual>
+      <visual name="sensor_mast_visual">
+        <origin xyz="0.255 0.07 1.01625" rpy="0 0 0" />
+        <geometry>
+          <box size="0.025 0.025 1.3175" />
+        </geometry>
+        <material name="sensor_mast_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0" />
         </material>
       </visual>
-      <visual name="beam4_visual">
-        <origin xyz="0.039 -0.091 0.27" rpy="0 0 0" />
+      <visual name="camera_plate_visual">
+        <origin xyz="0.2745 0.01 1.548" rpy="0 0 0" />
         <geometry>
-          <box size="0.02 0.02 0.3" />
+          <box size="0.095 0.16 0.012" />
         </geometry>
-        <material name="beam4_visual_mat">
+        <material name="camera_plate_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0" />
+        </material>
+      </visual>
+      <visual name="gps_board_visual">
+        <origin xyz="0.27 0.09 1.675" rpy="0 0 0" />
+        <geometry>
+          <box size="0.12 0.08 0.012" />
+        </geometry>
+        <material name="gps_board_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0" />
         </material>
       </visual>
@@ -141,16 +165,16 @@
         <mass value="5.124" />
         <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
       </inertial>
-      <collision name="front_left_wheel_collision">
+      <collision name="front_left_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="-1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="front_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -161,16 +185,16 @@
         <mass value="5.124" />
         <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
       </inertial>
-      <collision name="front_right_wheel_collision">
+      <collision name="front_right_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="front_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -181,16 +205,16 @@
         <mass value="5.124" />
         <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
       </inertial>
-      <collision name="rear_left_wheel_collision">
+      <collision name="rear_left_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="-1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="rear_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -201,16 +225,16 @@
         <mass value="5.124" />
         <inertia ixx="0.0576" ixy="0" ixz="0" iyy="0.105" iyz="0" izz="0.0576" />
       </inertial>
-      <collision name="rear_right_wheel_collision">
+      <collision name="rear_right_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="rear_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -230,6 +254,51 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="gps_base_collision">
+        <origin xyz="0 0 0.012" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.028" length="0.024" />
+        </geometry>
+      </collision>
+      <collision name="gps_cap_collision">
+        <origin xyz="0 0 0.028" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="0.016" />
+        </geometry>
+      </collision>
+      <collision name="gps_antenna_tip_collision">
+        <origin xyz="0 0 0.060" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.0035" length="0.024" />
+        </geometry>
+      </collision>
+      <visual name="gps_base_visual">
+        <origin xyz="0 0 0.012" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.028" length="0.024" />
+        </geometry>
+        <material name="gps_base_visual_mat">
+          <color rgba="0.92 0.92 0.92 1.0" />
+        </material>
+      </visual>
+      <visual name="gps_cap_visual">
+        <origin xyz="0 0 0.028" rpy="0 0 0" />
+        <geometry>
+          <sphere radius="0.016" />
+        </geometry>
+        <material name="gps_cap_visual_mat">
+          <color rgba="0.96 0.96 0.96 1.0" />
+        </material>
+      </visual>
+      <visual name="gps_antenna_tip_visual">
+        <origin xyz="0 0 0.060" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.0035" length="0.024" />
+        </geometry>
+        <material name="gps_antenna_tip_visual_mat">
+          <color rgba="0.2 0.2 0.2 1.0" />
+        </material>
+      </visual>
     </link>
     <!-- front RGB-D camera frame -->
     <link name="${prefix}rgbd_front_link">
@@ -238,6 +307,12 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="d435i_realsense_camera_collision">
+        <origin xyz="-0.017356 0 -0.009938" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/allie/visual/realsense_d435.dae" scale="0.001 0.001 0.001" />
+        </geometry>
+      </collision>
       <visual name="d435i_realsense_camera_visual">
         <origin xyz="-0.017356 0 -0.009938" rpy="0 0 0" />
         <geometry>
@@ -252,6 +327,18 @@
         <mass value="1e-6" />
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9" />
       </inertial>
+      <collision name="ouster_body_collision">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.055" length="0.075" />
+        </geometry>
+      </collision>
+      <collision name="ouster_window_collision">
+        <origin xyz="0.042 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.008 0.09 0.035" />
+        </geometry>
+      </collision>
       <visual name="ouster_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -293,7 +380,7 @@
     <joint name="${prefix}base_footprint_to_base_link" type="fixed">
       <parent link="${prefix}base_footprint" />
       <child link="${prefix}base_link" />
-      <origin xyz="0 0 0.205" rpy="0 0 0" />
+      <origin xyz="0 0 0.2" rpy="0 0 0" />
     </joint>
     <!-- wheel joints -->
     <!-- front left wheel joint -->
@@ -333,25 +420,25 @@
     <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}imu_sensor_link" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 -0.025" rpy="0 0 0" />
     </joint>
     <!-- base link to GPS frame -->
     <joint name="${prefix}base_link_to_gps_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}gps_link" />
-      <origin xyz="0.13 0 1.58" rpy="0 0 0" />
+      <origin xyz="0.27 0.09 1.681" rpy="0 0 0" />
     </joint>
     <!-- base link to front RGB-D camera frame -->
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}rgbd_front_link" />
-      <origin xyz="0.21 0 1.5" rpy="0 0.5236 0" />
+      <origin xyz="0.34 0.01 1.545" rpy="0 0.5236 0" />
     </joint>
     <!-- base link to Ouster sensor frame -->
     <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}ouster_link" />
-      <origin xyz="0.13 0 0.35" rpy="0 -0 0" />
+      <origin xyz="0.16 0 0.405" rpy="0 0 0" />
     </joint>
     <!-- Ouster sensor frame to Ouster IMU frame -->
     <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
@@ -359,6 +446,7 @@
       <child link="${prefix}ouster_imu_link" />
       <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
+
     <!-- GAZEBO EXTENSIONS -->
     <!-- sensor definitions -->
     <gazebo reference="${prefix}imu_sensor_link">

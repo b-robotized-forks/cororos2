@@ -16,7 +16,7 @@ device: /dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00
 baud: 115200
 address: 128
 use_encoder: false
-max_speed: 1.2
+max_speed: 1.0
 ticks_at_max_speed: 32760.0
 acceleration: 32000
 ticks_per_meter: 4342.2

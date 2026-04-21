@@ -310,7 +310,6 @@ This is useful for base controller testing in both simulation (mock/Gazebo) and 
 ## Navigation
 
 For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
-
 ## Hardware bringup notes
 
 The following hardware drivers are integrated into `cororos2_hw.launch.xml`:

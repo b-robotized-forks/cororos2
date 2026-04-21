@@ -49,11 +49,11 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Start the Memsense MS-IMU3025 driver."/>
 
   <!-- runtime-selectable sensor device selectors -->
-  <arg name="ouster_sensor_hostname" default="" description="Sensor hostname or IP for the Ouster OS0-128."/>
-  <arg name="ouster_udp_dest" default="" description="Destination IP for Ouster UDP packets."/>
+  <arg name="ouster_sensor_hostname" default="169.254.148.98" description="Sensor hostname or IP for the Ouster OS0-128."/>
+  <arg name="ouster_udp_dest" default="169.254.240.178" description="Destination IP for Ouster UDP packets."/>
   <arg name="velodyne_device_ip" default="" description="Optional device IP used to filter Velodyne packets from the VLP-16."/>
   <arg name="realsense_serial_no" default="''" description="Optional RealSense serial number used to select the D455 device."/>
-  <arg name="gps_device" default="/dev/ttyACM0" description="Serial device used by the u-blox ZED-F9P receiver."/>
+  <arg name="gps_device" default="/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00" description="Serial device used by the u-blox ZED-F9P receiver."/>
   <arg name="memsense_device" default="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0" description="Serial device used by the Memsense MS-IMU3025 receiver."/>
 
   <group if="$(eval '\'$(var robot_model)\' == \'allie\' or \'$(var robot_model)\' == \'cornelius\'')">
@@ -64,7 +64,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="viz" value="false"/>
       <arg name="pub_static_tf" value="false"/>
       <arg name="point_type" value="xyzir"/>
-      <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
+      <arg name="timestamp_mode" value="TIME_FROM_ROS_RECEPTION"/>
       <arg name="lidar_mode" value="1024x10"/>
       <arg name="lidar_port" value="7502"/>
       <arg name="imu_port" value="7503"/>

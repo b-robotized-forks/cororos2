@@ -67,7 +67,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <!-- runtime-selectable hardware identifiers -->
   <arg name="pwm_device_path"
-       default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00467337-if00"
+       default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00"
        description="Serial device used by the Maestro PWM controller."/>
   <arg name="roboclaw_device"
        default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
