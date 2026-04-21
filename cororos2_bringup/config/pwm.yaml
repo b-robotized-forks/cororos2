@@ -20,7 +20,7 @@ channel_rr: 3
 pwm_min: 1000
 pwm_neutral: 1500
 pwm_max: 2000
-wheel_radius: 0.205
+wheel_radius: 0.2
 max_wheel_speed_mps: 2.8
 invert_left: false
 invert_right: false

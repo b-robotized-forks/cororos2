@@ -31,8 +31,8 @@ diff_drive_controller:
     right_wheel_names:
       - right_track_joint
 
-    wheel_separation: 0.52
-    wheel_radius: 0.129
+    wheel_separation: 0.365
+    wheel_radius: 0.13
     wheels_per_side: 1
 
     publish_rate: 50.0

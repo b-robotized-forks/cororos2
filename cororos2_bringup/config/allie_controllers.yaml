@@ -34,7 +34,7 @@ diff_drive_controller:
       - rear_right_wheel_joint
 
     wheel_separation: 0.51
-    wheel_radius: 0.205
+    wheel_radius: 0.2
     wheels_per_side: 2
 
     publish_rate: 50.0
