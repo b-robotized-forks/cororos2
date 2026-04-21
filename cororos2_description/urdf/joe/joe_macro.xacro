@@ -1,26 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:macro name="joe" params="prefix parent *origin">
+    <!-- LINKS -->
     <link name="${prefix}base_footprint"/>
 
+    <!-- base link -->
     <link name="${prefix}base_link">
       <inertial>
         <origin xyz="0 0 0.09" rpy="0 0 0"/>
         <mass value="26.6"/>
         <inertia ixx="0.387" ixy="0" ixz="0" iyy="0.790" iyz="0" izz="0.962"/>
       </inertial>
-      <collision name="chassis_collision">
-        <origin xyz="0 0 0.05" rpy="0 0 0"/>
+
+      <!-- collisions -->
+      <collision name="chassis_main_collision">
+        <origin xyz="0 0 0.07" rpy="0 0 0"/>
         <geometry>
-          <box size="0.555 0.355 0.13"/>
+          <box size="0.38 0.3 0.13"/>
         </geometry>
       </collision>
-      <collision name="tower_collision">
-        <origin xyz="0.13 0 0.27" rpy="0 0 0"/>
+      <collision name="front_left_wheel_mount_collision">
+        <origin xyz="0.17 0.12 0" rpy="0 0 0"/>
         <geometry>
-          <box size="0.2 0.2 0.34"/>
+          <box size="0.03 0.06 0.02"/>
         </geometry>
       </collision>
+      <collision name="front_right_wheel_mount_collision">
+        <origin xyz="0.17 -0.12 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.06 0.02"/>
+        </geometry>
+      </collision>
+      <collision name="rear_left_wheel_mount_collision">
+        <origin xyz="-0.17 0.12 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.06 0.02"/>
+        </geometry>
+      </collision>
+      <collision name="rear_right_wheel_mount_collision">
+        <origin xyz="-0.17 -0.12 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.03 0.06 0.02"/>
+        </geometry>
+      </collision>
+      <collision name="emergency_stop_bottom_collision">
+        <origin xyz="0.11 0.125 0.145" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.015" length="0.015"/>
+        </geometry>
+      </collision>
+      <collision name="emergency_stop_top_collision">
+        <origin xyz="0.11 0.125 0.155" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.02" length="0.005"/>
+        </geometry>
+      </collision>
+      <!-- visuals -->
       <visual name="chassis_main_visual">
         <origin xyz="0 0 0.07" rpy="0 0 0"/>
         <geometry>
@@ -30,39 +65,39 @@
           <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
-      <visual name="wheel_mount_visual_front_left">
+      <visual name="front_left_wheel_mount_visual">
         <origin xyz="0.17 0.12 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
-        <material name="wheel_mount_visual_front_left_mat">
+        <material name="front_left_wheel_mount_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
-      <visual name="wheel_mount_visual_front_right">
+      <visual name="front_right_wheel_mount_visual">
         <origin xyz="0.17 -0.12 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
-        <material name="wheel_mount_visual_front_right_mat">
+        <material name="front_right_wheel_mount_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
-      <visual name="wheel_mount_visual_rear_left">
+      <visual name="rear_left_wheel_mount_visual">
         <origin xyz="-0.17 0.12 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
-        <material name="wheel_mount_visual_rear_left_mat">
+        <material name="rear_left_wheel_mount_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
-      <visual name="wheel_mount_visual_rear_right">
+      <visual name="rear_right_wheel_mount_visual">
         <origin xyz="-0.17 -0.12 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.03 0.06 0.02"/>
         </geometry>
-        <material name="wheel_mount_visual_rear_right_mat">
+        <material name="rear_right_wheel_mount_visual_mat">
           <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
@@ -84,30 +119,30 @@
           <color rgba="1.0 0.0 0.0 1.0"/>
         </material>
       </visual>
-      <visual name="plate1_visual">
+      <visual name="sensor_upper_deck_visual">
         <origin xyz="0 0 0.435" rpy="0 0 0"/>
         <geometry>
           <box size="0.2 0.2 0.005"/>
         </geometry>
-        <material name="plate1_visual_mat">
+        <material name="sensor_upper_deck_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0"/>
         </material>
       </visual>
-      <visual name="plate2_visual">
+      <visual name="sensor_mid_deck_visual">
         <origin xyz="0 0 0.325" rpy="0 0 0"/>
         <geometry>
           <box size="0.2 0.2 0.005"/>
         </geometry>
-        <material name="plate2_visual_mat">
+        <material name="sensor_mid_deck_visual_mat">
           <color rgba="0.7843 0.7843 0.7843 1.0"/>
         </material>
       </visual>
-      <visual name="plate3_visual">
+      <visual name="sensor_lower_deck_visual">
         <origin xyz="0 0 0.135" rpy="0 0 0"/>
         <geometry>
           <box size="0.2 0.2 0.005"/>
         </geometry>
-        <material name="plate3_visual_mat">
+        <material name="sensor_lower_deck_visual_mat">
           <color rgba="0.9412 0.9412 0.9412 1.0"/>
         </material>
       </visual>
@@ -147,15 +182,43 @@
           <color rgba="0.7843 0.7843 0.7843 1.0"/>
         </material>
       </visual>
+      <visual name="sensor_mast_visual">
+        <origin xyz="0 0 1.0125" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.025 0.025 1.125"/>
+        </geometry>
+        <material name="sensor_mast_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0"/>
+        </material>
+      </visual>
+      <visual name="camera_plate_visual">
+        <origin xyz="0.035 0 1.521" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.11 0.12 0.012"/>
+        </geometry>
+        <material name="camera_plate_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0"/>
+        </material>
+      </visual>
+      <visual name="gps_board_visual">
+        <origin xyz="0 0 1.57" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.14 0.10 0.012"/>
+        </geometry>
+        <material name="gps_board_visual_mat">
+          <color rgba="0.7843 0.7843 0.7843 1.0"/>
+        </material>
+      </visual>
     </link>
 
+    <!-- drive wheels -->
     <link name="${prefix}front_left_wheel">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="5.0"/>
         <inertia ixx="0.0153" ixy="0" ixz="0" iyy="0.025" iyz="0" izz="0.0153"/>
       </inertial>
-      <collision name="front_left_wheel_collision">
+      <collision name="front_left_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0"/>
         <geometry>
           <cylinder radius="0.15" length="0.075"/>
@@ -184,7 +247,7 @@
         <mass value="5.0"/>
         <inertia ixx="0.0153" ixy="0" ixz="0" iyy="0.025" iyz="0" izz="0.0153"/>
       </inertial>
-      <collision name="front_right_wheel_collision">
+      <collision name="front_right_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
           <cylinder radius="0.15" length="0.075"/>
@@ -213,7 +276,7 @@
         <mass value="5.0"/>
         <inertia ixx="0.0153" ixy="0" ixz="0" iyy="0.025" iyz="0" izz="0.0153"/>
       </inertial>
-      <collision name="rear_left_wheel_collision">
+      <collision name="rear_left_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0"/>
         <geometry>
           <cylinder radius="0.15" length="0.075"/>
@@ -242,7 +305,7 @@
         <mass value="5.0"/>
         <inertia ixx="0.0153" ixy="0" ixz="0" iyy="0.025" iyz="0" izz="0.0153"/>
       </inertial>
-      <collision name="rear_right_wheel_collision">
+      <collision name="rear_right_wheel_tire_collision">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
           <cylinder radius="0.15" length="0.075"/>
@@ -265,6 +328,7 @@
       </visual>
     </link>
 
+    <!-- sensor and light frames -->
     <link name="${prefix}imu_sensor_link">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -279,6 +343,51 @@
         <mass value="1e-6"/>
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
       </inertial>
+      <collision name="gps_base_collision">
+        <origin xyz="0 0 0.012" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.028" length="0.024"/>
+        </geometry>
+      </collision>
+      <collision name="gps_cap_collision">
+        <origin xyz="0 0 0.028" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="0.016"/>
+        </geometry>
+      </collision>
+      <collision name="gps_antenna_tip_collision">
+        <origin xyz="0 0 0.060" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.0035" length="0.024"/>
+        </geometry>
+      </collision>
+      <visual name="gps_base_visual">
+        <origin xyz="0 0 0.012" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.028" length="0.024"/>
+        </geometry>
+        <material name="gps_base_visual_mat">
+          <color rgba="0.92 0.92 0.92 1.0"/>
+        </material>
+      </visual>
+      <visual name="gps_cap_visual">
+        <origin xyz="0 0 0.028" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="0.016"/>
+        </geometry>
+        <material name="gps_cap_visual_mat">
+          <color rgba="0.96 0.96 0.96 1.0"/>
+        </material>
+      </visual>
+      <visual name="gps_antenna_tip_visual">
+        <origin xyz="0 0 0.060" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.0035" length="0.024"/>
+        </geometry>
+        <material name="gps_antenna_tip_visual_mat">
+          <color rgba="0.2 0.2 0.2 1.0"/>
+        </material>
+      </visual>
     </link>
 
     <link name="${prefix}rgbd_front_link">
@@ -287,6 +396,12 @@
         <mass value="1e-6"/>
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
       </inertial>
+      <collision name="d435i_realsense_camera_collision">
+        <origin xyz="-0.03 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/realsense_d435.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
       <visual name="d435i_realsense_camera_visual">
         <origin xyz="-0.03 0 0" rpy="0 0 0"/>
         <geometry>
@@ -301,6 +416,24 @@
         <mass value="1e-6"/>
         <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
       </inertial>
+      <collision name="vlp16_collision1">
+        <origin xyz="0 0 -0.038" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/VLP16_base_1.dae" scale="1 1 1"/>
+        </geometry>
+      </collision>
+      <collision name="vlp16_collision2">
+        <origin xyz="0 0 -0.038" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/VLP16_base_2.dae" scale="1 1 1"/>
+        </geometry>
+      </collision>
+      <collision name="vlp16_collision3">
+        <origin xyz="0 0 -0.038" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/VLP16_scan.dae" scale="1 1 1"/>
+        </geometry>
+      </collision>
       <visual name="vlp16_visual1">
         <origin xyz="0 0 -0.038" rpy="0 0 0"/>
         <geometry>
@@ -321,23 +454,8 @@
       </visual>
     </link>
 
-    <link name="${prefix}light_front_link">
-      <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="1e-6"/><inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/></inertial>
-      <visual name="light_front_visual"><origin xyz="-0.03 0 0" rpy="0 0 0"/><geometry><box size="0.04 0.13 0.04"/></geometry><material name="light_front_visual_mat"><color rgba="0.0 0.0 0.0 1.0"/></material></visual>
-    </link>
-    <link name="${prefix}light_rear_link">
-      <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="1e-6"/><inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/></inertial>
-      <visual name="light_rear_visual"><origin xyz="0.03 0 0" rpy="0 0 0"/><geometry><box size="0.04 0.12 0.04"/></geometry><material name="light_rear_visual_mat"><color rgba="0.0 0.0 0.0 1.0"/></material></visual>
-    </link>
-    <link name="${prefix}light_left_link">
-      <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="1e-6"/><inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/></inertial>
-      <visual name="light_left_visual"><origin xyz="0 -0.03 0" rpy="0 0 0"/><geometry><box size="0.12 0.04 0.04"/></geometry><material name="light_left_visual_mat"><color rgba="0.0 0.0 0.0 1.0"/></material></visual>
-    </link>
-    <link name="${prefix}light_right_link">
-      <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="1e-6"/><inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/></inertial>
-      <visual name="light_right_visual"><origin xyz="0 0.03 0" rpy="0 0 0"/><geometry><box size="0.12 0.04 0.04"/></geometry><material name="light_right_visual_mat"><color rgba="0.0 0.0 0.0 1.0"/></material></visual>
-    </link>
-
+    <!-- JOINTS -->
+    <!-- base joints -->
     <xacro:if value="${parent != ''}">
       <joint name="${prefix}base_joint" type="fixed">
         <xacro:insert_block name="origin"/>
@@ -352,6 +470,7 @@
       <origin xyz="0 0 0.15" rpy="0 0 0"/>
     </joint>
 
+    <!-- wheel joints -->
     <joint name="${prefix}front_left_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}front_left_wheel"/>
@@ -381,6 +500,7 @@
       <limit effort="50" velocity="19.61"/>
     </joint>
 
+    <!-- sensor and light frame joints -->
     <joint name="${prefix}base_link_to_imu_sensor_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}imu_sensor_link"/>
@@ -389,7 +509,7 @@
     <joint name="${prefix}base_link_to_gps_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}gps_link"/>
-      <origin xyz="0 0 1.58" rpy="0 0 0"/>
+      <origin xyz="0 0 1.576" rpy="0 0 0"/>
     </joint>
     <joint name="${prefix}base_link_to_rgbd_front_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
@@ -401,27 +521,6 @@
       <child link="${prefix}lidar_link"/>
       <origin xyz="0 0 0.365" rpy="0 0 0"/>
     </joint>
-    <joint name="${prefix}base_link_to_light_front_link_joint" type="fixed">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}light_front_link"/>
-      <origin xyz="0.12 0 0.457" rpy="0 -1.5707963267948966 0"/>
-    </joint>
-    <joint name="${prefix}base_link_to_light_rear_link_joint" type="fixed">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}light_rear_link"/>
-      <origin xyz="-0.12 0 0.457" rpy="0 1.5707963267948966 0"/>
-    </joint>
-    <joint name="${prefix}base_link_to_light_left_link_joint" type="fixed">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}light_left_link"/>
-      <origin xyz="0 0.12 0.457" rpy="1.5707963267948966 0 0"/>
-    </joint>
-    <joint name="${prefix}base_link_to_light_right_link_joint" type="fixed">
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}light_right_link"/>
-      <origin xyz="0 -0.12 0.457" rpy="-1.5707963267948966 0 0"/>
-    </joint>
-
     <!-- GAZEBO EXTENSIONS -->
     <!-- sensor definitions -->
     <gazebo reference="${prefix}imu_sensor_link">
