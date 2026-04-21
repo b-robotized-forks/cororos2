@@ -31,8 +31,8 @@ diff_drive_controller:
     right_wheel_names:
       - right_track_joint
 
-    wheel_separation: 0.52
-    wheel_radius: 0.129
+    wheel_separation: 0.365
+    wheel_radius: 0.13
     wheels_per_side: 1
 
     publish_rate: 50.0
@@ -48,10 +48,18 @@ diff_drive_controller:
 
     linear.x.has_velocity_limits: true
     linear.x.max_velocity: 1.0
+    linear.x.min_velocity: -1.0
     linear.x.has_acceleration_limits: true
-    linear.x.max_acceleration: 2.0
+    linear.x.max_acceleration: 15.0
+    linear.x.max_deceleration: -15.0
+    linear.x.max_acceleration_reverse: -15.0
+    linear.x.max_deceleration_reverse: 15.0
 
     angular.z.has_velocity_limits: true
-    angular.z.max_velocity: 2.0
+    angular.z.max_velocity: 3.0
+    angular.z.min_velocity: -3.0
     angular.z.has_acceleration_limits: true
-    angular.z.max_acceleration: 3.0
+    angular.z.max_acceleration: 8.0
+    angular.z.max_deceleration: -8.0
+    angular.z.max_acceleration_reverse: -8.0
+    angular.z.max_deceleration_reverse: 8.0

@@ -13,11 +13,11 @@
                roboclaw_baud:=115200
                roboclaw_address:=128
                roboclaw_use_encoder:=false
-               roboclaw_max_speed:=1.2
+               roboclaw_max_speed:=1.0
                roboclaw_ticks_at_max_speed:=32760.0
                roboclaw_acceleration:=32000
                roboclaw_ticks_per_meter:=4342.2
-               roboclaw_wheel_radius:=0.129
+               roboclaw_wheel_radius:=0.13
                roboclaw_status_interval_sec:=2.0">
 
     <ros2_control name="${name}" type="system">

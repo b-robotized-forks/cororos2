@@ -158,13 +158,13 @@
       <collision name="front_left_wheel_collision">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0"/>
         <geometry>
-          <cylinder radius="0.1275" length="0.075"/>
+          <cylinder radius="0.15" length="0.075"/>
         </geometry>
       </collision>
       <visual name="front_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="1.5708 0 0"/>
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_left.dae" scale="1.22 1.22 1.71"/>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_left.dae" scale="1.4353 1.4353 1.71"/>
         </geometry>
       </visual>
       <visual name="front_left_wheel_axle_visual">
@@ -187,13 +187,13 @@
       <collision name="front_right_wheel_collision">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
-          <cylinder radius="0.1275" length="0.075"/>
+          <cylinder radius="0.15" length="0.075"/>
         </geometry>
       </collision>
       <visual name="front_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="1.5708 0 0"/>
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_right.dae" scale="1.22 1.22 1.71"/>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_right.dae" scale="1.4353 1.4353 1.71"/>
         </geometry>
       </visual>
       <visual name="front_right_wheel_axle_visual">
@@ -216,13 +216,13 @@
       <collision name="rear_left_wheel_collision">
         <origin xyz="0 0 0" rpy="-1.5707963267948966 0 0"/>
         <geometry>
-          <cylinder radius="0.1275" length="0.075"/>
+          <cylinder radius="0.15" length="0.075"/>
         </geometry>
       </collision>
       <visual name="rear_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="1.5708 0 0"/>
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_left.dae" scale="1.22 1.22 1.71"/>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_left.dae" scale="1.4353 1.4353 1.71"/>
         </geometry>
       </visual>
       <visual name="rear_left_wheel_axle_visual">
@@ -245,13 +245,13 @@
       <collision name="rear_right_wheel_collision">
         <origin xyz="0 0 0" rpy="1.5707963267948966 0 0"/>
         <geometry>
-          <cylinder radius="0.1275" length="0.075"/>
+          <cylinder radius="0.15" length="0.075"/>
         </geometry>
       </collision>
       <visual name="rear_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="1.5708 0 0"/>
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_right.dae" scale="1.22 1.22 1.71"/>
+          <mesh filename="package://cororos2_description/meshes/joe/visual/wheel_right.dae" scale="1.4353 1.4353 1.71"/>
         </geometry>
       </visual>
       <visual name="rear_right_wheel_axle_visual">
@@ -349,34 +349,34 @@
     <joint name="${prefix}base_footprint_to_base_link" type="fixed">
       <parent link="${prefix}base_footprint"/>
       <child link="${prefix}base_link"/>
-      <origin xyz="0 0 0.1275" rpy="0 0 0"/>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
     </joint>
 
     <joint name="${prefix}front_left_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}front_left_wheel"/>
-      <origin xyz="0.17 0.21 0" rpy="0 0 0"/>
+      <origin xyz="0.17 0.212 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
       <limit effort="50" velocity="19.61"/>
     </joint>
     <joint name="${prefix}rear_left_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}rear_left_wheel"/>
-      <origin xyz="-0.17 0.21 0" rpy="0 0 0"/>
+      <origin xyz="-0.17 0.212 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
       <limit effort="50" velocity="19.61"/>
     </joint>
     <joint name="${prefix}rear_right_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}rear_right_wheel"/>
-      <origin xyz="-0.17 -0.21 0" rpy="0 0 0"/>
+      <origin xyz="-0.17 -0.212 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
       <limit effort="50" velocity="19.61"/>
     </joint>
     <joint name="${prefix}front_right_wheel_joint" type="continuous">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}front_right_wheel"/>
-      <origin xyz="0.17 -0.21 0" rpy="0 0 0"/>
+      <origin xyz="0.17 -0.212 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
       <limit effort="50" velocity="19.61"/>
     </joint>
