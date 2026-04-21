@@ -64,7 +64,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="viz" value="false"/>
       <arg name="pub_static_tf" value="false"/>
       <arg name="point_type" value="xyzir"/>
-      <arg name="timestamp_mode" value="TIME_FROM_INTERNAL_OSC"/>
+      <arg name="timestamp_mode" value="TIME_FROM_ROS_RECEPTION"/>
       <arg name="lidar_mode" value="1024x10"/>
       <arg name="lidar_port" value="7502"/>
       <arg name="imu_port" value="7503"/>
