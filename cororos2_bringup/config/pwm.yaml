@@ -25,3 +25,7 @@ wheel_radius: 0.2
 max_wheel_speed_mps: 1.0
 invert_left: false
 invert_right: false
+invert_fl: false
+invert_fr: false
+invert_rl: false
+invert_rr: false

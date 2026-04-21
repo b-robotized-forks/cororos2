@@ -21,7 +21,11 @@
                wheel_radius:=0.2
                max_wheel_speed_mps:=1.0
                invert_left:=false
-               invert_right:=false">
+               invert_right:=false
+               invert_fl:=false
+               invert_fr:=false
+               invert_rl:=false
+               invert_rr:=false">
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -50,6 +54,10 @@
           <param name="max_wheel_speed_mps">${max_wheel_speed_mps}</param>
           <param name="invert_left">${invert_left}</param>
           <param name="invert_right">${invert_right}</param>
+          <param name="invert_fl">${invert_fl}</param>
+          <param name="invert_fr">${invert_fr}</param>
+          <param name="invert_rl">${invert_rl}</param>
+          <param name="invert_rr">${invert_rr}</param>
         </xacro:unless>
       </hardware>
 
