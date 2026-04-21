@@ -17,8 +17,9 @@
                pwm_min:=1000
                pwm_neutral:=1500
                pwm_max:=2000
-               wheel_radius:=0.205
-               max_wheel_speed_mps:=2.8
+               min_active_pwm_delta:=100
+               wheel_radius:=0.2
+               max_wheel_speed_mps:=1.0
                invert_left:=false
                invert_right:=false">
 
@@ -44,6 +45,7 @@
           <param name="pwm_min">${pwm_min}</param>
           <param name="pwm_neutral">${pwm_neutral}</param>
           <param name="pwm_max">${pwm_max}</param>
+          <param name="min_active_pwm_delta">${min_active_pwm_delta}</param>
           <param name="wheel_radius">${wheel_radius}</param>
           <param name="max_wheel_speed_mps">${max_wheel_speed_mps}</param>
           <param name="invert_left">${invert_left}</param>

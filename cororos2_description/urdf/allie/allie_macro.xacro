@@ -144,13 +144,13 @@
       <collision name="front_left_wheel_collision">
         <origin xyz="0 0 0" rpy="-1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="front_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -164,13 +164,13 @@
       <collision name="front_right_wheel_collision">
         <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="front_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -184,13 +184,13 @@
       <collision name="rear_left_wheel_collision">
         <origin xyz="0 0 0" rpy="-1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="rear_left_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -204,13 +204,13 @@
       <collision name="rear_right_wheel_collision">
         <origin xyz="0 0 0" rpy="1.5708 0 0" />
         <geometry>
-          <cylinder radius="0.205" length="0.11" />
+          <cylinder radius="0.2" length="0.11" />
         </geometry>
       </collision>
       <visual name="rear_right_wheel_tire_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.18 1.0 1.18" />
+          <mesh filename="package://cororos2_description/meshes/allie/visual/wheel.dae" scale="1.1512 1.0 1.1512" />
         </geometry>
       </visual>
     </link>
@@ -293,7 +293,7 @@
     <joint name="${prefix}base_footprint_to_base_link" type="fixed">
       <parent link="${prefix}base_footprint" />
       <child link="${prefix}base_link" />
-      <origin xyz="0 0 0.205" rpy="0 0 0" />
+      <origin xyz="0 0 0.2" rpy="0 0 0" />
     </joint>
     <!-- wheel joints -->
     <!-- front left wheel joint -->

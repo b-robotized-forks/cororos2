@@ -82,6 +82,7 @@ private:
   int pwm_min_{1000};
   int pwm_neutral_{1500};
   int pwm_max_{2000};
+  int min_active_pwm_delta_{0};
   double wheel_radius_{0.205};
   double max_wheel_speed_mps_{2.8};
   bool invert_left_{false};
