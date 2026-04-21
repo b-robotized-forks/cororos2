@@ -153,6 +153,9 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
     return true;
   };
 
+  const char * bool_description =
+    "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off";
+
   if (
     !parse_required_parameter(
       "device_path", "a non-empty string", parse_non_empty_string, device_path_) ||
@@ -165,12 +168,9 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
       "max_wheel_speed_mps", "a floating-point number", parse_double, max_wheel_speed_mps_) ||
     !parse_optional_parameter(
       "min_active_pwm_delta", "a non-negative integer", parse_int, min_active_pwm_delta_) ||
+    !parse_required_parameter("invert_left", bool_description, parse_flexible_bool, invert_left_) ||
     !parse_required_parameter(
-      "invert_left", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, invert_left_) ||
-    !parse_required_parameter(
-      "invert_right", "one of: true, false, True, False, TRUE, FALSE, 1, 0, yes, no, on, off",
-      parse_flexible_bool, invert_right_) ||
+      "invert_right", bool_description, parse_flexible_bool, invert_right_) ||
     !parse_required_parameter(
       "channel_fl", "an integer in the range [0, 255]", parse_channel, channels_[0]) ||
     !parse_required_parameter(
@@ -179,6 +179,20 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
       "channel_rl", "an integer in the range [0, 255]", parse_channel, channels_[2]) ||
     !parse_required_parameter(
       "channel_rr", "an integer in the range [0, 255]", parse_channel, channels_[3]))
+  {
+    return hardware_interface::CallbackReturn::ERROR;
+  }
+
+  invert_wheels_ = {invert_left_, invert_right_, invert_left_, invert_right_};
+  if (
+    !parse_optional_parameter(
+      "invert_fl", bool_description, parse_flexible_bool, invert_wheels_[0]) ||
+    !parse_optional_parameter(
+      "invert_fr", bool_description, parse_flexible_bool, invert_wheels_[1]) ||
+    !parse_optional_parameter(
+      "invert_rl", bool_description, parse_flexible_bool, invert_wheels_[2]) ||
+    !parse_optional_parameter(
+      "invert_rr", bool_description, parse_flexible_bool, invert_wheels_[3]))
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -360,10 +374,10 @@ hardware_interface::return_type PwmHardwareInterface::write(
     return hardware_interface::return_type::ERROR;
   }
 
-  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_left_);
-  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_right_);
-  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_left_);
-  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_right_);
+  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_wheels_[0]);
+  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_wheels_[1]);
+  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_wheels_[2]);
+  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_wheels_[3]);
 
   last_pwm_ = {front_left_pwm, front_right_pwm, rear_left_pwm, rear_right_pwm};
 
