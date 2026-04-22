@@ -56,7 +56,7 @@ source install/setup.bash
 1. Start hardware bringup:
 
    ```bash
-   ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> rviz:=true
+   ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
    ```
 
    This starts the base, robot state publisher, fused odometry by default, and the configured sensor stack for the selected robot.
@@ -64,7 +64,7 @@ source install/setup.bash
 2. Run Nav2 with SLAM:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=false
+   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model>
    ```
 
 3. Start the velocity mux in a second terminal:
@@ -104,9 +104,9 @@ Add a `Map` display and set its topic to `/map` so you can watch SLAM build the 
 
 ### Localization Workflow
 
-Gazebo simulation:
+- Gazebo:
 
-Start Gazebo and in separate terminal do:
+Start Gazebo in one terminal and in another terminal do:
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   robot_model:=<robot_model> \
@@ -116,7 +116,7 @@ ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   slam_map_file:=${HOME}/maps/cororos_lab
 ```
 
-Hardware:
+- Hardware:
 Start hardware and in separate terminal do:
 
 ```bash
@@ -147,25 +147,13 @@ With fused odometry disabled, raw wheel odometry is relayed from `/diff_drive_co
 
 Common commands:
 
-- Hardware, fused odometry enabled:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
-```
-
-- Gazebo, fused odometry enabled:
-
-```bash
-ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
-```
-
-- Hardware, fused odometry disabled:
+- Hardware with disabled fused odometry:
 
 ```bash
 ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> use_fused_odometry:=false
 ```
 
-- Gazebo, fused odometry disabled:
+- Gazebo with disabled fused odometry:
 
 ```bash
 ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> use_fused_odometry:=false
@@ -175,7 +163,7 @@ Defaults:
 
 - Hardware: `use_fused_odometry:=true`
 - Gazebo: `use_fused_odometry:=true`
-- Standalone bringup: `use_fused_odometry:=false`
+- Mock/offline: `use_fused_odometry:=false`
 
 Useful checks:
 
