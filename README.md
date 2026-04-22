@@ -279,22 +279,6 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
    ros2 topic echo /<robot_model>/lidar/scan --once
    ```
 
-### Standalone Debug Launches
-
-Start only robot/control bringup for hardware:
-
-```bash
-ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=allie use_mock_hardware:=false rviz:=true pwm_device_path:=/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00
-```
-
-Start only the hardware sensor stack:
-
-```bash
-ros2 launch cororos2_bringup cororos2_sensors.launch.xml robot_model:=<robot_model>
-```
-
-This is useful when the base bringup is already running in another terminal and you only want to debug sensors.
-
 ### Direct Drive Test
 
 Drive the robot directly through the diff-drive controller:
