@@ -183,20 +183,6 @@ hardware_interface::CallbackReturn PwmHardwareInterface::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  invert_wheels_ = {invert_left_, invert_right_, invert_left_, invert_right_};
-  if (
-    !parse_optional_parameter(
-      "invert_fl", bool_description, parse_flexible_bool, invert_wheels_[0]) ||
-    !parse_optional_parameter(
-      "invert_fr", bool_description, parse_flexible_bool, invert_wheels_[1]) ||
-    !parse_optional_parameter(
-      "invert_rl", bool_description, parse_flexible_bool, invert_wheels_[2]) ||
-    !parse_optional_parameter(
-      "invert_rr", bool_description, parse_flexible_bool, invert_wheels_[3]))
-  {
-    return hardware_interface::CallbackReturn::ERROR;
-  }
-
   if (!(pwm_min_ < pwm_neutral_ && pwm_neutral_ < pwm_max_))
   {
     RCLCPP_ERROR(get_logger(), "Expected pwm_min < pwm_neutral < pwm_max.");
@@ -374,10 +360,10 @@ hardware_interface::return_type PwmHardwareInterface::write(
     return hardware_interface::return_type::ERROR;
   }
 
-  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_wheels_[0]);
-  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_wheels_[1]);
-  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_wheels_[2]);
-  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_wheels_[3]);
+  const int16_t front_left_pwm = speed_to_pwm(hw_commands_[0], invert_left_);
+  const int16_t front_right_pwm = speed_to_pwm(hw_commands_[1], invert_right_);
+  const int16_t rear_left_pwm = speed_to_pwm(hw_commands_[2], invert_left_);
+  const int16_t rear_right_pwm = speed_to_pwm(hw_commands_[3], invert_right_);
 
   last_pwm_ = {front_left_pwm, front_right_pwm, rear_left_pwm, rear_right_pwm};
 

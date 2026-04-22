@@ -15,8 +15,8 @@
 device_path: /dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00
 channel_fl: 0
 channel_fr: 1
-channel_rl: 2
-channel_rr: 3
+channel_rl: 3
+channel_rr: 2
 pwm_min: 1000
 pwm_neutral: 1500
 pwm_max: 2000
@@ -24,8 +24,4 @@ min_active_pwm_delta: 100
 wheel_radius: 0.2
 max_wheel_speed_mps: 1.0
 invert_left: false
-invert_right: false
-invert_fl: true
-invert_fr: false
-invert_rl: false
-invert_rr: false
+invert_right: true
