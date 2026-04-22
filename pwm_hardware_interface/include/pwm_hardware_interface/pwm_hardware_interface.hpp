@@ -87,7 +87,6 @@ private:
   double max_wheel_speed_mps_{2.8};
   bool invert_left_{false};
   bool invert_right_{false};
-  std::array<bool, 4> invert_wheels_{{false, false, false, false}};
 
   std::vector<double> hw_commands_;
   std::vector<double> hw_positions_;
