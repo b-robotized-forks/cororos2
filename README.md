@@ -151,13 +151,13 @@ Example RViz views:
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
-2. To run Gazebo without RViz:
+   Or, to run Gazebo without RViz:
 
    ```bash
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
    ```
 
-3. Check simulated sensor topics:
+2. Check simulated sensor topics:
 
    ```bash
    ros2 topic list | grep '^/<robot_model>/'
@@ -281,13 +281,11 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
 
 ### Standalone Debug Launches
 
-Start only robot/control bringup:
+Start only robot/control bringup for hardware:
 
 ```bash
-ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=<robot_model>
+ros2 launch cororos2_bringup cororos2_bringup.launch.xml robot_model:=allie use_mock_hardware:=false rviz:=true pwm_device_path:=/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00
 ```
-
-This is the base launch used by the wrappers. By default it uses `use_mock_hardware:=true` and `rviz:=true`.
 
 Start only the hardware sensor stack:
 
