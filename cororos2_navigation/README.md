@@ -28,7 +28,7 @@ source install/setup.bash
 1. Start the robot in Gazebo:
 
    ```bash
-   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe rviz:=true
+   ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=true
    ```
 
 2. Run Nav2 with SLAM:
