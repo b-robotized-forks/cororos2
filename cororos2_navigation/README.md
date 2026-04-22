@@ -74,7 +74,7 @@ source install/setup.bash
 
    ```bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
-     robot_model:=joe \
+     robot_model:=<robot_model> \
      use_sim_time:=true \
      use_twist_mux:=false \
      slam_mode:=localization \
@@ -96,42 +96,43 @@ source install/setup.bash
 
 ## Fused odometry
 
-Navigation consumes `/odometry/filtered` by default. The bringup launch decides what publishes that topic, so Nav2 can use the same odometry topic whether the EKF is enabled or disabled.
+Navigation consumes `/odometry/filtered` by default.
 
-Hardware bringup enables fused odometry by default:
+With fused odometry enabled, `robot_localization` fuses `/diff_drive_controller/odom` and `/<robot_model>/imu/data`, publishes `/odometry/filtered`, and publishes the `odom -> base_footprint` transform.
+
+With fused odometry disabled, raw wheel odometry is relayed from `/diff_drive_controller/odom` to `/odometry/filtered`, and the diff-drive controller publishes `odom -> base_footprint`.
+
+Common commands:
+
+- Hardware, fused odometry enabled:
 
 ```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model>
 ```
 
-Gazebo and offline/mock bringup default to the raw-odom fallback. To enable fused odometry in Gazebo, pass:
+- Gazebo, fused odometry enabled:
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe use_fused_odometry:=true
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
 ```
 
-Defaults by launch:
+- Hardware, fused odometry disabled:
+
+```bash
+ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> use_fused_odometry:=false
+```
+
+- Gazebo, fused odometry disabled:
+
+```bash
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> use_fused_odometry:=false
+```
+
+Defaults:
 
 - Hardware: `use_fused_odometry:=true`
-- Gazebo: `use_fused_odometry:=false`
+- Gazebo: `use_fused_odometry:=true`
 - Offline/mock: `use_fused_odometry:=false`
-
-When fused odometry is enabled, `robot_localization` fuses wheel odometry and IMU data:
-
-- Hardware: `/diff_drive_controller/odom` + `/<robot_model>/imu/data` -> `/odometry/filtered`
-- Gazebo: `/diff_drive_controller/odom` + `/<robot_model>/imu/data` -> `/odometry/filtered`
-
-On hardware, `/<robot_model>/imu/data` is the Memsense driver topic with estimated orientation. In Gazebo, `/<robot_model>/imu/data` is the simulated IMU topic bridged from Gazebo, which already includes orientation.
-
-The EKF publishes the `odom -> base_footprint` transform. The diff-drive controller still publishes raw wheel odometry on `/diff_drive_controller/odom`, but it does not publish the odom TF in this mode.
-
-To run hardware without the EKF, disable fused odometry:
-
-```bash
-ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=joe use_fused_odometry:=false
-```
-
-In fallback mode, raw wheel odometry is relayed from `/diff_drive_controller/odom` to `/odometry/filtered`, and the diff-drive controller publishes `odom -> base_footprint`. This is already the default for Gazebo and offline/mock bringup.
 
 Useful checks:
 
@@ -140,8 +141,6 @@ ros2 topic echo /odometry/filtered --once
 ros2 topic echo /<robot_model>/imu/data --once
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
-
-You normally do not launch `cororos2_fused_odometry.launch.xml` manually. It is included automatically by `robot_gz.launch.xml`, `cororos2_hw.launch.xml`, and `cororos2_offline.launch.xml`.
 
 ## Velocity command flow
 
@@ -175,7 +174,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true
 For simulation-only manual driving, start Gazebo in one terminal:
 
 ```bash
-ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=joe
+ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
 ```
 
 Start the mux and joystick in a second terminal:

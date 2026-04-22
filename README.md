@@ -151,6 +151,8 @@ Example RViz views:
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
+   Gazebo simulation uses fused odometry by default so RViz heading follows the simulated IMU more closely during turns.
+
 2. To run Gazebo without RViz:
 
    ```bash

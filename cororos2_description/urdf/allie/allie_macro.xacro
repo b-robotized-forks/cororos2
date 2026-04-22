@@ -438,7 +438,7 @@
     <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}ouster_link" />
-      <origin xyz="0.16 0 0.405" rpy="0 0 0" />
+      <origin xyz="0.16 0 0.405" rpy="0 0 3.141592653589793" />
     </joint>
     <!-- Ouster sensor frame to Ouster IMU frame -->
     <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">

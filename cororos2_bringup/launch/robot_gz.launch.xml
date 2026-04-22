@@ -35,7 +35,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Launch RViz alongside Gazebo."/>
   <arg name="use_fused_odometry"
-       default="false"
+       default="true"
        description="Start the EKF odometry fusion node in simulation."/>
 
   <let name="selected_urdf_file"
@@ -101,6 +101,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
     <arg name="robot_model" value="$(var robot_model)"/>
     <arg name="runtime_config_package" value="cororos2_bringup"/>
+    <arg name="fused_odometry_config_file" value="cororos_ekf_sim"/>
     <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
     <arg name="use_sim_time" value="true"/>
   </include>
