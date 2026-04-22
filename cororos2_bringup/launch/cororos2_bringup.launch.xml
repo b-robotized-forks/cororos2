@@ -80,6 +80,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
   <let name="selected_controllers_file"
        value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
+  <let name="selected_rviz_file"
+       value="$(eval '\'cororos2.rviz\' if \'$(var use_mock_hardware)\' == \'true\' else \'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
   <let name="effective_mock_sensor_commands"
        value="$(eval '\'true\' if \'$(var use_mock_hardware)\' == \'true\' else \'$(var mock_sensor_commands)\'')"/>
   <let name="robot_description_content"
@@ -95,7 +97,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </node>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"
-        args="-d $(find-pkg-share $(var description_package))/rviz/cororos2.rviz">
+        args="-d $(find-pkg-share $(var description_package))/rviz/$(var selected_rviz_file)">
     <env name="LC_ALL" value="en_US.UTF-8"/>
   </node>
 
