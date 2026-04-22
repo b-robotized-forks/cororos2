@@ -23,7 +23,9 @@ source install/setup.bash
 - a `twist_mux` setup for choosing between Nav2, keyboard, and joystick velocity commands
 - direct LaserScan topic remapping for robots that already publish 2D scans
 
-## Suggested simulation workflow
+## Suggested Workflows
+
+### Gazebo Simulation Workflow
 
 1. Start the robot in Gazebo:
 
@@ -49,13 +51,43 @@ source install/setup.bash
    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
    ```
 
-   In RViz, add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
+### Hardware Workflow
 
-   SLAM creates `/map` from lidar scans. The map starts small and grows only where the robot has scanned.
+1. Start hardware bringup:
 
-5. Save the map created by SLAM when needed.
+   ```bash
+   ros2 launch cororos2_bringup cororos2_hw.launch.xml robot_model:=<robot_model> rviz:=true
+   ```
 
-   For later SLAM Toolbox localization, save the serialized pose graph:
+   This starts the base, robot state publisher, fused odometry by default, and the configured sensor stack for the selected robot.
+
+2. Run Nav2 with SLAM:
+
+   ```bash
+   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=false
+   ```
+
+3. Start the velocity mux in a second terminal:
+
+   ```bash
+   ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=false
+   ```
+
+4. Drive manually while SLAM builds the map:
+
+   ```bash
+   ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
+   ```
+
+### Mapping Notes
+
+In RViz, open `Global Options` and set `Fixed Frame` to `map`.
+
+Add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
+
+### Saving The Map
+
+1. Save the serialized pose graph for later SLAM Toolbox localization:
 
    ```bash
    mkdir -p ~/maps
@@ -64,35 +96,46 @@ source install/setup.bash
 
    This writes `~/maps/cororos_lab.posegraph`. The `.posegraph` file is what `slam_mode:=localization` needs.
 
-   You can also save a normal Nav2 occupancy map for viewing or other map-server workflows:
+2. Optionally save a normal Nav2 occupancy map for viewing or other map-server workflows:
 
    ```bash
    ros2 run nav2_map_server map_saver_cli -f ~/maps/cororos_lab
    ```
 
-6. Relaunch Nav2 with SLAM Toolbox localization:
+### Localization Workflow
 
-   ```bash
-   ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
-     robot_model:=<robot_model> \
-     use_sim_time:=true \
-     use_twist_mux:=false \
-     slam_mode:=localization \
-     slam_map_file:=${HOME}/maps/cororos_lab
-   ```
+Gazebo simulation:
 
-   If the robot should start from a known pose in the saved graph, also pass:
+Start Gazebo and in separate terminal do:
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
+  robot_model:=<robot_model> \
+  use_sim_time:=true \
+  use_twist_mux:=false \
+  slam_mode:=localization \
+  slam_map_file:=${HOME}/maps/cororos_lab
+```
 
-   ```bash
-   slam_map_start_pose:="[x, y, yaw]"
-   ```
+Hardware:
+Start hardware and in separate terminal do:
 
-   > [!NOTE]
-   > For hardware navigation, use the same command without `use_sim_time:=true`.
-   > Hardware and simulation both use the default `/<robot_model>/lidar/scan` topic.
+```bash
+ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
+  robot_model:=<robot_model> \
+  use_sim_time:=false \
+  use_twist_mux:=false \
+  slam_mode:=localization \
+  slam_map_file:=${HOME}/maps/cororos_lab
+```
 
-   In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
-   Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
+If the robot should start from a known pose in the saved graph, also pass:
+
+```bash
+slam_map_start_pose:="[x, y, yaw]"
+```
+
+In RViz, use the **2D Goal Pose** tool to select the desired goal position on the map.
+Send Nav2 goals only inside the visible map in RViz; goals outside the current map can cause planner `worldToMap failed` errors.
 
 ## Fused odometry
 
@@ -132,7 +175,7 @@ Defaults:
 
 - Hardware: `use_fused_odometry:=true`
 - Gazebo: `use_fused_odometry:=true`
-- Offline/mock: `use_fused_odometry:=false`
+- Standalone bringup: `use_fused_odometry:=false`
 
 Useful checks:
 
