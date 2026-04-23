@@ -67,13 +67,13 @@ source install/setup.bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model>
    ```
 
-3. Start the velocity mux in a second terminal:
+3. Start the velocity mux in a second terminal and drive with joystick:
 
    ```bash
-   ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=false
+   ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
    ```
 
-4. Drive manually while SLAM builds the map:
+4. OR drive with keyboard:
 
    ```bash
    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
