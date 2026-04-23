@@ -49,6 +49,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_fused_odometry"
        default="true"
        description="Start the EKF odometry fusion node as part of hardware bringup."/>
+  <arg name="fused_odometry_config_file"
+       default="cororos_ekf_hw"
+       description="Fused odometry EKF YAML file basename without the .yaml suffix."/>
 
   <arg name="pwm_device_path"
        default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00"
@@ -95,6 +98,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="mock_sensor_commands" value="false"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
     <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
+    <arg name="fused_odometry_config_file" value="$(var fused_odometry_config_file)"/>
     <arg name="rviz" value="$(var rviz)"/>
     <arg name="pwm_device_path" value="$(var pwm_device_path)"/>
     <arg name="roboclaw_device" value="$(var roboclaw_device)"/>
