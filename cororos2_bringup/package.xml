@@ -14,6 +14,7 @@
   <exec_depend>diff_drive_controller</exec_depend>
   <exec_depend>gz_ros2_control</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>memsense_msimu3025_driver</exec_depend>
   <exec_depend>odrive_hardware_interface</exec_depend>
   <exec_depend>ouster_ros</exec_depend>

@@ -19,3 +19,12 @@
     imu_topic: /msimu3025_raw
     magnetic_topic: /msimu3025_magnetic
     temperature_topic: /msimu3025_temperature
+    enable_gyro_z_bias_correction: true
+    motion_command_topic: /diff_drive_controller/cmd_vel
+    motion_command_timeout_s: 13.0
+    gyro_bias_recalibration_period_s: 16.0
+    gyro_bias_window_size: 2000
+    gyro_bias_stationary_max_z_rate_rad_s: 0.01
+    gyro_bias_stationary_max_sum_rad_s: 2.0
+    motion_command_linear_threshold: 0.01
+    motion_command_angular_threshold: 0.01
