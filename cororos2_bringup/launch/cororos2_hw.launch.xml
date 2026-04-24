@@ -54,7 +54,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
        description="Serial device used by the Roboclaw controller."/>
   <arg name="roboclaw_use_encoder"
-       default="false"
+       default="true"
        description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="odrive_front_serial_number"
        default=""
