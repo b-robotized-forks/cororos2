@@ -40,8 +40,8 @@ diff_drive_controller:
     publish_rate: 50.0
     base_frame_id: base_footprint
     odom_frame_id: odom
-    enable_odom_tf: true
-    cmd_vel_timeout: 0.5
+    enable_odom_tf: false
+    cmd_vel_timeout: 1.0
 
     velocity_rolling_window_size: 10
     publish_limited_velocity: true

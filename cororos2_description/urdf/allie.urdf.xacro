@@ -39,13 +39,21 @@
 
     <!-- Load robot's macro with parameters -->
     <!-- set prefix if multiple robots are used -->
-    <xacro:allie prefix="$(arg prefix)" parent="world">
+    <xacro:allie
+      prefix="$(arg prefix)"
+      parent="world"
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>          <!-- position robot in the world -->
     </xacro:allie>
   </xacro:if>
 
   <xacro:unless value="$(arg attach_world)">
-    <xacro:allie prefix="$(arg prefix)" parent="">
+    <xacro:allie
+      prefix="$(arg prefix)"
+      parent=""
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:allie>
   </xacro:unless>

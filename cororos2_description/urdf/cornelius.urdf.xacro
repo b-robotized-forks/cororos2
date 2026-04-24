@@ -28,13 +28,21 @@
   <xacro:if value="$(arg attach_world)">
     <link name="world"/>
 
-    <xacro:cornelius prefix="$(arg prefix)" parent="world">
+    <xacro:cornelius
+      prefix="$(arg prefix)"
+      parent="world"
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:cornelius>
   </xacro:if>
 
   <xacro:unless value="$(arg attach_world)">
-    <xacro:cornelius prefix="$(arg prefix)" parent="">
+    <xacro:cornelius
+      prefix="$(arg prefix)"
+      parent=""
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:cornelius>
   </xacro:unless>

@@ -43,6 +43,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_fused_odometry"
+       default="false"
+       description="Start the EKF odometry fusion node as part of offline bringup."/>
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
@@ -55,6 +58,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="prefix" value="$(var prefix)"/>
     <arg name="use_mock_hardware" value="true"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
     <arg name="rviz" value="$(var rviz)"/>
   </include>
 </launch>

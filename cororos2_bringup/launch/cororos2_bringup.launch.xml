@@ -55,6 +55,15 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_fused_odometry"
+       default="false"
+       description="Start the EKF odometry fusion node as part of bringup."/>
+  <arg name="fused_odometry_config_file"
+       default="cororos_ekf"
+       description="Fused odometry EKF YAML file basename in config/ekf, without the .yaml suffix."/>
+  <arg name="use_sim_time"
+       default="false"
+       description="Use simulation time for localization."/>
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
@@ -78,8 +87,10 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <let name="selected_urdf_file"
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
-  <let name="selected_controllers_file"
+  <let name="selected_controllers_base_file"
        value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
+  <let name="selected_controllers_file"
+       value="$(eval '\'$(var selected_controllers_base_file)\' if \'$(var use_fused_odometry)\' == \'true\' else \'$(var selected_controllers_base_file)_raw_odom\'')"/>
   <let name="selected_rviz_file"
        value="$(eval '\'cororos2.rviz\' if \'$(var use_mock_hardware)\' == \'true\' else \'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
   <let name="effective_mock_sensor_commands"
@@ -103,4 +114,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <node pkg="controller_manager" exec="spawner"
         args="joint_state_broadcaster $(var robot_controller) --controller-manager /controller_manager"/>
+
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
+    <arg name="robot_model" value="$(var robot_model)"/>
+    <arg name="runtime_config_package" value="$(var runtime_config_package)"/>
+    <arg name="fused_odometry_config_file" value="$(var fused_odometry_config_file)"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+  </include>
 </launch>

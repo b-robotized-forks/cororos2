@@ -151,7 +151,9 @@ Example RViz views:
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
-   Or, to run Gazebo without RViz:
+   Gazebo simulation uses fused odometry by default so RViz heading follows the simulated IMU more closely during turns.
+
+2. To run Gazebo without RViz:
 
    ```bash
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
@@ -289,6 +291,9 @@ ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamp
 
 This is useful for base controller testing in both simulation (mock/Gazebo) and for real hardware, without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that.
 
+## Navigation
+
+For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
 ## Hardware bringup notes
 
 The following hardware drivers are integrated into `cororos2_hw.launch.xml`:
