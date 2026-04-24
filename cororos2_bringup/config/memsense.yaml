@@ -16,13 +16,15 @@
   ros__parameters:
     serial_path_msimu3025: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
     frame_id: imu_sensor_link
-    imu_topic: msimu3025_raw
-    filtered_imu_topic: data
-    magnetic_topic: msimu3025_magnetic
-    temperature_topic: msimu3025_temperature
-    publish_orientation: true
-    magnetic_declination_radians: 0.0
-    orientation_smoothing_gain: 0.2
-    acceleration_magnitude_tolerance: 3.0
-    orientation_roll_pitch_variance: 0.05
-    orientation_yaw_variance: 0.1
+    imu_topic: /msimu3025_raw
+    magnetic_topic: /msimu3025_magnetic
+    temperature_topic: /msimu3025_temperature
+    enable_gyro_z_bias_correction: true
+    motion_command_topic: /diff_drive_controller/cmd_vel
+    motion_command_timeout_s: 13.0
+    gyro_bias_recalibration_period_s: 16.0
+    gyro_bias_window_size: 2000
+    gyro_bias_stationary_max_z_rate_rad_s: 0.01
+    gyro_bias_stationary_max_sum_rad_s: 2.0
+    motion_command_linear_threshold: 0.01
+    motion_command_angular_threshold: 0.01

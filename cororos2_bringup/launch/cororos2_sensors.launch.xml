@@ -47,6 +47,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_memsense"
        default="true"
        description="Start the Memsense MS-IMU3025 driver."/>
+  <arg name="use_memsense_filter"
+       default="true"
+       description="Start the Madgwick orientation filter on top of the raw Memsense IMU stream."/>
 
   <!-- runtime-selectable sensor device selectors -->
   <arg name="ouster_sensor_hostname" default="169.254.148.98" description="Sensor hostname or IP for the Ouster OS0-128."/>
@@ -108,5 +111,20 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" namespace="$(var robot_model)/imu" name="msimu3025_driver" output="both">
     <param from="$(find-pkg-share $(var runtime_config_package))/config/memsense.yaml"/>
     <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
+    <param name="imu_topic" value="/$(var robot_model)/imu/data_raw"/>
+    <param name="magnetic_topic" value="/$(var robot_model)/imu/mag"/>
+    <param name="temperature_topic" value="/$(var robot_model)/imu/temperature"/>
+  </node>
+
+  <node if="$(eval '\'$(var use_memsense)\' == \'true\' and \'$(var use_memsense_filter)\' == \'true\'')"
+        pkg="imu_filter_madgwick"
+        exec="imu_filter_madgwick_node"
+        namespace="$(var robot_model)"
+        name="imu_filter"
+        output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/imu_filter_madgwick.yaml"/>
+    <remap from="imu/data_raw" to="/$(var robot_model)/imu/data_raw"/>
+    <remap from="imu/data" to="/$(var robot_model)/imu/data"/>
+    <remap from="imu/mag" to="/$(var robot_model)/imu/mag"/>
   </node>
 </launch>

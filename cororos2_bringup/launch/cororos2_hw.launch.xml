@@ -81,6 +81,9 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="use_memsense"
        default="true"
        description="Start the Memsense MS-IMU3025 driver as part of hardware bringup."/>
+  <arg name="use_memsense_filter"
+       default="true"
+       description="Start the Madgwick orientation filter for the Memsense IMU."/>
   <arg name="ouster_sensor_hostname" default="169.254.148.98" description="Sensor hostname or IP for the Ouster OS0-128."/>
   <arg name="ouster_udp_dest" default="169.254.240.178" description="Destination IP for Ouster UDP packets."/>
   <arg name="velodyne_device_ip" default="" description="Optional device IP used to filter Velodyne packets from the VLP-16."/>
@@ -115,6 +118,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="use_realsense" value="$(var use_realsense)"/>
     <arg name="use_gps" value="$(var use_gps)"/>
     <arg name="use_memsense" value="$(var use_memsense)"/>
+    <arg name="use_memsense_filter" value="$(var use_memsense_filter)"/>
     <arg name="ouster_sensor_hostname" value="$(var ouster_sensor_hostname)"/>
     <arg name="ouster_udp_dest" value="$(var ouster_udp_dest)"/>
     <arg name="velodyne_device_ip" value="$(var velodyne_device_ip)"/>
