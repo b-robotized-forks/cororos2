@@ -14,7 +14,7 @@
 
 /**:
   ros__parameters:
-    device_ip: ""
+    device_ip: "192.168.1.201"
     frame_id: lidar_link
     port: 2368
     rpm: 600.0
