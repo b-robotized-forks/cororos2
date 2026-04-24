@@ -190,7 +190,7 @@ velocity_smoother:
     enable_stamped_cmd_vel: true
     smoothing_frequency: 50.0
     scale_velocities: False
-    feedback: "OPEN_LOOP"
+    feedback: "CLOSED_LOOP"
     max_velocity: [0.45, 0.0, 1.00]
     min_velocity: [-0.25, 0.0, -1.00]
     max_accel: [0.8, 0.0, 0.8]
