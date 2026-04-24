@@ -17,7 +17,7 @@
       <collision name="chassis_main_collision">
         <origin xyz="0 0 -0.135" rpy="0 0 1.57" />
         <geometry>
-          <mesh filename="package://cororos2_description/meshes/cornelius/visual/hd2_marble_base_body_metric.dae" />
+          <mesh filename="package://cororos2_description/meshes/cornelius/collision/hd2_marble_base_body_collision.stl" />
         </geometry>
       </collision>
       <!-- visuals -->
