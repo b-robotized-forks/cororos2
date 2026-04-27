@@ -63,10 +63,10 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="odrive_front_serial_number"
-       default="207A3892304E"
+       default="20843894304E"
        description="USB serial number of the front ODrive v3.6 board."/>
   <arg name="odrive_rear_serial_number"
-       default="20843894304E"
+       default="207A3892304E"
        description="USB serial number of the rear ODrive v3.6 board."/>
 
   <arg name="use_lidar"
