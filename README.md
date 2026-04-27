@@ -325,6 +325,27 @@ sudo usermod -a -G input $USER
 ```
 Log out and back in, or reboot, before trying again.
 
+Joe's ODrive controllers are connected over USB and need the ODrive udev rules on
+the robot PC. If the rules are missing, `odrivetool` or the ROS 2 bringup may
+report:
+
+```text
+Device permissions are not set up
+[UsbDiscoverer] Failed to open USB device: -3
+```
+
+Install the ODrive udev rules:
+
+```bash
+sudo bash -c "curl https://cdn.odriverobotics.com/files/odrive-udev-rules.rules > /etc/udev/rules.d/91-odrive.rules && udevadm control --reload-rules && udevadm trigger"
+```
+
+Verify access with:
+
+```bash
+odrivetool
+```
+
 ### Robot-specific defaults
 
 - `robot_model:=allie`: PWM base, Ouster lidar
