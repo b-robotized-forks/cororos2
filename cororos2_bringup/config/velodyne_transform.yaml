@@ -16,3 +16,4 @@
   ros__parameters:
     fixed_frame: lidar_link
     target_frame: lidar_link
+    model: VLP16
