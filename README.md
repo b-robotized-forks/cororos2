@@ -291,6 +291,8 @@ ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamp
 
 This is useful for base controller testing in both simulation (mock/Gazebo) and for real hardware, without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that.
 
+When testing only the diff-drive controller in RViz, set `Global Options` -> `Fixed Frame` to `odom`. Navigation/localization views usually use `map`, but direct base tests only require the odometry frame.
+
 ## Navigation
 
 For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
