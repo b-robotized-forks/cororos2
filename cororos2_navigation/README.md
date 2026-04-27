@@ -4,8 +4,6 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
 
 ## Setup
 
-If you check out the `feat/navigation` branch, update dependencies and rebuild from the workspace root before running navigation:
-
 ```bash
 cd ~/cororos_ws
 source /opt/ros/jazzy/setup.bash
