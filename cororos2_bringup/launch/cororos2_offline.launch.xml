@@ -36,7 +36,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>

@@ -36,16 +36,16 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
   <let name="pwm_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/pwm.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/pwm.yaml"/>
   <let name="roboclaw_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/roboclaw.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/roboclaw.yaml"/>
   <let name="odrive_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/odrive.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/odrive.yaml"/>
   <arg name="use_mock_hardware"
        default="true"
        description="Start the selected robot with mock hardware mirroring commands into states."/>
@@ -104,7 +104,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <node pkg="controller_manager" exec="ros2_control_node" name="controller_manager" output="both">
     <remap from="~/robot_description" to="/robot_description"/>
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_controllers_file).yaml"/>
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/controllers/$(var selected_controllers_file).yaml"/>
   </node>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"

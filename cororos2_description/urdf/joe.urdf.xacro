@@ -7,7 +7,7 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="odrive_config_file" default="$(find cororos2_bringup)/config/odrive.yaml"/>
+  <xacro:arg name="odrive_config_file" default="$(find cororos2_bringup)/config/drive_backends/odrive.yaml"/>
   <xacro:property name="odrive_config" value="${xacro.load_yaml('$(arg odrive_config_file)')}"/>
   <xacro:arg name="python_executable" default="${odrive_config['python_executable']}"/>
   <xacro:arg name="front_serial_number" default="${odrive_config['front_serial_number']}"/>
