@@ -40,6 +40,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <let name="selected_urdf_file"
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
+  <let name="selected_rviz_file"
+       value="$(eval '\'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
   <let name="effective_mock_sensor_commands"
        value="$(eval '\'true\' if \'$(var use_mock_hardware)\' == \'true\' else \'false\'')"/>
   <let name="robot_description_content"
@@ -52,7 +54,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </node>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"
-        args="-d $(find-pkg-share cororos2_description)/rviz/cororos2.rviz">
+        args="-d $(find-pkg-share cororos2_description)/rviz/$(var selected_rviz_file)">
     <env name="LC_ALL" value="en_US.UTF-8"/>
   </node>
 </launch>

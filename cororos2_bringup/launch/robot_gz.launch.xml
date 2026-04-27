@@ -46,6 +46,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        value="$(eval '\'$(var selected_controllers_base_file)\' if \'$(var use_fused_odometry)\' == \'true\' else \'$(var selected_controllers_base_file)_raw_odom\'')"/>
   <let name="selected_lidar_sensor"
        value="$(eval '\'ouster_lidar\' if \'$(var robot_model)\' == \'allie\' or \'$(var robot_model)\' == \'cornelius\' else \'lidar\'')"/>
+  <let name="selected_rviz_file"
+       value="$(eval '\'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
 
   <let name="lidar_root"
        value="$(eval '\'/world/empty/model/$(var robot_model)/link/base_footprint/sensor/$(var selected_lidar_sensor)\'')"/>
@@ -107,7 +109,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </include>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"
-        args="-d $(find-pkg-share cororos2_description)/rviz/cororos2.rviz">
+        args="-d $(find-pkg-share cororos2_description)/rviz/$(var selected_rviz_file)">
     <param name="use_sim_time" value="true"/>
     <env name="LC_ALL" value="en_US.UTF-8"/>
   </node>
