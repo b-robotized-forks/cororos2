@@ -291,6 +291,8 @@ ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamp
 
 This is useful for base controller testing in both simulation (mock/Gazebo) and for real hardware, without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that.
 
+When testing only the diff-drive controller in RViz, set `Global Options` -> `Fixed Frame` to `odom`. Navigation/localization views usually use `map`, but direct base tests only require the odometry frame.
+
 ## Navigation
 
 For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
@@ -324,6 +326,27 @@ Joystick and gamepad devices are commonly exposed through `/dev/input/...`. If j
 sudo usermod -a -G input $USER
 ```
 Log out and back in, or reboot, before trying again.
+
+Joe's ODrive controllers are connected over USB and need the ODrive udev rules on
+the robot PC. If the rules are missing, `odrivetool` or the ROS 2 bringup may
+report:
+
+```text
+Device permissions are not set up
+[UsbDiscoverer] Failed to open USB device: -3
+```
+
+Install the ODrive udev rules:
+
+```bash
+sudo bash -c "curl https://cdn.odriverobotics.com/files/odrive-udev-rules.rules > /etc/udev/rules.d/91-odrive.rules && udevadm control --reload-rules && udevadm trigger"
+```
+
+Verify access with:
+
+```bash
+odrivetool
+```
 
 ### Robot-specific defaults
 

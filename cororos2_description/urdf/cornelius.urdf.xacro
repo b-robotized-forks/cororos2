@@ -9,7 +9,7 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="roboclaw_config_file" default="$(find cororos2_bringup)/config/roboclaw.yaml"/>
+  <xacro:arg name="roboclaw_config_file" default="$(find cororos2_bringup)/config/drive_backends/roboclaw.yaml"/>
   <xacro:property name="roboclaw_config" value="${xacro.load_yaml('$(arg roboclaw_config_file)')}"/>
   <xacro:arg name="roboclaw_device" default="${roboclaw_config['device']}"/>
   <xacro:arg name="roboclaw_baud" default="${roboclaw_config['baud']}"/>

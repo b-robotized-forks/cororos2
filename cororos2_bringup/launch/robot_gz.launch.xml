@@ -56,7 +56,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
            value="$(find-pkg-share cororos2_description)/..:$(find-pkg-share cororos2_bringup)/..:$(env GZ_SIM_RESOURCE_PATH '')"/>
 
   <let name="robot_description_content"
-       value="$(command '$(find-exec xacro) $(find-pkg-share cororos2_description)/urdf/$(var selected_urdf_file) prefix:= use_mock_hardware:=false mock_sensor_commands:=false sim_gazebo_classic:=false sim_gazebo:=true attach_world:=false simulation_controllers:=$(find-pkg-share cororos2_bringup)/config/$(var selected_controllers_file).yaml')"/>
+       value="$(command '$(find-exec xacro) $(find-pkg-share cororos2_description)/urdf/$(var selected_urdf_file) prefix:= use_mock_hardware:=false mock_sensor_commands:=false sim_gazebo_classic:=false sim_gazebo:=true attach_world:=false simulation_controllers:=$(find-pkg-share cororos2_bringup)/config/controllers/$(var selected_controllers_file).yaml')"/>
 
   <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
     <arg name="gz_args" value="$(var gz_args)"/>

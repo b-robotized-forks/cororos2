@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/**:
-  ros__parameters:
-    fixed_frame: lidar_link
-    target_frame: lidar_link
+python_executable: python3
+front_serial_number: "20843894304E"
+rear_serial_number: "207A3892304E"
+front_right_axis: 0
+rear_right_axis: 1
+connect_timeout: 30.0

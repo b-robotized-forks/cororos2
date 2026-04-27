@@ -36,7 +36,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
@@ -63,10 +63,10 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="odrive_front_serial_number"
-       default=""
+       default="20843894304E"
        description="USB serial number of the front ODrive v3.6 board."/>
   <arg name="odrive_rear_serial_number"
-       default=""
+       default="207A3892304E"
        description="USB serial number of the rear ODrive v3.6 board."/>
 
   <arg name="use_lidar"

@@ -86,7 +86,7 @@ local_costmap:
         enabled: True
         plugin: "nav2_costmap_2d::ObstacleLayer"
         footprint_clearing_enabled: True
-        combination_method: 1
+        combination_method: 0
         max_obstacle_height: 1.5
         observation_sources: scan
         scan:
@@ -98,17 +98,19 @@ local_costmap:
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.0
+          obstacle_min_range: 0.30
           raytrace_max_range: 10.0
-          raytrace_min_range: 0.0
+          raytrace_min_range: 0.30
           inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.60
+        inflation_radius: 0.2
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: True
         map_subscribe_transient_local: True
+        map_topic: /map
       always_send_full_costmap: True
 
 global_costmap:
@@ -123,16 +125,36 @@ global_costmap:
       width: 30
       height: 30
       track_unknown_space: true
-      plugins: ["static_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         enabled: True
         map_subscribe_transient_local: True
         map_topic: /map
+      obstacle_layer:
+        enabled: True
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        footprint_clearing_enabled: True
+        combination_method: 0
+        max_obstacle_height: 1.5
+        observation_sources: scan
+        scan:
+          topic: "$(var selected_laser_scan_topic)"
+          observation_persistence: 1.0
+          min_obstacle_height: 0.0
+          max_obstacle_height: 1.5
+          clearing: True
+          marking: True
+          data_type: LaserScan
+          obstacle_max_range: 8.0
+          obstacle_min_range: 0.30
+          raytrace_max_range: 10.0
+          raytrace_min_range: 0.30
+          inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.60
+        inflation_radius: 0.2
       always_send_full_costmap: True
 
 planner_server:
@@ -222,12 +244,14 @@ collision_monitor:
       min_points: 6
       visualize: False
       enabled: True
-    observation_sources: ["scan"]
-    scan:
-      type: "scan"
-      topic: "$(var selected_laser_scan_topic)"
+    observation_sources: ["pointcloud"]
+    pointcloud:
+      type: "pointcloud"
+      topic: "/cornelius/lidar/points"
       min_height: 0.0
-      max_height: 1.5
+      max_height: 0.35
+      min_range: 0.30
+      use_global_height: False
       enabled: True
 
 docking_server:
