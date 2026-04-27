@@ -58,7 +58,6 @@ rtw ws cororos_ws
 rosds
 git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git
 rosdep_prep
-export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdepi
 cb
 ```
@@ -89,7 +88,6 @@ git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 sudo apt update
 sudo apt install -y python3-pip
 rosdep update
-export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
 
 Install package dependencies from the workspace root:
@@ -99,7 +97,16 @@ cd ~/cororos2_ws
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-The package manifests declare the ROS 2 control, Gazebo, RViz, and hardware-driver dependencies, so `rosdep install` is the supported way to install them. Separate `sudo apt install ros-jazzy-...` commands are not needed.
+The package manifests declare the ROS 2 control, Gazebo, RViz, and hardware-driver package dependencies, so `rosdep install` is the supported way to install them. Separate `sudo apt install ros-jazzy-...` commands are not needed.
+
+#### Install Joe ODrive Python runtime
+
+Joe's ODrive backend helper uses the Python `odrive` module. Install it on robot PCs that run Joe hardware bringup:
+
+```bash
+python3 -m pip install --break-system-packages --ignore-installed --upgrade odrive
+python3 -m pip install --break-system-packages --upgrade "setuptools<80"
+```
 
 #### Build the workspace
 
@@ -342,7 +349,7 @@ Install the ODrive udev rules:
 sudo bash -c "curl https://cdn.odriverobotics.com/files/odrive-udev-rules.rules > /etc/udev/rules.d/91-odrive.rules && udevadm control --reload-rules && udevadm trigger"
 ```
 
-Verify access with:
+Verify USB access with:
 
 ```bash
 odrivetool
@@ -353,9 +360,6 @@ odrivetool
 - `robot_model:=allie`: PWM base, Ouster lidar
 - `robot_model:=cornelius`: Roboclaw base, Ouster lidar
 - `robot_model:=joe`: ODrive base, Velodyne VLP-16 lidar
-
-> [!NOTE]
-> The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
 
 ## Zenoh (optional DDS alternative / bridge)
 
