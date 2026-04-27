@@ -34,11 +34,16 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside Gazebo."/>
+  <arg name="use_fused_odometry"
+       default="true"
+       description="Start the EKF odometry fusion node in simulation."/>
 
   <let name="selected_urdf_file"
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
+  <let name="selected_controllers_base_file"
+       value="$(eval '\'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers\'')"/>
   <let name="selected_controllers_file"
-       value="$(eval '\'allie_controllers.yaml\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers.yaml\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_controllers.yaml\'')"/>
+       value="$(eval '\'$(var selected_controllers_base_file)\' if \'$(var use_fused_odometry)\' == \'true\' else \'$(var selected_controllers_base_file)_raw_odom\'')"/>
   <let name="selected_lidar_sensor"
        value="$(eval '\'ouster_lidar\' if \'$(var robot_model)\' == \'allie\' or \'$(var robot_model)\' == \'cornelius\' else \'lidar\'')"/>
 
@@ -51,7 +56,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
            value="$(find-pkg-share cororos2_description)/..:$(find-pkg-share cororos2_bringup)/..:$(env GZ_SIM_RESOURCE_PATH '')"/>
 
   <let name="robot_description_content"
-       value="$(command '$(find-exec xacro) $(find-pkg-share cororos2_description)/urdf/$(var selected_urdf_file) prefix:= use_mock_hardware:=false mock_sensor_commands:=false sim_gazebo_classic:=false sim_gazebo:=true attach_world:=false simulation_controllers:=$(find-pkg-share cororos2_bringup)/config/$(var selected_controllers_file)')"/>
+       value="$(command '$(find-exec xacro) $(find-pkg-share cororos2_description)/urdf/$(var selected_urdf_file) prefix:= use_mock_hardware:=false mock_sensor_commands:=false sim_gazebo_classic:=false sim_gazebo:=true attach_world:=false simulation_controllers:=$(find-pkg-share cororos2_bringup)/config/$(var selected_controllers_file).yaml')"/>
 
   <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
     <arg name="gz_args" value="$(var gz_args)"/>
@@ -92,6 +97,14 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <node pkg="controller_manager" exec="spawner"
         args="diff_drive_controller --controller-manager /controller_manager"
         output="screen"/>
+
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
+    <arg name="robot_model" value="$(var robot_model)"/>
+    <arg name="runtime_config_package" value="cororos2_bringup"/>
+    <arg name="fused_odometry_config_file" value="cororos_ekf_sim"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
+    <arg name="use_sim_time" value="true"/>
+  </include>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"
         args="-d $(find-pkg-share cororos2_description)/rviz/cororos2.rviz">

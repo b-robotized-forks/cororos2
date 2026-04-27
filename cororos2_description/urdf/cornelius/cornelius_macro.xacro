@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="cornelius" params="prefix parent *origin">
+  <xacro:macro name="cornelius" params="prefix parent sim_gazebo:=false sim_gazebo_classic:=false *origin">
     <!-- LINKS -->
     <!-- base footprint -->
     <link name="${prefix}base_footprint">
@@ -491,7 +491,12 @@
     <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}ouster_link" />
-      <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
+      <xacro:if value="${sim_gazebo or sim_gazebo_classic}">
+        <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
+      </xacro:if>
+      <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
+        <origin xyz="0.19 0 0.272" rpy="0 0 0" />
+      </xacro:unless>
     </joint>
     <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
       <parent link="${prefix}ouster_link" />
@@ -507,7 +512,7 @@
         <topic>imu</topic>
         <gz_frame_id>${prefix}imu_sensor_link</gz_frame_id>
         <imu>
-          <enable_orientation>0</enable_orientation>
+          <enable_orientation>1</enable_orientation>
           <angular_velocity>
             <x>
               <noise type="gaussian">

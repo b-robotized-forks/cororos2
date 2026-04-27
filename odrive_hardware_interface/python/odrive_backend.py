@@ -40,7 +40,13 @@ class ODriveBoard:
         self.right_axis = None
 
     def connect(self) -> None:
-        self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
+        try:
+            self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
+        except TypeError as exc:
+            if "path" not in str(exc):
+                raise
+            logging.info("Installed ODrive Python API does not support path=; retrying without it.")
+            self.driver = odrive.find_any(serial_number=self.serial_number, timeout=self.connect_timeout)
         self.right_axis = self.driver.axis0 if self.right_axis_index == 0 else self.driver.axis1
         self.left_axis = self.driver.axis1 if self.right_axis_index == 0 else self.driver.axis0
 
