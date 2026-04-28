@@ -254,10 +254,6 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
      velodyne_device_ip:=<sensor-ip>
    ```
 
-6. Add optional sensor selectors when more than one device is connected.
-
-   **Examples:**
-
    RealSense on any robot:
 
    ```bash
@@ -279,7 +275,7 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
      memsense_device:=/dev/serial/by-id/<your-device>
    ```
 
-7. Check hardware sensor topics:
+6. Check hardware sensor topics:
 
    ```bash
    ros2 topic list | grep '^/<robot_model>/'

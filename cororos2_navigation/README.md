@@ -2,17 +2,6 @@
 
 This package provides cororos-specific launch files and configs for Nav2 with `slam_toolbox`.
 
-## Setup
-
-```bash
-cd ~/cororos_ws
-source /opt/ros/jazzy/setup.bash
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y
-colcon build --symlink-install
-source install/setup.bash
-```
-
 ## Package Contents
 
 - `cororos2_nav2_slam.launch.xml`
@@ -36,6 +25,9 @@ source install/setup.bash
    ```bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model> use_sim_time:=true
    ```
+
+   In RViz, open `Global Options` and set `Fixed Frame` to `map`.
+   Add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
 
 3. Start the velocity mux in a second terminal:
 
@@ -65,6 +57,9 @@ source install/setup.bash
    ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml robot_model:=<robot_model>
    ```
 
+   In RViz, open `Global Options` and set `Fixed Frame` to `map`.
+   Add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
+
 3. Start the velocity mux in a second terminal and drive with joystick:
 
    ```bash
@@ -76,12 +71,6 @@ source install/setup.bash
    ```bash
    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/key_vel
    ```
-
-### Mapping Notes
-
-In RViz, open `Global Options` and set `Fixed Frame` to `map`.
-
-Add a `Map` display and set its topic to `/map` so you can watch SLAM build the map while driving.
 
 ### Saving The Map
 
@@ -105,6 +94,7 @@ Add a `Map` display and set its topic to `/map` so you can watch SLAM build the 
 - Gazebo:
 
 Start Gazebo in one terminal and in another terminal do:
+
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
   robot_model:=<robot_model> \
@@ -115,7 +105,7 @@ ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
 ```
 
 - Hardware:
-Start hardware and in separate terminal do:
+Start hardware in one terminal and in separate terminal do:
 
 ```bash
 ros2 launch cororos2_navigation cororos2_nav2_slam.launch.xml \
@@ -137,11 +127,7 @@ Send Nav2 goals only inside the visible map in RViz; goals outside the current m
 
 ## Fused odometry
 
-Navigation consumes `/odometry/filtered` by default.
-
-With fused odometry enabled, `robot_localization` fuses `/diff_drive_controller/odom` and `/<robot_model>/imu/data`, publishes `/odometry/filtered`, and publishes the `odom -> base_footprint` transform.
-
-With fused odometry disabled, raw wheel odometry is relayed from `/diff_drive_controller/odom` to `/odometry/filtered`, and the diff-drive controller publishes `odom -> base_footprint`.
+With fused odometry enabled, `robot_localization` fuses `/diff_drive_controller/odom` and `/<robot_model>/imu/data` to publish odometry.
 
 Common commands:
 
@@ -171,27 +157,6 @@ ros2 topic echo /<robot_model>/imu/data --once
 ros2 run tf2_ros tf2_echo odom base_footprint
 ```
 
-## Velocity command flow
-
-The navigation launch files publish stamped velocity commands. Start `cororos2_teleop_mux.launch.xml` in a second terminal to run `twist_mux` and optional joystick teleop:
-
-```text
-Nav2 -> /cmd_vel_smoothed
-/cmd_vel_smoothed -> collision_monitor -> /cmd_vel_nav_safe
-keyboard -> /key_vel
-joystick -> /joy_vel
-
-/cmd_vel_nav_safe + /key_vel + /joy_vel
--> twist_mux
--> /diff_drive_controller/cmd_vel
-```
-
-To skip the external mux and send Nav2 directly to the diff-drive controller, pass:
-
-```bash
-use_twist_mux:=false
-```
-
 ## Keyboard and joystick control
 
 Keyboard teleop is started manually because it needs the active terminal for key presses:
@@ -212,28 +177,24 @@ Start the mux and joystick in a second terminal:
 ros2 launch cororos2_navigation cororos2_teleop_mux.launch.xml use_joystick:=true
 ```
 
-Try moving the joystick or pressing keys in the active teleop keyboard terminal.
-
-Joystick defaults for the Xbox 360 controller:
-
-- device: `/dev/input/js0`
-- config: `teleop_twist_joy` package `xbox.config.yaml`
-- output topic: `/joy_vel`
-
+Joystick defaults for the Xbox 360 controller.
 Use `joy_dev:=/dev/input/<device>` to choose a different joystick device.
 
-If the joystick device cannot be opened, add your user to the `input` group and then log out and back in:
-
-```bash
-sudo usermod -a -G input $USER
-```
-
-Joystick controls:
+Try moving the joystick or pressing keys in the active teleop keyboard terminal:
 
 Hold the left trigger button to enable movement. Use the left thumb stick vertical axis for linear movement and the left thumb stick horizontal axis for angular movement. Hold the right trigger button for turbo speed.
 
-The mux priorities are:
+> [!NOTE]
+> If the joystick device cannot be opened, add your user to the `input` group and then log out and back in:
+>
+> ```bash
+> sudo usermod -a -G input $USER
+> ```
 
-- joystick: highest
-- keyboard: middle
-- Nav2: lowest
+
+> [!NOTE]
+> To skip the external mux and send Nav2 directly to the diff-drive controller, pass:
+>
+> ```bash
+> use_twist_mux:=false
+> ```
