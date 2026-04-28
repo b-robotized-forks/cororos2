@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-  <xacro:macro name="cornelius" params="prefix parent *origin">
+  <xacro:macro name="cornelius" params="prefix parent sim_gazebo:=false sim_gazebo_classic:=false *origin">
     <!-- LINKS -->
     <!-- base footprint -->
     <link name="${prefix}base_footprint">
@@ -14,12 +14,14 @@
       </inertial>
 
       <!-- collisions -->
-      <collision name="chassis_main_collision">
-        <origin xyz="0 0 -0.135" rpy="0 0 1.57" />
-        <geometry>
-          <mesh filename="package://cororos2_description/meshes/cornelius/collision/hd2_marble_base_body_collision.stl" />
-        </geometry>
-      </collision>
+      <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
+        <collision name="chassis_main_collision">
+          <origin xyz="0 0 -0.135" rpy="0 0 1.57" />
+          <geometry>
+            <mesh filename="package://cororos2_description/meshes/cornelius/collision/hd2_marble_base_body_collision.stl" />
+          </geometry>
+        </collision>
+      </xacro:unless>
       <!-- visuals -->
       <visual name="chassis_main_visual">
         <origin xyz="0 0 -0.135" rpy="0 0 1.57" />
@@ -129,24 +131,26 @@
         <mass value="6.0" />
         <inertia ixx="0.03828" ixy="0" ixz="0" iyy="0.2925" iyz="0" izz="0.2642" />
       </inertial>
-      <collision name="left_track_body_collision">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.72 0.14 0.258" />
-        </geometry>
-      </collision>
-      <collision name="left_track_front_wheel_collision">
-        <origin xyz="0.355 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.13" length="0.14" />
-        </geometry>
-      </collision>
-      <collision name="left_track_rear_wheel_collision">
-        <origin xyz="-0.355 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.13" length="0.14" />
-        </geometry>
-      </collision>
+      <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
+        <collision name="left_track_body_collision">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <box size="0.72 0.14 0.258" />
+          </geometry>
+        </collision>
+        <collision name="left_track_front_wheel_collision">
+          <origin xyz="0.355 0 0" rpy="1.5707963267948966 0 0" />
+          <geometry>
+            <cylinder radius="0.13" length="0.14" />
+          </geometry>
+        </collision>
+        <collision name="left_track_rear_wheel_collision">
+          <origin xyz="-0.355 0 0" rpy="1.5707963267948966 0 0" />
+          <geometry>
+            <cylinder radius="0.13" length="0.14" />
+          </geometry>
+        </collision>
+      </xacro:unless>
       <visual name="left_track_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -182,24 +186,26 @@
         <mass value="6.0" />
         <inertia ixx="0.03828" ixy="0" ixz="0" iyy="0.2925" iyz="0" izz="0.2642" />
       </inertial>
-      <collision name="right_track_body_collision">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.72 0.14 0.258" />
-        </geometry>
-      </collision>
-      <collision name="right_track_front_wheel_collision">
-        <origin xyz="0.355 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.13" length="0.14" />
-        </geometry>
-      </collision>
-      <collision name="right_track_rear_wheel_collision">
-        <origin xyz="-0.355 0 0" rpy="1.5707963267948966 0 0" />
-        <geometry>
-          <cylinder radius="0.13" length="0.14" />
-        </geometry>
-      </collision>
+      <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
+        <collision name="right_track_body_collision">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <box size="0.72 0.14 0.258" />
+          </geometry>
+        </collision>
+        <collision name="right_track_front_wheel_collision">
+          <origin xyz="0.355 0 0" rpy="1.5707963267948966 0 0" />
+          <geometry>
+            <cylinder radius="0.13" length="0.14" />
+          </geometry>
+        </collision>
+        <collision name="right_track_rear_wheel_collision">
+          <origin xyz="-0.355 0 0" rpy="1.5707963267948966 0 0" />
+          <geometry>
+            <cylinder radius="0.13" length="0.14" />
+          </geometry>
+        </collision>
+      </xacro:unless>
       <visual name="right_track_body_visual">
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -491,7 +497,12 @@
     <joint name="${prefix}base_link_to_ouster_link_joint" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}ouster_link" />
-      <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
+      <xacro:if value="${sim_gazebo or sim_gazebo_classic}">
+        <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
+      </xacro:if>
+      <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
+        <origin xyz="0.19 0 0.272" rpy="0 0 0" />
+      </xacro:unless>
     </joint>
     <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
       <parent link="${prefix}ouster_link" />
@@ -507,7 +518,7 @@
         <topic>imu</topic>
         <gz_frame_id>${prefix}imu_sensor_link</gz_frame_id>
         <imu>
-          <enable_orientation>0</enable_orientation>
+          <enable_orientation>1</enable_orientation>
           <angular_velocity>
             <x>
               <noise type="gaussian">

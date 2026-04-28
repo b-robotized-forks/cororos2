@@ -36,13 +36,16 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_fused_odometry"
+       default="false"
+       description="Start the EKF odometry fusion node as part of offline bringup."/>
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
@@ -55,6 +58,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="prefix" value="$(var prefix)"/>
     <arg name="use_mock_hardware" value="true"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
     <arg name="rviz" value="$(var rviz)"/>
   </include>
 </launch>

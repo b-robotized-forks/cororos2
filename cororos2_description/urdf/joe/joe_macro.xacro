@@ -519,7 +519,7 @@
     <joint name="${prefix}base_link_to_lidar_link_joint" type="fixed">
       <parent link="${prefix}base_link"/>
       <child link="${prefix}lidar_link"/>
-      <origin xyz="0 0 0.365" rpy="0 0 0"/>
+      <origin xyz="0 0 0.48" rpy="0 0 0"/>
     </joint>
     <!-- GAZEBO EXTENSIONS -->
     <!-- sensor definitions -->
@@ -530,7 +530,7 @@
         <topic>imu</topic>
         <gz_frame_id>${prefix}imu_sensor_link</gz_frame_id>
         <imu>
-          <enable_orientation>0</enable_orientation>
+          <enable_orientation>1</enable_orientation>
           <angular_velocity>
             <x>
               <noise type="gaussian">

@@ -36,7 +36,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
@@ -46,6 +46,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
+  <arg name="use_fused_odometry"
+       default="true"
+       description="Start the EKF odometry fusion node as part of hardware bringup."/>
+  <arg name="fused_odometry_config_file"
+       default="cororos_ekf_hw"
+       description="Fused odometry EKF YAML file basename in config/ekf, without the .yaml suffix."/>
 
   <arg name="pwm_device_path"
        default="/dev/serial/by-id/usb-Pololu_Corporation_Pololu_Micro_Maestro_6-Servo_Controller_00357982-if00"
@@ -57,10 +63,10 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="odrive_front_serial_number"
-       default=""
+       default="20843894304E"
        description="USB serial number of the front ODrive v3.6 board."/>
   <arg name="odrive_rear_serial_number"
-       default=""
+       default="207A3892304E"
        description="USB serial number of the rear ODrive v3.6 board."/>
 
   <arg name="use_lidar"
@@ -94,6 +100,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     <arg name="use_mock_hardware" value="false"/>
     <arg name="mock_sensor_commands" value="false"/>
     <arg name="robot_controller" value="$(var robot_controller)"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
+    <arg name="fused_odometry_config_file" value="$(var fused_odometry_config_file)"/>
     <arg name="rviz" value="$(var rviz)"/>
     <arg name="pwm_device_path" value="$(var pwm_device_path)"/>
     <arg name="roboclaw_device" value="$(var roboclaw_device)"/>

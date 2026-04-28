@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-python_executable: python3
-front_serial_number: ""
-rear_serial_number: ""
-front_right_axis: 0
-rear_right_axis: 1
-connect_timeout: 30.0
+/**:
+  ros__parameters:
+    fixed_frame: lidar_link
+    target_frame: lidar_link
+    model: VLP16

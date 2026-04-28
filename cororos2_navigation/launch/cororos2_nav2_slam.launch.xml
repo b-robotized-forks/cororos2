@@ -1,0 +1,85 @@
+<launch>
+  <arg name="config_package"
+       default="cororos2_navigation"
+       description="Package with Nav2 and SLAM configuration used in the scenario." />
+  <arg name="robot_model"
+       default="cornelius"
+       description="Robot model used to choose the default Nav2 config files.">
+    <choice value="allie"/>
+    <choice value="cornelius"/>
+    <choice value="joe"/>
+  </arg>
+  <arg name="nav2_config_file"
+       default=""
+       description="Optional Nav2 config file name without the .yaml suffix." />
+  <arg name="slam_config_file"
+       default="cororos_slam"
+       description="SLAM Toolbox config file basename without the .yaml suffix." />
+  <arg name="slam_mode"
+       default="mapping"
+       description="SLAM Toolbox mode. Use 'mapping' to build/update a map or 'localization' to navigate using an existing pose graph." >
+    <choice value="mapping"/>
+    <choice value="localization"/>
+  </arg>
+  <arg name="slam_map_file"
+       default=""
+       description="Serialized SLAM Toolbox pose graph basename for localization mode, without the .posegraph suffix." />
+  <arg name="slam_map_start_pose"
+       default="[0.0, 0.0, 0.0]"
+       description="Initial [x, y, yaw] pose used when loading a serialized pose graph in localization mode." />
+  <arg name="use_sim_time"
+       default="false"
+       description="Use simulation time." />
+
+  <arg name="scan_topic"
+       default=""
+       description="Optional LaserScan topic override. Defaults to /&lt;robot_model&gt;/lidar/scan." />
+  <arg name="odom_topic"
+       default="/odometry/filtered"
+       description="Odometry topic used by Nav2. Defaults to fused odometry from robot_localization." />
+  <arg name="use_twist_mux"
+       default="true"
+       description="Send Nav2 commands to twist_mux input instead of directly to the diff-drive controller." />
+  <let name="selected_nav2_config_file"
+       value="$(eval '\'$(var nav2_config_file)\' if \'$(var nav2_config_file)\' != \'\' else \'allie_nav2\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_nav2\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_nav2\'')" />
+  <let name="selected_cmd_vel_out_topic"
+       value="$(eval '\'cmd_vel_nav_safe\' if \'$(var use_twist_mux)\' == \'true\' else \'/diff_drive_controller/cmd_vel\'')" />
+  <let name="selected_slam_executable"
+       value="$(eval '\'localization_slam_toolbox_node\' if \'$(var slam_mode)\' == \'localization\' else \'sync_slam_toolbox_node\'')" />
+  <let name="selected_scan_topic"
+       value="$(eval '\'$(var scan_topic)\' if \'$(var scan_topic)\' != \'\' else \'/$(var robot_model)/lidar/scan\'')" />
+  <let name="selected_odom_topic"
+       value="$(var odom_topic)" />
+
+  <let name="slam_params" value="$(find-pkg-share $(var config_package))/config/$(var slam_config_file)" />
+  <node name="slam_toolbox"
+        pkg="slam_toolbox"
+        exec="$(var selected_slam_executable)"
+        output="screen">
+    <param from="$(var slam_params).yaml" />
+    <param name="use_sim_time" value="$(var use_sim_time)" />
+    <param name="use_lifecycle_manager" value="true" />
+    <param name="scan_topic" value="$(var selected_scan_topic)" />
+    <param name="mode" value="$(var slam_mode)" />
+    <param name="map_file_name" value="$(var slam_map_file)" />
+    <param name="map_start_pose" value="$(var slam_map_start_pose)" />
+  </node>
+
+  <node pkg="nav2_lifecycle_manager"
+        exec="lifecycle_manager"
+        name="lifecycle_manager_slam"
+        output="screen">
+    <param name="use_sim_time" value="$(var use_sim_time)" />
+    <param name="autostart" value="true" />
+    <param name="node_names" value="['slam_toolbox']" />
+  </node>
+
+  <let name="nav2_params" value="$(find-pkg-share $(var config_package))/config/$(var selected_nav2_config_file).yaml" />
+  <include file="$(find-pkg-share nav2_bringup)/launch/navigation_launch.py">
+    <arg name="use_composition" value="False" />
+    <arg name="params_file" value="$(var nav2_params)" />
+    <arg name="use_sim_time" value="$(var use_sim_time)" />
+    <arg name="selected_laser_scan_topic" value="$(var selected_scan_topic)" />
+    <arg name="selected_cmd_vel_out_topic" value="$(var selected_cmd_vel_out_topic)" />
+  </include>
+</launch>

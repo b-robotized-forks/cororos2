@@ -10,7 +10,7 @@
   <xacro:arg name="sim_gazebo" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="attach_world" default="true"/>
-  <xacro:arg name="pwm_config_file" default="$(find cororos2_bringup)/config/pwm.yaml"/>
+  <xacro:arg name="pwm_config_file" default="$(find cororos2_bringup)/config/drive_backends/pwm.yaml"/>
   <xacro:property name="pwm_config" value="${xacro.load_yaml('$(arg pwm_config_file)')}"/>
   <xacro:arg name="device_path" default="${pwm_config['device_path']}"/>
   <xacro:arg name="channel_fl" default="${pwm_config['channel_fl']}"/>
@@ -39,13 +39,21 @@
 
     <!-- Load robot's macro with parameters -->
     <!-- set prefix if multiple robots are used -->
-    <xacro:allie prefix="$(arg prefix)" parent="world">
+    <xacro:allie
+      prefix="$(arg prefix)"
+      parent="world"
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>          <!-- position robot in the world -->
     </xacro:allie>
   </xacro:if>
 
   <xacro:unless value="$(arg attach_world)">
-    <xacro:allie prefix="$(arg prefix)" parent="">
+    <xacro:allie
+      prefix="$(arg prefix)"
+      parent=""
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_gazebo_classic="$(arg sim_gazebo_classic)">
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:allie>
   </xacro:unless>

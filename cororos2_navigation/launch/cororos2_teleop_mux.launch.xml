@@ -1,0 +1,38 @@
+<launch>
+  <arg name="config_package"
+       default="cororos2_navigation"
+       description="Package with twist_mux configuration." />
+  <arg name="twist_mux_config_file"
+       default="twist_mux"
+       description="Twist mux config file basename without the .yaml suffix." />
+  <arg name="joystick_config_file"
+       default="joystick_teleop"
+       description="Joystick teleop config file basename without the .yaml suffix." />
+  <arg name="use_joystick"
+       default="false"
+       description="Start joy_node and teleop_twist_joy for local joystick control." />
+  <arg name="joy_dev"
+       default="/dev/input/js0"
+       description="Joystick device path." />
+  <!-- Joystick and Teleop -->
+  <node if="$(var use_joystick)" pkg="joy" exec="joy_node" name="joy_node">
+     <param name="dev" value="$(var joy_dev)" />
+     <param name="deadzone" value="0.1" />
+     <param name="autorepeat_rate" value="20.0" />
+  </node>
+
+  <node if="$(var use_joystick)" pkg="teleop_twist_joy" exec="teleop_node" name="teleop_twist_joy_node">
+     <param from="$(find-pkg-share $(var config_package))/config/$(var joystick_config_file).yaml" />
+     <param name="publish_stamped_twist" value="true" />
+     <param name="default_trig_val" value="false" />
+     <remap from="/cmd_vel" to="/joy_vel" />
+  </node>
+
+  <node pkg="twist_mux"
+        exec="twist_mux"
+        name="twist_mux"
+        output="screen">
+    <param from="$(find-pkg-share $(var config_package))/config/$(var twist_mux_config_file).yaml" />
+    <remap from="cmd_vel_out" to="/diff_drive_controller/cmd_vel" />
+  </node>
+</launch>

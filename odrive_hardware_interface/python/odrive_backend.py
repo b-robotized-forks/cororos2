@@ -40,7 +40,13 @@ class ODriveBoard:
         self.right_axis = None
 
     def connect(self) -> None:
-        self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
+        try:
+            self.driver = odrive.find_any(path="usb", serial_number=self.serial_number, timeout=self.connect_timeout)
+        except TypeError as exc:
+            if "path" not in str(exc):
+                raise
+            logging.info("Installed ODrive Python API does not support path=; retrying without it.")
+            self.driver = odrive.find_any(serial_number=self.serial_number, timeout=self.connect_timeout)
         self.right_axis = self.driver.axis0 if self.right_axis_index == 0 else self.driver.axis1
         self.left_axis = self.driver.axis1 if self.right_axis_index == 0 else self.driver.axis0
 
@@ -63,15 +69,15 @@ class ODriveBoard:
     def drive(self, left_turns_per_second: float, right_turns_per_second: float) -> None:
         self.left_axis.watchdog_feed()
         self.right_axis.watchdog_feed()
-        self.left_axis.controller.input_vel = left_turns_per_second
-        self.right_axis.controller.input_vel = -right_turns_per_second
+        self.left_axis.controller.input_vel = -left_turns_per_second
+        self.right_axis.controller.input_vel = right_turns_per_second
 
     def read(self) -> list[float]:
         return [
-            float(self.left_axis.encoder.pos_estimate),
-            float(self.left_axis.encoder.vel_estimate),
-            float(-self.right_axis.encoder.pos_estimate),
-            float(-self.right_axis.encoder.vel_estimate),
+            float(-self.left_axis.encoder.pos_estimate),
+            float(-self.left_axis.encoder.vel_estimate),
+            float(self.right_axis.encoder.pos_estimate),
+            float(self.right_axis.encoder.vel_estimate),
         ]
 
     def disconnect(self) -> None:

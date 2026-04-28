@@ -36,16 +36,16 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        description="Description package with shared robot URDF/xacro files."/>
   <arg name="controllers_file"
        default=""
-       description="Optional YAML file (without extension) with the controller configuration override."/>
+       description="Optional controller YAML basename in config/controllers, without the .yaml extension."/>
   <arg name="prefix"
        default=""
        description="Prefix of the joint names, useful for multi-robot setups."/>
   <let name="pwm_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/pwm.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/pwm.yaml"/>
   <let name="roboclaw_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/roboclaw.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/roboclaw.yaml"/>
   <let name="odrive_config_file"
-       value="$(find-pkg-share $(var runtime_config_package))/config/odrive.yaml"/>
+       value="$(find-pkg-share $(var runtime_config_package))/config/drive_backends/odrive.yaml"/>
   <arg name="use_mock_hardware"
        default="true"
        description="Start the selected robot with mock hardware mirroring commands into states."/>
@@ -55,6 +55,15 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <arg name="robot_controller"
        default="diff_drive_controller"
        description="Robot controller to start. Choices are: [diff_drive_controller]."/>
+  <arg name="use_fused_odometry"
+       default="false"
+       description="Start the EKF odometry fusion node as part of bringup."/>
+  <arg name="fused_odometry_config_file"
+       default="cororos_ekf"
+       description="Fused odometry EKF YAML file basename in config/ekf, without the .yaml suffix."/>
+  <arg name="use_sim_time"
+       default="false"
+       description="Use simulation time for localization."/>
   <arg name="rviz"
        default="true"
        description="Launch RViz alongside the selected robot bringup."/>
@@ -70,18 +79,20 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="true"
        description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
   <arg name="odrive_front_serial_number"
-       default=""
+       default="20843894304E"
        description="USB serial number of the front ODrive v3.6 board."/>
   <arg name="odrive_rear_serial_number"
-       default=""
+       default="207A3892304E"
        description="USB serial number of the rear ODrive v3.6 board."/>
 
   <let name="selected_urdf_file"
        value="$(eval '\'allie.urdf.xacro\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.urdf.xacro\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.urdf.xacro\'')"/>
-  <let name="selected_controllers_file"
+  <let name="selected_controllers_base_file"
        value="$(eval '\'$(var controllers_file)\' if \'$(var controllers_file)\' != \'\' else \'allie_controllers\' if \'$(var robot_model)\' == \'allie\' else \'cornelius_encoder_controllers\' if (\'$(var robot_model)\' == \'cornelius\' and \'$(var use_mock_hardware)\' == \'false\' and \'$(var roboclaw_use_encoder)\' == \'true\') else \'cornelius_controllers\' if \'$(var robot_model)\' == \'cornelius\' else \'joe_mock_controllers\' if \'$(var use_mock_hardware)\' == \'true\' else \'joe_controllers\'')"/>
+  <let name="selected_controllers_file"
+       value="$(eval '\'$(var selected_controllers_base_file)\' if (\'$(var use_fused_odometry)\' == \'true\' or \'$(var selected_controllers_base_file)\' == \'joe_mock_controllers\') else \'$(var selected_controllers_base_file)_raw_odom\'')"/>
   <let name="selected_rviz_file"
-       value="$(eval '\'cororos2.rviz\' if \'$(var use_mock_hardware)\' == \'true\' else \'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
+       value="$(eval '\'allie.rviz\' if \'$(var robot_model)\' == \'allie\' else \'cornelius.rviz\' if \'$(var robot_model)\' == \'cornelius\' else \'joe.rviz\'')"/>
   <let name="effective_mock_sensor_commands"
        value="$(eval '\'true\' if \'$(var use_mock_hardware)\' == \'true\' else \'$(var mock_sensor_commands)\'')"/>
   <let name="robot_description_content"
@@ -93,7 +104,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <node pkg="controller_manager" exec="ros2_control_node" name="controller_manager" output="both">
     <remap from="~/robot_description" to="/robot_description"/>
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/$(var selected_controllers_file).yaml"/>
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/controllers/$(var selected_controllers_file).yaml"/>
   </node>
 
   <node if="$(var rviz)" pkg="rviz2" exec="rviz2" output="log"
@@ -103,4 +114,12 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <node pkg="controller_manager" exec="spawner"
         args="joint_state_broadcaster $(var robot_controller) --controller-manager /controller_manager"/>
+
+  <include file="$(find-pkg-share cororos2_bringup)/launch/cororos2_fused_odometry.launch.xml">
+    <arg name="robot_model" value="$(var robot_model)"/>
+    <arg name="runtime_config_package" value="$(var runtime_config_package)"/>
+    <arg name="fused_odometry_config_file" value="$(var fused_odometry_config_file)"/>
+    <arg name="use_fused_odometry" value="$(var use_fused_odometry)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+  </include>
 </launch>

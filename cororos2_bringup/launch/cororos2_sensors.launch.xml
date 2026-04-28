@@ -61,7 +61,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
 
   <group if="$(eval '\'$(var robot_model)\' == \'allie\' or \'$(var robot_model)\' == \'cornelius\'')">
     <include if="$(var use_lidar)" file="$(find-pkg-share ouster_ros)/launch/sensor.launch.xml">
-      <arg name="ouster_ns" value="ouster_lidar"/>
+      <arg name="ouster_ns" value="$(var robot_model)/lidar"/>
       <arg name="sensor_hostname" value="$(var ouster_sensor_hostname)"/>
       <arg name="udp_dest" value="$(var ouster_udp_dest)"/>
       <arg name="viz" value="false"/>
@@ -79,37 +79,37 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   </group>
 
   <group if="$(eval '\'$(var robot_model)\' == \'joe\'')">
-    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="velodyne_lidar" name="velodyne_driver_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_driver" exec="velodyne_driver_node" namespace="$(var robot_model)/lidar" name="velodyne_driver_node" output="both">
       <param from="$(find-pkg-share velodyne_driver)/config/VLP16-velodyne_driver_node-params.yaml"/>
-      <param from="$(find-pkg-share $(var runtime_config_package))/config/velodyne_driver.yaml"/>
+      <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/velodyne_driver.yaml"/>
       <param name="device_ip" value="$(var velodyne_device_ip)"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="velodyne_lidar" name="velodyne_transform_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="$(var robot_model)/lidar" name="velodyne_transform_node" output="both">
       <param from="$(find-pkg-share velodyne_pointcloud)/config/VLP16-velodyne_transform_node-params.yaml"/>
-      <param from="$(find-pkg-share $(var runtime_config_package))/config/velodyne_transform.yaml"/>
+      <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/velodyne_transform.yaml"/>
       <param name="calibration" value="$(find-pkg-share velodyne_pointcloud)/params/VLP16db.yaml"/>
     </node>
 
-    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="velodyne_lidar" name="velodyne_laserscan_node" output="both">
+    <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="$(var robot_model)/lidar" name="velodyne_laserscan_node" output="both">
       <param from="$(find-pkg-share velodyne_laserscan)/config/default-velodyne_laserscan_node-params.yaml"/>
     </node>
   </group>
 
-  <node if="$(var use_realsense)" pkg="realsense2_camera" exec="realsense2_camera_node" namespace="camera" name="d455" output="both"
+  <node if="$(var use_realsense)" pkg="realsense2_camera" exec="realsense2_camera_node" namespace="$(var robot_model)/rgbd_front" name="d455" output="both"
         args="--ros-args --log-level info">
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/realsense.yaml"/>
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/realsense.yaml"/>
     <param name="serial_no" value="$(var realsense_serial_no)"/>
     <param name="base_frame_id" value="$(var prefix)rgbd_front_link"/>
   </node>
 
-  <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" name="ublox_gps_node" output="both">
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/ublox.yaml"/>
+  <node if="$(var use_gps)" pkg="ublox_gps" exec="ublox_gps_node" namespace="$(var robot_model)/gps" name="ublox_gps_node" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/ublox.yaml"/>
     <param name="device" value="$(var gps_device)"/>
   </node>
 
-  <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" name="msimu3025_driver" output="both">
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/memsense.yaml"/>
+  <node if="$(var use_memsense)" pkg="memsense_msimu3025_driver" exec="msimu3025_driver" namespace="$(var robot_model)/imu" name="msimu3025_driver" output="both">
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/memsense.yaml"/>
     <param name="serial_path_msimu3025" value="$(var memsense_device)"/>
     <param name="imu_topic" value="/$(var robot_model)/imu/data_raw"/>
     <param name="magnetic_topic" value="/$(var robot_model)/imu/mag"/>
@@ -122,7 +122,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
         namespace="$(var robot_model)"
         name="imu_filter"
         output="both">
-    <param from="$(find-pkg-share $(var runtime_config_package))/config/imu_filter_madgwick.yaml"/>
+    <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/imu_filter_madgwick.yaml"/>
     <remap from="imu/data_raw" to="/$(var robot_model)/imu/data_raw"/>
     <remap from="imu/data" to="/$(var robot_model)/imu/data"/>
     <remap from="imu/mag" to="/$(var robot_model)/imu/mag"/>

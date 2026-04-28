@@ -58,7 +58,6 @@ rtw ws cororos_ws
 rosds
 git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git
 rosdep_prep
-export PIP_BREAK_SYSTEM_PACKAGES=1
 rosdepi
 cb
 ```
@@ -89,7 +88,6 @@ git clone -b ros2 git@github.com:b-robotized-forks/cororos2.git cororos2
 sudo apt update
 sudo apt install -y python3-pip
 rosdep update
-export PIP_BREAK_SYSTEM_PACKAGES=1
 ```
 
 Install package dependencies from the workspace root:
@@ -99,7 +97,16 @@ cd ~/cororos2_ws
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
-The package manifests declare the ROS 2 control, Gazebo, RViz, and hardware-driver dependencies, so `rosdep install` is the supported way to install them. Separate `sudo apt install ros-jazzy-...` commands are not needed.
+The package manifests declare the ROS 2 control, Gazebo, RViz, and hardware-driver package dependencies, so `rosdep install` is the supported way to install them. Separate `sudo apt install ros-jazzy-...` commands are not needed.
+
+#### Install Joe ODrive Python runtime
+
+Joe's ODrive backend helper uses the Python `odrive` module. Install it on robot PCs that run Joe hardware bringup:
+
+```bash
+python3 -m pip install --break-system-packages --ignore-installed --upgrade odrive
+python3 -m pip install --break-system-packages --upgrade "setuptools<80"
+```
 
 #### Build the workspace
 
@@ -151,7 +158,9 @@ Example RViz views:
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model>
    ```
 
-   Or, to run Gazebo without RViz:
+   Gazebo simulation uses fused odometry by default so RViz heading follows the simulated IMU more closely during turns.
+
+2. To run Gazebo without RViz:
 
    ```bash
    ros2 launch cororos2_bringup robot_gz.launch.xml robot_model:=<robot_model> rviz:=false
@@ -245,10 +254,6 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
      velodyne_device_ip:=<sensor-ip>
    ```
 
-6. Add optional sensor selectors when more than one device is connected.
-
-   **Examples:**
-
    RealSense on any robot:
 
    ```bash
@@ -270,7 +275,7 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
      memsense_device:=/dev/serial/by-id/<your-device>
    ```
 
-7. Check hardware sensor topics:
+6. Check hardware sensor topics:
 
    ```bash
    ros2 topic list | grep '^/<robot_model>/'
@@ -289,6 +294,11 @@ ros2 topic pub -r 10 /diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamp
 
 This is useful for base controller testing in both simulation (mock/Gazebo) and for real hardware, without the teleop mux or Nav2. The `diff_drive_controller` has a `cmd_vel_timeout` of `0.5 s`, so velocity commands must publish faster than that.
 
+When testing only the diff-drive controller in RViz, set `Global Options` -> `Fixed Frame` to `odom`. Navigation/localization views usually use `map`, but direct base tests only require the odometry frame.
+
+## Navigation
+
+For the navigation instructions, see [cororos2_navigation/README.md](cororos2_navigation/README.md).
 ## Hardware bringup notes
 
 The following hardware drivers are integrated into `cororos2_hw.launch.xml`:
@@ -320,14 +330,32 @@ sudo usermod -a -G input $USER
 ```
 Log out and back in, or reboot, before trying again.
 
+Joe's ODrive controllers are connected over USB and need the ODrive udev rules on
+the robot PC. If the rules are missing, `odrivetool` or the ROS 2 bringup may
+report:
+
+```text
+Device permissions are not set up
+[UsbDiscoverer] Failed to open USB device: -3
+```
+
+Install the ODrive udev rules:
+
+```bash
+sudo bash -c "curl https://cdn.odriverobotics.com/files/odrive-udev-rules.rules > /etc/udev/rules.d/91-odrive.rules && udevadm control --reload-rules && udevadm trigger"
+```
+
+Verify USB access with:
+
+```bash
+odrivetool
+```
+
 ### Robot-specific defaults
 
 - `robot_model:=allie`: PWM base, Ouster lidar
 - `robot_model:=cornelius`: Roboclaw base, Ouster lidar
 - `robot_model:=joe`: ODrive base, Velodyne VLP-16 lidar
-
-> [!NOTE]
-> The ODrive backend helper uses the Python `odrive` module. If you install workspace dependencies with `rosdep`, it is pulled in through the `python3-odrive-pip` rosdep key. Otherwise install it manually with `python3 -m pip install --upgrade odrive`.
 
 ## Zenoh (optional DDS alternative / bridge)
 
