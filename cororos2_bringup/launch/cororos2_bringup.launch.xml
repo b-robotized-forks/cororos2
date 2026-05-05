@@ -76,8 +76,8 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
        default="/dev/serial/by-id/usb-03eb_USB_Roboclaw_2x60A-if00"
        description="Serial device used by the Roboclaw controller."/>
   <arg name="roboclaw_use_encoder"
-       default="true"
-       description="Use Roboclaw encoder feedback for Cornelius hardware bringup."/>
+       default="false"
+       description="Use Roboclaw encoder feedback for Cornelius hardware bringup. Defaults to false so Cornelius starts in open-loop mode unless explicitly requested."/>
   <arg name="odrive_front_serial_number"
        default="20843894304E"
        description="USB serial number of the front ODrive v3.6 board."/>
