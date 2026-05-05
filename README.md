@@ -237,6 +237,8 @@ This wrapper uses mock hardware and is useful for checking controllers, descript
      roboclaw_device:=/dev/serial/by-id/<your-device>
    ```
 
+   This default path uses `roboclaw_use_encoder:=false`, so Cornelius starts with the open-loop controller config unless you explicitly enable encoder-based Roboclaw odometry.
+
    Cornelius with encoder-based Roboclaw odometry:
 
    ```bash

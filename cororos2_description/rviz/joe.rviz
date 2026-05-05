@@ -53,6 +53,7 @@ Visualization Manager:
       Show Names: true
     - Alpha: 1
       Class: rviz_default_plugins/PointCloud2
+      Decay Time: 0
       Enabled: true
       Name: PointCloud
       Topic:
