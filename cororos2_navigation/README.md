@@ -89,7 +89,7 @@ This package provides cororos-specific launch files and configs for Nav2 with `s
    ros2 run nav2_map_server map_saver_cli -f ~/maps/cororos_lab
    ```
 
-### Localization Workflow
+### Navigation Workflow
 
 - Gazebo:
 
