@@ -18,6 +18,8 @@ import logging
 import sys
 
 IMPORT_ERROR = None
+LEFT_DIRECTION = 1.0
+RIGHT_DIRECTION = -1.0
 
 try:
     import odrive
@@ -69,15 +71,15 @@ class ODriveBoard:
     def drive(self, left_turns_per_second: float, right_turns_per_second: float) -> None:
         self.left_axis.watchdog_feed()
         self.right_axis.watchdog_feed()
-        self.left_axis.controller.input_vel = -left_turns_per_second
-        self.right_axis.controller.input_vel = right_turns_per_second
+        self.left_axis.controller.input_vel = LEFT_DIRECTION * left_turns_per_second
+        self.right_axis.controller.input_vel = RIGHT_DIRECTION * right_turns_per_second
 
     def read(self) -> list[float]:
         return [
-            float(-self.left_axis.encoder.pos_estimate),
-            float(-self.left_axis.encoder.vel_estimate),
-            float(self.right_axis.encoder.pos_estimate),
-            float(self.right_axis.encoder.vel_estimate),
+            float(LEFT_DIRECTION * self.left_axis.encoder.pos_estimate),
+            float(LEFT_DIRECTION * self.left_axis.encoder.vel_estimate),
+            float(RIGHT_DIRECTION * self.right_axis.encoder.pos_estimate),
+            float(RIGHT_DIRECTION * self.right_axis.encoder.vel_estimate),
         ]
 
     def disconnect(self) -> None:
