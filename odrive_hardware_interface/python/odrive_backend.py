@@ -18,8 +18,8 @@ import logging
 import sys
 
 IMPORT_ERROR = None
-LEFT_DIRECTION = 1.0
-RIGHT_DIRECTION = -1.0
+LEFT_DIRECTION = -1.0
+RIGHT_DIRECTION = 1.0
 
 try:
     import odrive

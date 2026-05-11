@@ -15,6 +15,6 @@
 python_executable: python3
 front_serial_number: "20843894304E"
 rear_serial_number: "207A3892304E"
-front_right_axis: 0
-rear_right_axis: 1
+front_right_axis: 1
+rear_right_axis: 0
 connect_timeout: 30.0
