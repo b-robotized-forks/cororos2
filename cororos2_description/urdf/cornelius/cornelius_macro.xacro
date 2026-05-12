@@ -501,7 +501,7 @@
         <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
       </xacro:if>
       <xacro:unless value="${sim_gazebo or sim_gazebo_classic}">
-        <origin xyz="0.19 0 0.272" rpy="0 0 0" />
+        <origin xyz="0.19 0 0.272" rpy="0 0 3.141592653589793" />
       </xacro:unless>
     </joint>
     <joint name="${prefix}ouster_link_to_ouster_imu_link_joint" type="fixed">
