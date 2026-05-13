@@ -16,7 +16,7 @@
 
 controller_manager:
   ros__parameters:
-    update_rate: 50
+    update_rate: 20
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -37,7 +37,7 @@ diff_drive_controller:
     wheel_radius: 0.15
     wheels_per_side: 2
 
-    publish_rate: 50.0
+    publish_rate: 20.0
     base_frame_id: base_footprint
     odom_frame_id: odom
     enable_odom_tf: false
