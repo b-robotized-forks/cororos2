@@ -54,7 +54,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
   <!-- runtime-selectable sensor device selectors -->
   <arg name="ouster_sensor_hostname" default="169.254.148.98" description="Sensor hostname or IP for the Ouster OS0-128."/>
   <arg name="ouster_udp_dest" default="169.254.240.178" description="Destination IP for Ouster UDP packets."/>
-  <arg name="ouster_scan_ring" default="64" description="Ouster beam index used for LaserScan generation. A mid ring gives a near-horizontal 2D scan on the OS0-128."/>
+  <arg name="ouster_scan_ring" default="64" description="Deprecated Ouster native LaserScan ring selector. Hardware LaserScan is generated from the aligned point cloud."/>
   <arg name="ouster_min_range" default="0.35" description="Minimum Ouster range in meters. Filters the tight near-floor circle around the robot without removing most near-obstacle data."/>
   <arg name="ouster_v_reduction" default="4" description="Vertical beam reduction for the Ouster point cloud. Higher values reduce the dense circular ring pattern in top-down views."/>
   <arg name="velodyne_device_ip" default="192.168.1.201" description="Device IP used to filter Velodyne packets from the VLP-16."/>
@@ -72,7 +72,7 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="point_type" value="xyzir"/>
       <arg name="timestamp_mode" value="TIME_FROM_ROS_TIME"/>
       <arg name="lidar_mode" value="1024x10"/>
-      <arg name="scan_ring" value="$(var ouster_scan_ring)"/>
+      <arg name="proc_mask" value="IMG|PCL|IMU|TLM"/>
       <arg name="min_range" value="$(var ouster_min_range)"/>
       <arg name="v_reduction" value="$(var ouster_v_reduction)"/>
       <arg name="lidar_port" value="7502"/>
@@ -82,6 +82,22 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
       <arg name="imu_frame" value="$(var prefix)ouster_imu_link"/>
       <arg name="point_cloud_frame" value="$(var prefix)ouster_link"/>
     </include>
+
+    <node if="$(var use_lidar)" pkg="pointcloud_to_laserscan" exec="pointcloud_to_laserscan_node" namespace="$(var robot_model)/lidar" name="pointcloud_to_laserscan" output="both">
+      <remap from="cloud_in" to="points"/>
+      <remap from="scan" to="scan"/>
+      <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/pointcloud_to_laserscan.yaml"/>
+      <param name="target_frame" value="$(var prefix)ouster_link"/>
+      <param name="transform_tolerance" value="0.05"/>
+      <param name="angle_min" value="-3.141592653589793"/>
+      <param name="angle_max" value="3.141592653589793"/>
+      <param name="angle_increment" value="0.006135923151542565"/>
+      <param name="scan_time" value="0.1"/>
+      <param name="range_min" value="$(var ouster_min_range)"/>
+      <param name="range_max" value="120.0"/>
+      <param name="use_inf" value="true"/>
+      <param name="inf_epsilon" value="1.0"/>
+    </node>
   </group>
 
   <group if="$(eval '\'$(var robot_model)\' == \'joe\'')">
