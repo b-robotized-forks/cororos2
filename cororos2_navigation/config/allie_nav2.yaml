@@ -43,8 +43,8 @@ controller_server:
 
       angular_dist_threshold: 1.2
       forward_sampling_distance: 0.3
-      rotate_to_heading_angular_vel: 0.35
-      max_angular_accel: 0.6
+      rotate_to_heading_angular_vel: 4.0
+      max_angular_accel: 10.0
       simulate_ahead_time: 1.0
       desired_linear_vel: 0.25
       lookahead_dist: 0.40
@@ -194,9 +194,9 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_timeout: 0.1
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.0
+    max_rotational_vel: 4.0
     min_rotational_vel: 0.4
-    rotational_acc_lim: 1.0
+    rotational_acc_lim: 10.0
 
 waypoint_follower:
   ros__parameters:
@@ -214,10 +214,10 @@ velocity_smoother:
     smoothing_frequency: 50.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.80, 0.0, 1.20]
-    min_velocity: [-0.40, 0.0, -1.20]
-    max_accel: [1.0, 0.0, 1.0]
-    max_decel: [-1.0, 0.0, -1.0]
+    max_velocity: [1.00, 0.0, 4.00]
+    min_velocity: [-1.00, 0.0, -4.00]
+    max_accel: [10.0, 0.0, 10.0]
+    max_decel: [-10.0, 0.0, -10.0]
     odom_topic: "$(var selected_odom_topic)"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
