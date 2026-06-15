@@ -108,12 +108,14 @@ Authors: Riyan Jose, Manuel Muth, Dr. Denis
     </node>
 
     <node if="$(var use_lidar)" pkg="velodyne_pointcloud" exec="velodyne_transform_node" namespace="$(var robot_model)/lidar" name="velodyne_transform_node" output="both">
+      <remap from="velodyne_points" to="points"/>
       <param from="$(find-pkg-share velodyne_pointcloud)/config/VLP16-velodyne_transform_node-params.yaml"/>
       <param from="$(find-pkg-share $(var runtime_config_package))/config/sensors/velodyne_transform.yaml"/>
       <param name="calibration" value="$(find-pkg-share velodyne_pointcloud)/params/VLP16db.yaml"/>
     </node>
 
     <node if="$(var use_lidar)" pkg="velodyne_laserscan" exec="velodyne_laserscan_node" namespace="$(var robot_model)/lidar" name="velodyne_laserscan_node" output="both">
+      <remap from="velodyne_points" to="points"/>
       <param from="$(find-pkg-share velodyne_laserscan)/config/default-velodyne_laserscan_node-params.yaml"/>
     </node>
   </group>
