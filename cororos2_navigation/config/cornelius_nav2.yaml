@@ -250,7 +250,7 @@ collision_monitor:
     pointcloud:
       type: "pointcloud"
       topic: "/cornelius/lidar/points"
-      min_height: 0.0
+      min_height: 0.05
       max_height: 0.35
       min_range: 0.60
       use_global_height: False
