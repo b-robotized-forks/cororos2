@@ -43,8 +43,8 @@ controller_server:
 
       angular_dist_threshold: 1.2
       forward_sampling_distance: 0.3
-      rotate_to_heading_angular_vel: 3.0
-      max_angular_accel: 8.0
+      rotate_to_heading_angular_vel: 1.5
+      max_angular_accel: 4.0
       simulate_ahead_time: 1.0
       desired_linear_vel: 0.25
       lookahead_dist: 0.40
@@ -99,9 +99,9 @@ local_costmap:
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.30
+          obstacle_min_range: 0.60
           raytrace_max_range: 10.0
-          raytrace_min_range: 0.30
+          raytrace_min_range: 0.60
           inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -149,9 +149,9 @@ global_costmap:
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.30
+          obstacle_min_range: 0.60
           raytrace_max_range: 10.0
-          raytrace_min_range: 0.30
+          raytrace_min_range: 0.60
           inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -195,9 +195,9 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_timeout: 0.5
     simulate_ahead_time: 2.0
-    max_rotational_vel: 3.0
+    max_rotational_vel: 1.5
     min_rotational_vel: 0.3
-    rotational_acc_lim: 8.0
+    rotational_acc_lim: 4.0
 
 waypoint_follower:
   ros__parameters:
@@ -215,10 +215,10 @@ velocity_smoother:
     smoothing_frequency: 50.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [1.00, 0.0, 3.00]
-    min_velocity: [-1.00, 0.0, -3.00]
-    max_accel: [15.0, 0.0, 8.0]
-    max_decel: [-15.0, 0.0, -8.0]
+    max_velocity: [1.00, 0.0, 1.50]
+    min_velocity: [-1.00, 0.0, -1.50]
+    max_accel: [15.0, 0.0, 4.0]
+    max_decel: [-15.0, 0.0, -4.0]
     odom_topic: "$(var selected_odom_topic)"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
@@ -250,9 +250,9 @@ collision_monitor:
     pointcloud:
       type: "pointcloud"
       topic: "/cornelius/lidar/points"
-      min_height: 0.0
+      min_height: 0.05
       max_height: 0.35
-      min_range: 0.30
+      min_range: 0.60
       use_global_height: False
       enabled: True
 

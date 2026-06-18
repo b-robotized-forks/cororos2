@@ -98,9 +98,9 @@ local_costmap:
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.30
+          obstacle_min_range: 0.60
           raytrace_max_range: 10.0
-          raytrace_min_range: 0.30
+          raytrace_min_range: 0.60
           inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -147,9 +147,9 @@ global_costmap:
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.30
+          obstacle_min_range: 0.60
           raytrace_max_range: 10.0
-          raytrace_min_range: 0.30
+          raytrace_min_range: 0.60
           inf_is_valid: false
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -248,9 +248,9 @@ collision_monitor:
     pointcloud:
       type: "pointcloud"
       topic: "/joe/lidar/points"
-      min_height: 0.0
+      min_height: 0.05
       max_height: 0.35
-      min_range: 0.30
+      min_range: 0.60
       use_global_height: False
       enabled: True
 
