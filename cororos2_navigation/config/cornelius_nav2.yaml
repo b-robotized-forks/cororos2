@@ -2,6 +2,7 @@ bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_footprint
+    transform_tolerance: 0.5
     odom_topic: "$(var selected_odom_topic)"
     bt_loop_duration: 10
     default_server_timeout: 20
@@ -19,7 +20,7 @@ bt_navigator:
 controller_server:
   ros__parameters:
     enable_stamped_cmd_vel: true
-    controller_frequency: 10.0
+    controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.0
     min_theta_velocity_threshold: 0.001
@@ -43,13 +44,13 @@ controller_server:
 
       angular_dist_threshold: 1.2
       forward_sampling_distance: 0.3
-      rotate_to_heading_angular_vel: 1.5
-      max_angular_accel: 4.0
+      rotate_to_heading_angular_vel: 1.0
+      max_angular_accel: 2.5
       simulate_ahead_time: 1.0
       desired_linear_vel: 0.25
-      lookahead_dist: 0.40
-      min_lookahead_dist: 0.20
-      max_lookahead_dist: 0.50
+      lookahead_dist: 0.60
+      min_lookahead_dist: 0.35
+      max_lookahead_dist: 0.80
       lookahead_time: 1.5
       transform_tolerance: 0.5
       use_velocity_scaled_lookahead_dist: false
@@ -60,7 +61,7 @@ controller_server:
       use_regulated_linear_velocity_scaling: true
       use_cost_regulated_linear_velocity_scaling: false
       regulated_linear_scaling_min_radius: 0.9
-      regulated_linear_scaling_min_speed: 0.10
+      regulated_linear_scaling_min_speed: 0.15
       use_rotate_to_heading: false
       max_robot_pose_search_dist: 10.0
       use_interpolation: false
@@ -92,14 +93,14 @@ local_costmap:
         observation_sources: scan
         scan:
           topic: "$(var selected_laser_scan_topic)"
-          observation_persistence: 1.0
+          observation_persistence: 0.0
           min_obstacle_height: 0.0
           max_obstacle_height: 1.5
           clearing: True
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.60
+          obstacle_min_range: 0.70
           raytrace_max_range: 10.0
           raytrace_min_range: 0.60
           inf_is_valid: false
@@ -142,14 +143,14 @@ global_costmap:
         observation_sources: scan
         scan:
           topic: "$(var selected_laser_scan_topic)"
-          observation_persistence: 1.0
+          observation_persistence: 0.0
           min_obstacle_height: 0.0
           max_obstacle_height: 1.5
           clearing: True
           marking: True
           data_type: LaserScan
           obstacle_max_range: 8.0
-          obstacle_min_range: 0.60
+          obstacle_min_range: 0.70
           raytrace_max_range: 10.0
           raytrace_min_range: 0.60
           inf_is_valid: false
@@ -195,9 +196,9 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_timeout: 0.5
     simulate_ahead_time: 2.0
-    max_rotational_vel: 1.5
+    max_rotational_vel: 1.0
     min_rotational_vel: 0.3
-    rotational_acc_lim: 4.0
+    rotational_acc_lim: 2.5
 
 waypoint_follower:
   ros__parameters:
@@ -215,10 +216,10 @@ velocity_smoother:
     smoothing_frequency: 50.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [1.00, 0.0, 1.50]
-    min_velocity: [-1.00, 0.0, -1.50]
-    max_accel: [15.0, 0.0, 4.0]
-    max_decel: [-15.0, 0.0, -4.0]
+    max_velocity: [1.00, 0.0, 1.00]
+    min_velocity: [-1.00, 0.0, -1.00]
+    max_accel: [15.0, 0.0, 2.5]
+    max_decel: [-15.0, 0.0, -2.5]
     odom_topic: "$(var selected_odom_topic)"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
